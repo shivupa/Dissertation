@@ -1,0 +1,126 @@
+\documentclass[hidelinks,pdftex,phd]{pittetd} 
+\input{header.tex}
+
+\begin{document}
+
+\maketitle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\committeemember{Kenneth D. Jordan, Advisor Departmental Affiliation}
+\committeemember{Second member's name, Departmental Affiliation}
+\committeemember{Third member's name, Departmental Affiliation}
+\school{Department of Mathematics}
+\makecommittee
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\copyrightpage                     
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+The abstract of the document.
+This document is a sample file for the creation of ETD's at Pitt through \LaTeX.
+\end{abstract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\tableofcontents
+\listoftables                      
+\listoffigures                
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\phantomsection
+\preface
+This is the text of the preface, with acknowledgments, dedication, etc. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% MAIN DOCUMENT
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\include{chapters/chapter1/chapter1.tex}
+
+
+%The document begins by specifying the first 'chapter' with the command '\chapter{}
+\chapter{Introduction}%             
+We begin by saying that we do not really have much to say, but for the sake of clarity we divide our topic in chapters.
+
+% A table example
+An example of a table
+\begin{table}[h]
+\centering
+\caption{Caption: My Table}
+\label{Reference: Title of my Table}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Column 1 & Column 2 & Column 3 &\\ \hline
+Row 1 & Row 1 & Row 1 & Another Row\\ \hline
+Row 2 & Row 2 & Row 2 & Yup\\ \hline
+\end{tabular}
+\end{table}
+
+\section{First Section}
+% Remember to capitalize the sections (otherwise, the bookmark will be lowercase)
+The topic treated here, given its complexity, merits an additional subdivision.
+
+
+\subsection{First Subsection}
+This is well-known topic, and we shall discuss it no more.
+\section{Testing the template}
+I am trying to show how LaTeX works.
+But I don't want to start a new paragraph \\ yet.
+\cite{DUMMY:1}
+
+
+\chapter{Second chapter}
+The topics treated in this chapter can be somewhat obscure. For humanitarian considerations, the chapter will be subdivided.
+\section{First Section}
+% Cite Example
+% To cite a given article contained in the 'etdbib.bib' file you can use the '\cite' command with the name of the entry in the file
+This is a citation example for the Bibliography section.\cite{DUMMY:2}
+
+
+\subsection{First subsection of the section}
+
+\begin{equation} \label{EQ1}
+     1 + e^{i \pi} = 0.
+\end{equation}
+\subsubsection{First subsubsection of the subsection}
+\subsection{Second subsection of the section}
+This is a very complicated topic and we shall discuss it in our next paper.\cite{DUMMY:11}
+\footnote{Test}
+\subsubsection{Second subsubsection of the subsection}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\cite{DUMMY:3} Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\cite{DUMMY:4} Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\cite{DUMMY:5}
+
+
+\chapter{Conclusions}
+This is the third chapter of the present dissertation.\cite{DUMMY:6} It is more interesting than the first two, for it is the last one.\cite{DUMMY:7}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\cite{DUMMY:8} Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\cite{DUMMY:9} Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\cite{DUMMY:10} Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+
+
+%==========================================================================================%
+% APPENDIX
+%==========================================================================================%
+\appendix     
+%After this command, chapters will be formatted as appendices. 
+\chapter{Examples and Results}
+%==========================================================================================%
+%==========================================================================================%
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Images/Picture-Example.jpg}
+    \caption{Caption: Image Example}
+    
+    \label{Reference: Picture Example}
+\end{figure}
+
+\chapter{Second Appendix}
+
+
+
+%==========================================================================================%
+% BIBLIOGRAPHY
+%==========================================================================================%
+\safebibliography{references.bib}
+\bibliographystyle{plain}
+%==========================================================================================%
+%==========================================================================================%
+
+
+\end{document}
