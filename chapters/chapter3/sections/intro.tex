@@ -1,0 +1,30 @@
+\section{Introduction}
+% TODO edit here
+In recent years, there has been growing interest in a class of anions known as non-valence correlation-bound (NVCB) anions in which long-range correlation effects are crucial for the binding of the excess electron. \cite{Arai_H2O4_1,Arai_H2O4_2,Arai_NaCl, verlet_1,verlet_2,verlet_3,verlet_4,voora_c60_1,voora_c60_2,voora_c6f6,taehoon_c60,voora_pah,sommerfeld_nacl,cederbaum_2011}
+By definition, NVCB anions are unbound in the Hartree-Fock (HF) approximation.
+Due to their highly spatially extended charge distributions, large, flexible basis sets are required for the theoretical characterization of NVCB anions.
+However, with such basis sets, the wave function from Hartree-Fock (HF) calculations on the excess electron system collapses onto the neutral plus an electron in an orbital that can be viewed as a discretized representation of a continuum solution.\cite{Arai_H2O4_1}
+Methods that start from the HF wave function including second-order M{\o}ller-Plesset perturbation theory (MP2)\cite{MP2} or coupled-cluster singles and doubles with perturbative triples (CCSD(T))\cite{CCSDpT} do not recover from this collapse onto the continuum, while methods such as orbital-optimized MP2 (OOMP2)\cite{OOMP2} or Bruckner coupled-cluster\cite{BCC} can overcome this problem.\cite{Arai_H2O4_1}
+The majority of calculations of NVCB anions have employed the equation-of-motion coupled-cluster singles and doubles (EOM-CCSD) method.\cite{EOMCCSD}
+Among the NVCB anions studied computationally to date are \ce{C60}, \ce{C6F6}, TCNE, \ce{(NaCl)2}, \ce{Xe_{n}} clusters, large polyaromatic hydrocarbons, and certain \ce{(H2O)_{n}} clusters.\cite{Arai_H2O4_1,Arai_H2O4_2,Arai_NaCl,voora_c60_1,voora_c60_2,voora_c6f6,taehoon_c60,voora_pah,sommerfeld_nacl,cederbaum_2011}
+
+
+The EOM-CCSD method displays an $\mathcal{O}(N^6)$ scaling with system size, and higher order EOM-CC methods are even more computationally demanding.
+As a result, most of the calculations of NVCB anions carried out to date have not been fully converged with respect to basis set or the level of excitations treated in the EOM procedure.
+We note, however, that by using domain-based local pair natural orbitals (DLPNO), electron affinity EOM-CCSD calculations have recently been carried out on systems described by up to 4,500 basis functions.\cite{dutta_dlpno_ea_eom_ccsd}
+
+In the present work, we apply two quantum Monte Carlo (QMC) methods to the problem of calculating the electron binding energy (EBE) of the non-valence anion of a model \ce{(H2O)_4} cluster.
+The first approach considered is fixed-node diffusion Monte Carlo (DMC),\cite{grimm_monte-carlo_1971,anderson_randomwalk_1975,anderson_quantum_1976,foulkes_quantum_2001} using various single Slater determinant (SD) and multideterminant (MD) trial wave functions.
+DMC is a real-space method, with the major sources of error resulting from the use of finite time steps and the fixed-node approximation. 
+The finite time step error can be largely eliminated by running calculations at different time steps and then extrapolating to the zero time step limit.
+The fixed-node error results from imposition of a nodal surface via a trial wave function, which is necessary to ensure Fermionic behavior, and can be addressed by a variety of means including expanding the number of Slater determinants in the trial wave function or by applying the backflow transformation.\cite{backflow}
+It is important to note that, by virtue of working in real space, fixed-node DMC energies are much less sensitive to the choice of the atomic basis set than methods such as EOM-CCSD that operate in a space of Slater determinants.
+
+The second QMC approach considered is the auxiliary field QMC (AFQMC) method.\cite{AFQMC_1, AFQMC_2, AFQMC_3, zhang_quantum_2003, zhang_constrained_1997,motta2018ab,zhang2020ab}
+AFQMC calculations sample an over-complete space of nonorthogonal Slater determinants.
+The finite time step error can be mitigated as in DMC.  The error that arises from constraining the phase of the wave function to zero can be systematically reduced by improving the trial wave function. 
+Phaseless AFQMC is additionally subject to the limitations of the atomic basis set employed.
+DMC scales as $\sim\mathcal{O}(N^3)$ with system size, while AFQMC displays an $\sim\mathcal{O}(N^4)$ scaling in most implementations. 
+One of the goals of these calculations is to determine whether DMC calculations can recover from the use of a trial wave function that has collapsed onto a discretized continuum orbital in the case of the excess electron.
+Additionally, we explore whether correlation effects that are missing in EOM-CCSD are important for electron binding.
+

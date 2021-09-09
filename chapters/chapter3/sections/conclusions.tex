@@ -1,0 +1,14 @@
+\section{Conclusions}
+% TODO edit here
+In this study we have applied various EOM-CC methods and two different quantum Monte Carlo methods to calculate the EBE of a model \ce{(H2O)4} cluster at two geometries, one at which the anion is bound in the HF approximation and the other at which it is not.
+Diffusion Monte Carlo calculations using single determinant trial functions based on Hartree-Fock orbitals are shown to bind the excess electron even when the initial wave function for the anion has collapsed onto the neutral plus discretized continuum orbital. 
+However, such calculations significantly underestimate the EBE, whereas SD DMC calculations using trial wave functions for the anion with a more realistic charge distribution for the excess electron give larger EBE values that are in close agreement with our best estimate EOM-CCSDT values for both geometries considered.
+
+For R = \SI{4}{\angstrom}, at which the anion is correlation bound, use of such trial wave functions accurately reflecting the physical charge density resulted in AFQMC-predicted EBE values in agreement with the EOM-CCSD(T)(a)$^*$ result (when using comparable basis sets). 
+However, at R = \SI{7}{\angstrom}, AFQMC calculations with HF trial wave functions significantly overestimate the EBE compared to EOM-CC and DMC values, suggesting the need for an improved trial wave functions in this case.
+For the \ce{(H2O)4} model system, the restricted SDCI represents an economical way to create trial wave functions for QMC calculations on non-valence anions that are not bound in the Hartree-Fock approximation. 
+However, it remains to be seen if this strategy will be as effective for systems in which the neutral species is more strongly correlated than the model \ce{(H2O)4} cluster.
+
+Finally, we note that at R = \SI{4}{\angstrom}, for which the anion is NVCB in nature, the most frequently used method to characterize such anions, EOM-CCSD, underestimates the EBE by about 10\% compared to the result of EOM-CCSDT calculations. 
+Both DMC and AFQMC are viable alternatives to high order EOM methods, and while more computationally demanding for the \ce{(H2O)4} cluster, they demonstrate lower scaling with system size than EOM methods, making them attractive for the characterization of non-valence anions of much larger systems.
+
