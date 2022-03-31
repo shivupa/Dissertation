@@ -1,0 +1,24 @@
+\section{Introduction}
+% TODO edit here
+The unique electronic, optical, and transport properties of graphene make it an important system for a wide range of applications, many of which involve or are impacted by the adsorption of atoms or molecules.
+To bring these applications to fruition, a deeper understanding of the interaction of atoms and molecules with graphene is required, and, not surprisingly, this has been the subject of several experimental and theoretical studies. \cite{doi:10.1021/acs.jpca.0c06595,10.1016/j.carbon.2021.02.056,10.1063/1.3569134,shin_diffusion_2019,10.1103/PhysRevB.84.033402, D1CP02473F,doi:10.1126/science.1158877,10.1038/nature04233,Alekseeva2020,10.1016/j.rser.2015.05.011,reactions2030014,doi:10.1063/1.2963976,doi:10.1021/nl801417w}
+
+The adsorption of H atoms on graphene has been the subject of multiple studies.\cite{doi:10.1016/j.cplett.2010.10.1002/wcms.136010.027,10.1063/1.3569134,10.1016/j.rser.2015.05.011,reactions2030014,doi:10.1063/1.2963976,doi:10.1021/nl801417w}
+It is known that there is both a weakly absorbed state in which barriers for diffusion are small and a much more strongly bound chemisorbed state \cite{SHA2002318,JELOAICA1999157}, which is the focus of this work.
+Chemisorbed H atoms open up the band gap and allow for tuning of electronic properties. \cite{10.1007/s40089-017-0203-5}
+It has been demonstrated that even a single chemisorbed hydrogen atom causes an extended magnetic moment in the graphene sheet.\cite{gonzalez-herrero_atomic-scale_2016,GonzlezHerrero2019} 
+On the other hand, there is evidence that given the ready diffusion of H in the physisorbed state, the H atoms tend to pair up on the surface leading to non-magnetic species.\cite{10.1088/2053-1583/ab03a0}
+Finally, interest in the hydrogen/graphene system has  also been motivated by the potential use of graphene and graphitic surfaces for hydrogen storage.\cite{Alekseeva2020}
+In spite of the interest in H chemisorbed on graphene, we are unaware of experimental values of the binding energy.
+
+Most computational studies of adsorption of atoms and molecules on graphene have employed density functional theory (DFT), primarily due to its favorable scaling with system size, allowing for the treatment of larger periodic structures.
+However, a reliable theoretical description of interactions at the graphene surface has proven to be challenging for DFT.\cite{doi:10.1021/acs.jpca.0c06595,10.1016/j.carbon.2021.02.056,10.1063/1.3569134,doi:10.1063/1.4977994}
+In recent years considerable progress has been made in extending correlated wave function methods to periodic systems. \cite{doi:10.1063/1.5091445,doi:10.1063/5.0049890,10.1038/nature11770,doi:10.1063/5.0036363, doi:10.1063/5.0021036,doi:10.1063/1.4976937}
+Among these methods, the diffusion Monte Carlo (DMC)\cite{foulkes01} method, which  is a real-space stochastic approach to solving the many-body Schr{\"o}dinger equation is particularly attractive given its low scaling with the number of electrons and high parallelizability.
+DMC also has the advantages of being systematically improvable and its energy being much less sensitive to the basis set employed than methods that work in the space of Slater determinants. In DMC calculations, the atomic basis set is important only to the extent that it impacts the nodal surface.
+DMC has been used to describe the adsorption of various species on graphene including \ce{O2}\cite{shin_diffusion_2019}, a water molecule\cite{10.1103/PhysRevB.84.033402,doi:10.1021/acs.jpclett.8b03679}, and a platinum atom.\cite{D1CP02473F}
+In a study of a physisorbed H atom on graphene, Ma et al.~found that different DFT functionals gave binding energies ranging from 5 to 97 meV, while DMC calculations gave a value of only 5 $\pm$ 5 meV.\cite{10.1063/1.3569134}
+Various DFT calculations utilizing the Perdew-Burke-Ernzerhof (PBE)\cite{10.1103/PhysRevLett.77.3865} and Perdew-Wang (PW91)\cite{PW91} functionals predict the chemisorbed H atom species to be bound by 480 to 1,440 meV.\cite{10.1016/j.carbon.2006.09.027, doi:10.1063/1.3187941, 10.1103/PhysRevLett.93.187202, 10.1103/PhysRevB.78.041402, doi:10.1063/1.3072333, 10.1088/0957-4484/19/15/155708,10.1088/1742-6596/100/5/052087, 10.1016/j.jmmm.2009.11.014,PhysRevB.77.035427}
+However, this large spread is primarily a result of some calculations employing small supercells resulting in an unphysical description of the low-coverage situation, too small a $k$-point grid, or small atom-localized basis sets that do not adequately describe the binding and introduce large basis set superposition error (BSSE).
+In the present work, we use the DMC method to calculate the binding energy of H to graphene in the chemisorbed state.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
