@@ -2,7 +2,7 @@
 \section{Methods}
 All calculations reported in this study used a 5x5x1 supercell of graphene, 
 as it was large enough to make inconsequential the interaction between periodic images of the adsorbed hydrogen atom and to assure that there are essentially unperturbed C atoms between the buckled regions in adjacent images in the $x$ and $y$ directions.
-The geometries of graphene, both pristine and with a chemisorbed H atom, were provided by Kim et al.,\cite{doi:10.1021/acsami.1c21821} and were obtained using the PBE+D3 DFT method.\cite{doi:10.1063/1.3382344,10.1103/PhysRevLett.77.3865} 
+The geometries of graphene, both pristine and with a chemisorbed H atom, were provided by Kim et al.,\cite{10.1021/acsami.1c21821} and were obtained using the PBE+D3 DFT method.\cite{10.1063/1.3382344,10.1103/PhysRevLett.77.3865} 
 For all systems, a vacuum spacing of \SI{16}{\angstrom} was used.
 
 \subsection{Density functional theory calculations}
@@ -10,15 +10,15 @@ The single particle orbitals used in the trial wave functions for variational Mo
 Monkhorst-Pack $k$-point grid meshes\cite{PhysRevB.13.5188} were employed with a 13.6 meV Marzari-Vanderbilt-DeVita-Payne cold smearing of the occupations.\cite{PhysRevLett.82.3296}
 The PBE results were converged at a 6x6x1 $k$-point grid to 1 meV for graphene and graphene with an adsorbed hydrogen atom. The hydrogen atom trial was generated using a 1x1x1 $k$-point grid. Convergence studies can be found in Table S1 and S2 of the Supplementary Material.
 
-In addition to the PBE calculations used to generate the trial wave functions for DMC, DFT calculations were carried out with the PBE0\cite{doi:10.1063/1.478522} and Heyd–Scuseria–Ernzerhof (HSE) functionals\cite{doi:10.1063/1.2404663} to determine if inclusion of exact exchange proves important for the adsorption energy.
+In addition to the PBE calculations used to generate the trial wave functions for DMC, DFT calculations were carried out with the PBE0\cite{10.1063/1.478522} and Heyd–Scuseria–Ernzerhof (HSE) functionals\cite{10.1063/1.2404663} to determine if inclusion of exact exchange proves important for the adsorption energy.
 Due to the inclusion of exact exchange, these calculations would be computationally prohibitive in a plane wave basis, particularly with the high energetic cutoff required by the ccECP pseudopotential.
 For this reason, they were carried out all-electron with the POB-TZVP Gaussian type orbital (GTO) basis set.\cite{Peintinger2012-ff}
 Due to the use of GTOs, these calculations suffer from basis set superposition error (BSSE), which we corrected using Grimme's geometry-dependent counterpoise correction scheme.\cite{KruseGrimme2012,Brandenburg2013} This correction resulted in a 113 meV reduction in the magnitude of the binding energy when using the PBE0 functional.
 For the PBE0 and HSE calculations, a 12x12x1 $k$-point grid was used to assure binding energies converged to within 2meV.
 Convergence data are supplied in Table S3 of the Supplementary Material.
 
-The plane wave DFT calculations were carried out with the QUANTUM ESPRESSO version 6.3 code.\cite{doi:10.1063/5.0005082,QE-2009,QE-2017}
-The Gaussian basis DFT calculations were carried out with CRYSTAL17,\cite{10.1002/wcms.1360,doi:10.1063/5.0004892} save for the HSE calculation of the isolated hydrogen atom which was carried out using NWChem version 6.8\cite{NWCHEM} using the same basis as the calculations in CRYSTAL17.
+The plane wave DFT calculations were carried out with the QUANTUM ESPRESSO version 6.3 code.\cite{10.1063/5.0005082,QE-2009,QE-2017}
+The Gaussian basis DFT calculations were carried out with CRYSTAL17,\cite{10.1002/wcms.1360,10.1063/5.0004892} save for the HSE calculation of the isolated hydrogen atom which was carried out using NWChem version 6.8\cite{NWCHEM} using the same basis as the calculations in CRYSTAL17.
 
 \subsection{Quantum Monte Carlo calculations}
 DMC is a projector quantum Monte Carlo (QMC) method, solving the Schr\"{o}dinger equation in imaginary time $\tau=it$; any initial state $\ket{\psi}$, that is not orthogonal to the true ground state $\ket{\phi_0}$ , will evolve to the ground state in the long time limit.
@@ -52,7 +52,7 @@ E_b=E_{dgr+H}-(E_{gr}+E_{H})
 \label{eq:binding}
 \end{equation}
 where $E_{dgr+H}$ is the energy of the distorted graphene sheet with a chemisorbed atomic hydrogen, $E_H$ is the energy of a hydrogen atom, and $E_{gr}$ is the energy of a pristine graphene sheet.
-In the chemisorbed state, the hydrogen atom bonds directly over a carbon atom, causing this carbon to be pulled out of the sheet towards the hydrogen.\cite{doi:10.1063/1.4896611,doi:10.1126/science.aaw6378} 
+In the chemisorbed state, the hydrogen atom bonds directly over a carbon atom, causing this carbon to be pulled out of the sheet towards the hydrogen.\cite{10.1063/1.4896611,10.1126/science.aaw6378} 
 The adjacent carbons are also pulled in the direction of the hydrogen leading to a distorted graphene sheet.
 
 
