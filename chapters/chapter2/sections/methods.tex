@@ -4,7 +4,7 @@ In order to compute the EBEs, the neutral geometries were first optimized using 
 Hartree-Fock (HF) wave functions were then generated in Gaussian 09, GAMESS,\cite{10.1002/jcc.540141112,10.1016/B978-044451719-7/50084-6} or NWChem\cite{10.1016/j.cpc.2010.04.018} for use as trial wave functions, which guide sampling and curb the growth of the sign/phase problem, an exponential decay in the signal to noise ratio, in DMC and AFQMC \cite{10.1063/1.431514,10.1007/BF01030009}.
 In order to obtain stable dipole-bound anions, it is essential to use flexible basis sets with very diffuse basis functions. 
 Here, we use the aug-cc-pVDZ basis set augmented with a set of diffuse $s$ and $p$ functions, and in one case, also $d$ functions, located near the positive end of the dipole\cite{10.1103/PhysRevA.54.1906}. 
-DMC\cite{10.1103/RevModPhys.73.33,10.1088/0953-8984/22/2/023201,10.1016/bs.aiq.2015.07.003} and AFQMC\cite{10.1002/wcms.1364, Zhang_AFQMC_BookChapter } are performed on all of the species studied. %no doi for this citation
+DMC\cite{10.1103/RevModPhys.73.33, 10.1088/0953-8984/22/2/023201, 10.1016/bs.aiq.2015.07.003} and AFQMC\cite{10.1002/wcms.1364, Zhang_AFQMC_BookChapter} are performed on all of the species studied. %no doi for this citation
 DMC calculations were conducted using the CASINO package\cite{10.1088/0953-8984/22/2/023201,10.1103/PhysRevB.72.085124}. Averages were obtained by sampling the configurations of 4650 walkers for 500,000 or more propagation steps. 
 In order to obtain DMC energies in the zero time-step ($\Delta \tau \rightarrow 0$) limit, DMC simulations were conducted at three different time step sizes and then linearly extrapolated to zero time-step to yield the final values reported. 
 

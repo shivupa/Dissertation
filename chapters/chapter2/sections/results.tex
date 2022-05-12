@@ -12,18 +12,18 @@
 &\multirow{2}*{} & \multicolumn{5}{c|}{{\bf Electron Binding Energy (cm$^{-1}$)} }\\
 \cline {3-7}
 & {\bf Dipole Moment (D)} & {\bf Experiment} & {\bf $\Delta$SCF\textsuperscript{\emph{a}}} & {\bf CCSD(T)\textsuperscript{\emph{a}}} & {\bf DMC\textsuperscript{\emph{b}}} & {\bf C-AFQMC\textsuperscript{\emph{c}}}\\ 
+\hline % exp-dipole citation has no doi
+{\bf SO} &1.55\cite{exp-dipole} &NOT-BOUND &-3.84  &-4.13 &-308.20 $\pm$ 70.82 &-4.54 $\pm$ 0.64\\
 \hline
-{\bf SO} &1.55\cite{database_dipole_moment} &NOT-BOUND &-3.84  &-4.13 &-308.20 $\pm$ 70.82 &-4.54 $\pm$ 0.64\\
+{\bf HCN} &2.98\cite{exp-dipole} &13\cite{10.1016/j.cplett.2009.04.007} &11.00 &7.44 &46.17 $\pm$ 45.30 &10.80 $\pm$ 2.95\\
 \hline
-{\bf HCN} &2.98\cite{database_dipole_moment} &13\cite{Ard_Stepanian_CPL_2009} &11.00 &7.44 &46.17 $\pm$ 45.30 &10.80 $\pm$ 2.95\\
+{\bf CH$_2$CHCN}  &3.87\cite{exp-dipole} &56 - 87\cite{10.1103/PhysRevLett.73.2436,10.1103/PhysRevA.51.3667} &43.30 &61.87 &106.63 $\pm$ 58.12 &65.70 $\pm$ 11.03 \\
 \hline
-{\bf CH$_2$CHCN}  &3.87\cite{database_dipole_moment} &56 - 87\cite{10.1103/PhysRevLett.73.2436,Desfrancois_PRA_1995} &43.30 &61.87 &106.63 $\pm$ 58.12 &65.70 $\pm$ 11.03 \\
+{\bf CH$_3$CN} &3.92\cite{exp-dipole} &93 - 145\cite{10.1103/PhysRevLett.73.2436,10.1103/PhysRevA.51.3667} &50.83 &103.00 &93.83 $\pm$ 36.21 &95.85 $\pm$ 9.73 \\
 \hline
-{\bf CH$_3$CN} &3.92\cite{database_dipole_moment} &93 - 145\cite{10.1103/PhysRevLett.73.2436,Desfrancois_PRA_1995} &50.83 &103.00 &93.83 $\pm$ 36.21 &95.85 $\pm$ 9.73 \\
+{\bf C$_3$H$_2$} &4.14\cite{10.1063/1.465007} &170 $\pm$ 50\cite{10.1063/1.472879} &54.61 &162.08 &151.22 $\pm$ 64.25\textsuperscript{\emph{d}} &132.45 $\pm$ 9.43\textsuperscript{\emph{e}}\\
 \hline
-{\bf C$_3$H$_2$} &4.14\cite{Gottlieb_Oswald_JCP_1993} &170 $\pm$ 50\cite{10.1063/1.472879} &54.61 &162.08 &151.22 $\pm$ 64.25\textsuperscript{\emph{d}} &132.45 $\pm$ 9.43\textsuperscript{\emph{e}}\\
-\hline
-{\bf C$_3$H$_2$O$_3$} &4.55\cite{database_dipole_moment} &194 $\pm$ 24\cite{Hammer_Jordan_JCP_2004} &103.13 &163.31 &213.98 $\pm$ 116.15 &157.70 $\pm$ 17.96 \\
+{\bf C$_3$H$_2$O$_3$} &4.55\cite{exp-dipole} &194 $\pm$ 24\cite{10.1063/1.1629669} &103.13 &163.31 &213.98 $\pm$ 116.15 &157.70 $\pm$ 17.96 \\
 \hline
 \end{tabular}}
 \caption{EBEs and dipole moments of selected species from experiment and Self-Consistent Field [HF], Coupled Cluster [CCSD(T)], DMC, and C-AFQMC calculations.}
@@ -35,7 +35,7 @@
 \label{t1}
 \end{table*}
 %%%% end table----------------------------------------------
-While DMC has been successfully employed to calculate cluster binding energies,\cite{Xu_JPCA_2010,Wang_JPCA_2013} here we analyze its performance predicting the electron binding energies of molecular dipole-bound anions. As an initial test, we examined whether DMC could faithfully predict whether a given species binds an extra electron or not. Thus, in addition to considering several species known to form dipole-bound anions, we also consider SO, a molecule with a dipole moment of 1.55 D, which is below the threshold required for binding. Our results are summarized in Table \ref{t1}. DMC calculations correctly predicted that all of the species studied, except SO, would form dipole-bound anions. 
+While DMC has been successfully employed to calculate cluster binding energies,\cite{10.1021/jp9066108,10.1021/jp404541c} here we analyze its performance predicting the electron binding energies of molecular dipole-bound anions. As an initial test, we examined whether DMC could faithfully predict whether a given species binds an extra electron or not. Thus, in addition to considering several species known to form dipole-bound anions, we also consider SO, a molecule with a dipole moment of 1.55 D, which is below the threshold required for binding. Our results are summarized in Table \ref{t1}. DMC calculations correctly predicted that all of the species studied, except SO, would form dipole-bound anions. 
 
 In Figure \ref{f1}, the charge densities of neutral CH$_{3}$CN, the CH$_{3}$CN anion, and the SO molecule plus an extra electron are compared. While the DMC charge density for the neutral CH$_{3}$CN molecule is highly localized in the molecular region, that of the anion is far more diffuse and protrudes continuously out from the positive side of the dipole. The charge density plots of the other dipole-bound anions considered in this work manifest similar features and are reported in the Supplemental Information. In stark contrast, the charge density of SO plus an extra electron consists of two disjoint contributions -- one associated with the neutral molecule and a second representative of an additional unbound electron positioned more than 50 $\mbox{\AA}$ from the molecule. 
 %%%% begin figure-----------------------------------------
