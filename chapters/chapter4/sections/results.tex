@@ -8,10 +8,10 @@
     \begin{tabular}{lr}%\hline%\toprule
     Method & Binding energy\\\hline \\\\[-2em]%
     \multicolumn{2}{c}{\bfseries This Work} \\
-    PBE \footnote{\label{pw}Calculation was done in the plane wave basis} & -821\\ %-820.5815227
-    PBE\footnote{\label{gbs}Calculation was done in the Gaussian basis set with corrections for BSSE. Values in parentheses include a correction for the basis set incompleteness as described in the text.} & -871\\ 
-    PBE0\textsuperscript{\ref{gbs}}& -851 (-800)\\ 
-    HSE\textsuperscript{\ref{gbs}}& -794 (-743)\\ 
+    PBE \tnote{1} & -821\\ %-820.5815227
+    PBE\tnote{2} & -871\\ 
+    PBE0\tnote{2}& -851 (-800)\\ 
+    HSE\tnote{2}& -794 (-743)\\ 
     DMC  & -691 $\pm$ 19 \\ \hline \\\\[-2em]%-690.8154569 $\pm$ 18.61340357
     \multicolumn{2}{c}{\bfseries Previous Work}\\
     PW91  &  -810 to -830\cite{10.1063/1.3187941}, -870\cite{10.1103/PhysRevLett.93.187202}\\
@@ -19,6 +19,11 @@
      \hline%\bottomrule
     \end{tabular}
 \label{tab:summary_energetics}
+\begin{tablenotes}
+\item[1] Calculation was done in the plane wave basis.
+\item[2] Calculation was done in the Gaussian basis set with corrections for BSSE. Values in parentheses include a correction for the basis set incompleteness as described in the text.
+\end{tablenotes}
+
  \end{table}
  
 
