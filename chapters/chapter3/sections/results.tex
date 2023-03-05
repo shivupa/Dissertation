@@ -20,9 +20,9 @@ This is not surprising since this calculation neglects correlation effects other
 What is important is that the approaches based on the restricted SDCI procedure provide a realistic description of the orbital occupied by the excess electron and avoid the collapse onto the discretized continuum as was observed with the HOMO in the HF calculations. 
 
 % checked by shiv 9/24/20 14:16
-\begin{table}
+\begin{table}[ht!]
     \caption{\label{tab:EOM} EBEs of the \ce{(H2O)4} model calculated using HF, EOM, and AFQMC methods and employing the aug-cc-pVTZ+7s7p basis set.}
-%\begin{ruledtabular}
+\begin{threeparttable}
 \begin{tabular}{lr}
 Method & EBE (meV)                               \\
 \hline
@@ -44,7 +44,7 @@ AFQMC SD/HF     & 181 $\pm$ 5 \\
 \item[1] This EOM-CCSDT/aug-cc-pVTZ+7s7p value was estimated by adding the difference of EBEs from the EOM-CCSD(T)(a)$^*$ and eom-ccsdt calculations with the aug-cc-pVDZ+3s1p basis set to the value from EOM-CCSD(T)(a)$^*$/aug-cc-pVTZ+7s7p.
 \item[2] The EOM-CCSDT/aug-cc-pVTZ+7s7p3d value was estimated by adding the difference between the EBEs calculated with the eom-ccsdpt(a)$^*$ with the aug-cc-pVTZ+3s1p and aug-cc-pVTZ+3s1p3d basis sets to the eom-ccsdt/aug-cc-pVTZ+7s7p estimated value in footnote [1] to assess the effect of incorporating diffuse d functions into the basis.
 \end{tablenotes}
-%\end{ruledtabular}
+\end{threeparttable}
 \end{table}
 
 In light of the close agreement between the EOM-CCSD(T)(a)$^*$ and AFQMC values of the EBE of the \ce{(H2O)4} model at R = \SI{4}{\angstrom}, when using a comparable basis sets in the two approaches it is relevant to determine whether DMC calculations with sufficiently flexible trial wave functions give an EBE close to the AFQMC and EOM values consistent with these results.
@@ -54,8 +54,8 @@ However, if the aug diffuse functions are also removed, the DMC calculations fai
 We believe that this is a consequence of the fact that with the cc-pVDZ basis set there is a near zero probability of sampling regions of space at large distances from the molecule, which are important for describing the charge distribution of the excess electron.
 % checked by SU and AD 9/24/20 18:31
 \begin{table}
-    \caption{\label{tab:DMC} EBEs of the \ce{(H2O)4} model calculated using the DMC method and various trial wave functions.\protect\footnote{SD/X indicates that the trial wave function employed a single Slater determinant with X (either HF or B3LYP) orbitals. When different types of trial wave functions are used for the neutral (N) and anion (A) this is indicated by the double slash.}}
-%\begin{ruledtabular}
+    \begin{threeparttable}
+        \caption{\label{tab:DMC} EBEs of the \ce{(H2O)4} model calculated using the DMC method and various trial wave functions.\tnote{1}}
     \begin{tabular}{llr}
 wave function                  & basis set        &  EBE (meV) \\ \hline
 \multicolumn{3}{c}{R = \SI{4.0}{\angstrom}}               \\ 
@@ -72,7 +72,10 @@ SD/B3LYP                      & aug-cc-pVDZ+7s7p &   164 $\pm$ 9 \\
 SD/HF(N)//SD/NO SDCI(A)    & aug-cc-pVDZ+7s7p &  160 $\pm$ 9 \\
 MD/CIPSI NO                   & aug-cc-pVDZ+3s1p &    159 $\pm$ 8 \\
 \end{tabular}
-%\end{ruledtabular}
+\begin{tablenotes}
+  \item [1] SD/X indicates that the trial wave function employed a single Slater determinant with X (either HF or B3LYP) orbitals. When different types of trial wave functions are used for the neutral (N) and anion (A) this is indicated by the double slash.
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 A significantly larger value of the EBE is obtained from SD DMC calculations using B3LYP orbitals in place of HF orbitals.
