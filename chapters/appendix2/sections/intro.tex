@@ -1,0 +1,129 @@
+\section{Introduction}
+\label{sec:intro}
+Quantum computing is a promising computing paradigm that has the potential to solve problems that cannot be handled by classical computers in a feasible amount of time~\cite{10.1038/s41567-018-0124-x}. In the past decade, there has been steady progress towards building a large quantum computer. The number of qubits in a real quantum machine has increased from 14 in 2011 \cite{10.1103/PhysRevLett.106.130506} to 76 in 2020 \cite{10.1126/science.abe8770}. 
+IBM promises 1000 qubits quantum machine by the year 2023~\cite{IBM2023}. 
+Despite this rapid progress, current quantum computing is still positioned in the Noisy Intermediate-Scale Quantum (NISQ) era where the public has very limited access to quantum machines. 
+These machines are also constrained by the limited number of qubits, short lifetimes of qubits, and imperfect operations~\cite{10.22331/q-2018-08-06-79}. 
+Thus, quantum circuit simulation (QCS) toolsets provide an essential platform to satisfy many needs, e.g., developing many different algorithms with a large number of qubits, validating and evaluating newly proposed quantum circuits, and design space exploration of future quantum machine architectures. 
+Many companies, such as IBM, Google, Intel, and Microsoft have developed their quantum circuit simulators to provide precise end-end simulation.  
+
+
+In general, QCS is challenging as it is both compute-intensive and memory-intensive~\cite{10.1109/HPCA51647.2021.00026,10.1109/DAC18072.2020.9218591}. 
+The reasons are: i) fully and accurately tracking the evolution of quantum system through classical simulation \cite{10.1007/978-3-031-01765-0} requires storing all the quantum state amplitudes, which carries a memory cost that grows exponentially as the number of qubits in the simulated quantum circuit increases, and ii) applying a gate within a quantum circuit requires a traversal of all the stored state amplitudes,  leading to exponentially scaling computational complexity.  
+Modern GPUs have been used to fuel QCS in high-performance computing (HPC) platforms. Specifically, when applying a gate to a $n$-qubit quantum circuit, the $2^n$ state amplitudes are evenly divided into groups, and each group of amplitudes is updated independently in parallel by GPU threads. 
+However, the promising parallelism of GPUs is diminished by the limited GPU on-board memory capacity. For example, simulating a quantum circuit with 34 qubits requires 256 GB of memory to store state amplitudes, which is beyond the memory capacity of any modern GPUs. 
+
+
+There exist several works optimizing QCS, including multi-GPU supported simulation~\cite{10.1109/SC41405.2020.00017,10.1007/978-3-319-68505-2_8}, OpenMP and MPI based CPU simulation~\cite{10.1145/3126908.3126947,10.1145/3295500.3356155,10.48550/arXiv.1710.05867}, and CPU-GPU collaborative simulation~\cite{10.1145/3310273.3323053}. Most of these works focus on distributed simulation while failing to benefit from GPU execution due to the memory constraint. 
+In particular, our characterization shows that the state-of-the-art GPU-based simulation~\cite{10.1145/3310273.3323053} has low GPU utilization when the number of qubits in the quantum circuit is large. As a result, most state amplitudes are stored and updated on the CPU, failing to take advantage of the GPU parallelization. Moreover, the static and unbalanced allocation of state amplitudes introduces frequent amplitude exchange between CPU and GPU, which introduces additional data movement and synchronization overheads. 
+
+
+\par In this paper, we aim to provide a high-performance and scalable QCS using GPUs.
+We propose \emph{Q-GPU}, a framework that significantly enhances the simulation performance for practical quantum circuits. The proposed framework leverages modern GPUs as the main execution engine and is featured with several end-to-end optimizations to fully take advantage of the rich computational parallelism on GPUs, while maintaining a minimum amount of data movement between the CPU and GPU. Specifically, our approach includes four optimizations. 
+First, instead of statically assigning state amplitudes on GPU and CPU as done in prior works~\cite{10.1145/3310273.3323053}, Q-GPU dynamically allocates groups of state amplitudes on the GPU and proactively exchanges the state amplitudes between CPU and GPU. Doing so maximizes the overlap of data transfer between CPU and GPU, thereby reducing the GPU idleness. 
+Second, Q-GPU prunes zero state amplitudes to avoid unnecessary data movement between CPU and GPU. 
+Third, we also propose compiler-assisted quantum gate reordering (complying with the gate dependencies) to enlarge the opportunity of pruning zero state amplitudes. 
+Finally, we propose efficient GPU-supported lossless data compression to further reduce data transfer caused by non-zero amplitudes. This paper makes the following contributions: 
+
+\begin{itemize}
+\item We use the popular IBM QISKit-Aer with its state-of-the-art CPU-GPU implementation~\cite{10.5281/zenodo.2562111}, and conduct an in-depth characterization of the simulation performance. We observe that the performance degrades significantly as the number of qubits increases due to the unbalanced amplitudes assignment, where most of the computation is done by the CPU. 
+\item We implement a dynamic state amplitude assignment to allow the GPU to update all state amplitudes. However, such an implementation did not provide any performance improvements and even worsened compared to the CPU execution due to the massive and expensive data movement between CPU and GPU.
+\item We propose Q-GPU, a framework comprising end-to-end optimizations to mitigate the data movement overheads and unleash the CPU capability in QCS. Specifically, the proposed Q-GPU is featured with the following major optimizations:
+i) dynamic state amplitudes allocation and proactive data exchange between CPU and GPU, ii) dynamic zero state amplitude ``pruning'', iii) dependency-aware quantum gate reordering to enlarge the potential of zero amplitude pruning, and iv) GPU-supported efficient lossless compression for non-zero amplitudes.
+\item We evaluate the proposed Q-GPU framework using eight practical quantum circuits. Experimental results indicate that in all circuits tested, Q-GPU significantly improves the QCS performance and outperforms the baseline by 2.53$\times$ on average. We also compare Q-GPU with Google Qsim-Cirq \cite{10.5281/zenodo.4023103} and Microsoft QDK \cite{msqdk}, and results show that Q-GPU approach outperforms Qsim-Cirq and QDK by 1.02$\times$ and 9.82$\times$, respectively.
+\end{itemize}
+ 
+
+\section{Background}
+\label{section-2}
+\subsection{Quantum Basics}
+
+Similar to the \textit{bit} concept in classical computation, quantum computation is built upon the \textit{quantum bit} or \textit{qubit} for short \cite{nielsen_chuang_2010}. A qubit is a two-level quantum system defined by two computational orthonormal basis states $|0\rangle$ and $|1\rangle$. A quantum state $|\psi\rangle$ can be expressed by any linear combination of the basis states. 
+\setlength{\abovedisplayskip}{1pt}
+\setlength{\belowdisplayskip}{1pt}
+\begin{equation}%\footnotesize
+|\psi\rangle = a_0|0\rangle + a_1|1\rangle,
+\label{eq-1}
+\end{equation}
+
+\noindent where $a_0$ and $a_1$ are complex numbers whose squares represent the probability amplitudes of basis states $|0\rangle$ and $|1\rangle$, respectively. Note that we have $|a_0|^2 + |a_1|^2 = 1$, meaning that after measurement, the read out of state $|\psi\rangle$ is either $|0\rangle$ or $|1\rangle$, with probabilities $|a_0|^2$ and $|a_1|^2$, respectively. The states of a quantum system are generally represented by \textit{state vectors} as
+
+\begin{equation}%\footnotesize
+|0\rangle = \begin{bmatrix} 1 \\ 0 \end{bmatrix}, |1\rangle = \begin{bmatrix} 0 \\ 1 \end{bmatrix}.
+\label{eq-2}
+\end{equation}
+
+\par To be more general, for an $n$-qubit system, there are $2^n$ state amplitudes. Then, the quantum state $|\psi\rangle$ can be expressed as a linear combination
+
+\begin{equation}%\footnotesize
+|\psi\rangle = a_{0\dots00}|0\dots00\rangle + a_{0\dots01}|0\dots01\rangle + \dots + a_{1\dots11}|1\dots11\rangle.
+\label{eq-3}
+\end{equation}
+
+\noindent Similarly, the state of a $n$-qubit system can also be represented by a state vector with $2^n$ dimensions as
+\begin{align}%\footnotesize
+\begin{split}
+|\psi\rangle & = a_{0\dots00}\begin{bmatrix} 1 \\ 0 \\ \vdots \\ 0 \end{bmatrix} + a_{0\dots01}\begin{bmatrix} 0 \\ 1 \\ \vdots \\ 0 \end{bmatrix} + \dots + a_{1\dots11}\begin{bmatrix} 0 \\ 0 \\ \vdots \\ 1 \end{bmatrix} =\begin{bmatrix} a_{0\dots00} \\ a_{0\dots01} \\ \vdots \\ a_{1\dots11} \end{bmatrix}.
+\label{eq-4}
+\end{split}
+\end{align}
+
+\par \textit{Quantum computation} describes changes occurring in this state vector. A quantum computer is built upon a \textit{quantum circuit} containing \textit{quantum gates} (or quantum operations), and a quantum algorithm is described by a specific quantum circuit. In simple terms, quantum gates are represented by unitary operations that are
+applied on qubits to map one quantum state to another. A quantum gate that acts on $k$ qubits is represented by a $2^k\times2^k$ unitary matrix. 
+
+\par To illustrate how a quantum gate is applied to a state vector, let us consider a $2$-qubit system with a Hadamard gate/operation operating on qubit $0$. A Hadamard gate can be represented as  
+
+\begin{equation}%\footnotesize
+H \equiv \frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix}.
+\end{equation}
+
+\noindent Then the state vector of this $2$-qubit system is updated through 
+
+\begin{equation}%\footnotesize
+\begin{bmatrix} a_{00}^{\prime} \\ a_{01}^{\prime} \end{bmatrix} = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} a_{00} \\ a_{01} \end{bmatrix},
+\end{equation}
+
+\begin{equation}%\footnotesize
+\begin{bmatrix} a_{10}^{\prime} \\ a_{11}^{\prime} \end{bmatrix} = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} a_{10} \\ a_{11} \end{bmatrix}.
+\end{equation}
+
+\noindent For an $n$-qubit system, when a $H$ gate is applied to qubit $j$ the amplitudes are transformed as \cite{10.1016/j.cpc.2006.08.007}:
+
+
+\begin{equation}
+\begin{bmatrix} a_{\times\dots\times0_{j}\times\dots\times}^{\prime} \\ a_{\times\dots\times1_{j}\times\dots\times}^{\prime} \end{bmatrix} = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} a_{\times\dots\times0_{j}\times\dots\times} \\ a_{\times\dots\times1_{j}\times\dots\times} \end{bmatrix}
+\label{eq:amplituesupdate}
+\end{equation}
+
+\noindent  
+Therefore, the indices of every pair of amplitudes have either 0 or 1 in the $j$th bit, while all other bits remain the same\footnote{``$\times$'' can be 0 or 1; the ``$\times$'' in the same position of $a_{\times\times\times\times\times\times\times0}$ and $a_{\times\times\times\times\times\times\times1}$ are the same.}. Note that each pair of amplitudes can be updated in parallel. 
+
+\subsection{Quantum Circuit Simulation (QCS)}
+
+The purpose of QCS is to mimic the dynamics of a quantum system \cite{10.1007/978-3-031-01765-0}, and to reproduce the outcomes of a quantum circuit with high accuracy. There are several approaches to simulating a quantum circuit, each offering different advantages and drawbacks. We summarize the three most widely used approaches below. 
+
+\begin{itemize}
+\item \textbf{Schr\"odinger style simulation:} Schr\"odinger simulation describes the evolution of a quantum system by tracking its quantum state. 
+It tracks the transformations of the state vector according to Equation \ref{eq:amplituesupdate}. 
+Note that one can also track the density matrix $\rho = |\psi\rangle\langle\psi|$, which is useful when measurement is required during  simulation \cite{10.1109/SC41405.2020.00017, 10.1007/978-3-031-01765-0}. In this work, we only consider quantum measurements at the end of circuits.
+
+\item \textbf{Stabilizer formalism:} Simulation based on the stabilizer formalism is efficient for a restricted class of quantum circuits \cite{10.1103/PhysRevA.70.052328,nielsen_chuang_2010,10.1007/978-3-031-01765-0}. Specifically, stabilizer circuits (a.k.a Clifford circuits) can be simulated in $O(poly(n))$ space and time costs. Rather than tracking the state vector, the quantum state is uniquely represented and tracked by its stabilizers, which is essentially a group of operators derived from the Clifford group. A detailed description can be found in \cite{10.1103/PhysRevA.70.052328}.
+
+\item \textbf{Tensor network:}
+Tensor network simulators are useful when a single or few amplitudes of the full state vector are being updated as tensor networks~\cite{10.1371/journal.pone.0206704,10.48550/arXiv.2005.06787,10.1109/QCE53715.2022.00081,10.1137/050644756}.
+For example, one type of tensor network that are extremely common are matrix product states (MPS).
+When applied to a single amplitude in Equation \ref{eq-3}, the resulting state resembles a long string of matrix multiplications
+\begin{align}
+|\psi\rangle &= \sum_{j_0\dots j_{n-1}j_{n}} a_{j_0\dots j_{n-1}j_{n}}|j_0\dots j_{n-1}j_{n}\rangle \\
+ &= \sum_{j_0\dots j_{n-1}j_{n}} Tr[A^{j_0}\dots A^{j_{n-1}}A^{j_{n}}] |j_0\dots j_{n-1}j_{n}\rangle
+ \label{eq:TNS}
+\end{align}
+The matrices $A$ (rank-2 tensors) in Equation \ref{eq:TNS} can be thought of as a decomposition of the full coefficient tensor $a$.
+Despite the restriction of returning a limited number of amplitudes, tensor networks states are efficient as they compress the dimension of the problem from $O(2^n)$ to $O(nd^2)$ where $d$ is the dimension of the individual tensors in Equation \ref{eq:TNS}.
+\end{itemize} 
+
+Among all these simulation methods, Schr\"odinger style simulation is widely used as the mainstream simulation method, and has been widely adopted in prior research works \cite{10.1145/3126908.3126947, 10.1145/3295500.3356155,10.48550/arXiv.1910.09534,10.48550/arXiv.1710.05867,10.48550/arXiv.1601.07195,10.48550/arXiv.1804.04797,10.1109/HPCA51647.2021.00026,zotero-3528,10.1145/3310273.3323053,10.1016/j.cpc.2006.08.007}.
+Also, industrial quantum circuit simulators such as IBM QISKit \cite{10.5281/zenodo.2562111}, Google Qsim-Cirq \cite{10.48550/arXiv.1601.07195,10.1145/3126908.3126947} and Microsoft QDK~\cite{msqdk} 
+use full state vector simulations. 
+In this work, we build Q-GPU based on IBM QISKit-Aer, a high-performance C++ simulation backend of QISKit, since it contains the state-of-the-art GPU support.
+

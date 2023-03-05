@@ -1,0 +1,9 @@
+\section{Summary}
+In recent years, quantum computing has undergone significant developments and has established its supremacy in many application domains.
+Unfortunately, modern quantum computing is still positioned in the Noisy Intermediate-Scale Quantum (NISQ) era that is limited by the number of qubits, short qubit lifetime, and imperfect operations.
+While quantum hardware is accessible to the public through the cloud environment, a robust and efficient quantum circuit simulator is necessary to investigate the constraints and foster quantum computer development, such as quantum algorithm development and quantum device architecture exploration.
+In this paper, we observe that most of the publicly available quantum circuit simulators (e.g., QISKit from IBM) are not optimized and suffer from slow simulation and poor scalability.
+To this end, we systematically studied the deficiencies in modern quantum simulators and propose Q-GPU, a framework that leverages GPUs with comprehensive optimizations to allow efficient and scalable quantum circuit simulation (QCS).
+Specifically, Q-GPU features i) proactive state amplitude transfer, ii) zero state amplitudes pruning, iii) delayed qubit involvement, and iv) non-zero state compression.
+Experimental results across eight representative quantum circuits indicate that Q-GPU significantly improves the simulation performance over the state-of-the-art GPU-based QCS by 2.53$\times$ on average.
+It also outperforms the most recent OpenMP CPU implementation, the Google Qsim-Cirq simulator, and the Microsoft QDK simulator.

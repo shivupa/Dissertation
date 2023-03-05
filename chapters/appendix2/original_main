@@ -1,0 +1,1414 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This is the template for submission to MICRO 2021
+% The cls file is modified from 'sig-alternate.cls'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{sig-alternate}
+\usepackage{mathptmx} % This is Times font
+
+\usepackage{fancyhdr}
+\usepackage[normalem]{ulem}
+\usepackage[hyphens]{url}
+\usepackage[sort,nocompress]{cite}
+\usepackage[final]{microtype}
+\usepackage[keeplastbox]{flushend}
+% Always include hyperref last
+\usepackage[bookmarks=true,breaklinks=true,letterpaper=true,colorlinks,linkcolor=black,citecolor=blue,urlcolor=black]{hyperref}
+
+%%% Personal packages and definitions
+\usepackage[ruled, vlined, linesnumbered, commentsnumbered]{algorithm2e}
+% \usepackage{xcolor}
+\usepackage{color,soul}
+\usepackage{subcaption}
+\usepackage[labelfont=bf,textfont=bf]{caption}
+\usepackage{tikz}
+\usepackage[version=4]{mhchem}
+\usepackage{makecell}
+
+\newcommand{\squishlist}{
+   \begin{list}{$\bullet$}
+    { 
+    \setlength{\itemsep}{0pt}      \setlength{\parsep}{0pt}
+      \setlength{\topsep}{3pt}       \setlength{\partopsep}{0pt}
+      \setlength{\listparindent}{-2pt}
+      \setlength{\itemindent}{-5pt}
+      \setlength{\leftmargin}{1em} \setlength{\labelwidth}{0em}
+      \setlength{\labelsep}{0.5em} } }
+
+\newcommand{\squishend}{
+    \end{list}  }
+
+\input{macros}
+
+% \newcommand\mycommfont[1]{\small\ttfamily\textcolor{blue}{#1}}
+% \SetCommentSty{mycommfont}
+%%% Personal packages and definitions end
+
+% Ensure letter paper
+\pdfpagewidth=8.5in
+\pdfpageheight=11in
+
+%%%%%%%%%%%---SETME-----%%%%%%%%%%%%%
+\newcommand{\microsubmissionnumber}{424}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\fancypagestyle{firstpage}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \fancyhead[C]{\vspace{15pt}\normalsize{MICRO 2021 Submission
+      \textbf{\#\microsubmissionnumber} -- Confidential Draft -- Do NOT Distribute!!}} 
+  \fancyfoot[C]{\thepage}
+}
+
+\pagenumbering{arabic}
+
+\sloppypar
+
+%%%%%%%%%%%---SETME-----%%%%%%%%%%%%%
+\title{Q-GPU: A Recipe of Optimizations for Quantum Circuit Simulation Using GPUs} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\maketitle
+\thispagestyle{firstpage}
+\pagestyle{plain}
+
+
+
+%%%%%% -- PAPER CONTENT STARTS-- %%%%%%%%
+
+\begin{abstract}
+
+In recent years, quantum computing has undergone significant developments and has established its supremacy in many application domains. Unfortunately, modern quantum computing is still positioned in the Noisy Intermediate-Scale Quantum (NISQ) era that is limited by the number of qubits, short qubit lifetime, and imperfect operations. While quantum hardware is accessible to the public through the cloud environment, a robust and efficient quantum circuit simulator is necessary to investigate the constraints and foster quantum computer development, such as quantum algorithm development and quantum device architecture exploration. In this paper, we observe that most of the publicly available quantum circuit simulators (e.g., QISKit from IBM) are not optimized and suffer from slow simulation and poor scalability. To this end, we systematically studied the deficiencies in modern quantum simulators and propose Q-GPU, a framework that leverages GPUs with comprehensive optimizations to allow efficient and scalable quantum circuit simulation (QCS). Specifically, Q-GPU features i) proactive state amplitude transfer, ii) zero state amplitudes pruning, iii) delayed qubit involvement, and iv) non-zero state compression. Experimental results across eight representative quantum circuits indicate that Q-GPU significantly improves the simulation performance over the state-of-the-art GPU-based QCS by 2.53$\times$ on average. It also outperforms the most recent OpenMP CPU implementation, the Google Qsim-Cirq simulator, and the Microsoft QDK simulator.
+
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+ %Quantum computing is a new computing paradigm and has potentials to solve problems that cannot be handled by classical computers. In the past decade, there has been steady progress towards building a quantum computer. The number of qubits in a real quantum machine has increased from 14 in 2011 \cite{monz201114} to 76 \cite{zhong2020quantum} in 2020. The "IBM Q Experience" now consists of 15 publicly available quantum computers in which the number of qubits range from 5 to 53, they also claim to have a machine with 1000 qubits in 2023. However, quantum technology is still in the Noisy Intermediate-Scale Quantum (NISQ) era \cite{preskill2018quantum}: first, the number of qubits is very limited; second, current quantum machines contain many noisy gates which are unprotected by quantum error correction. To calibrate, validate and benchmark NISQ devices, quantum simulation platforms are required to facilitate the software/hardware co-design of quantum machines \cite{peta2017sc, moueddene2020realistic}. In addition, NISQ quantum computers still have limited accessibility for public. Thus simulation platforms provides additional environment for testing the functionality of quantum algorithms. By incorporating realistic and accurate noise models, simulation environments also provide means of characterizing sources of error. In addition, google claimed to demonstrate quantum supremacy in 2018  \cite{boixo2018characterizing}, while later their circuits are proved to be simulated in a reasonable time using classical computer \cite{pednault2019leveraging, tn-huang2020classical}. Therefore, fully explore the simulation capacity of classical computer sets a bar for demonstrating quantum supremacy. 
+Quantum computing is a promising computing paradigm that has the potential to solve problems that cannot be handled by classical computers in a feasible amount of time~\cite{boixo2018characterizing}. In the past decade, there has been steady progress towards building a large quantum computer. The number of qubits in a real quantum machine has increased from 14 in 2011 \cite{monz201114} to 76 in 2020 \cite{zhong2020quantum}. 
+% Additionally, the ``IBM Q Experience'' now consists of 15 publicly available quantum computers in which the number of qubits ranges from 5 to 53. 
+IBM promises 1000 qubits quantum machine by the year 2023~\cite{IBM2023}. 
+Despite this rapid progress, current quantum computing is still positioned in the Noisy Intermediate-Scale Quantum (NISQ) era where the public has very limited access to quantum machines. 
+These machines are also constrained by the limited number of qubits, short lifetimes of qubits, and imperfect operations~\cite{preskill2018quantum}. 
+Thus, quantum circuit simulation (QCS) toolsets provide an essential platform to satisfy many needs, e.g., developing many different algorithms with a large number of qubits, validating and evaluating newly proposed quantum circuits, and design space exploration of future quantum machine architectures. 
+Many companies, such as IBM, Google, Intel, and Microsoft have developed their quantum circuit simulators to provide precise end-end simulation.  
+% In addition, by incorporating realistic and accurate noise models, these simulation environments can also provide means of characterizing sources of error.
+
+% However, with Google claiming  quantum supremacy in 2018  \cite{boixo2018characterizing}, the the number of qubits on quantum machine has already grown into the situation that simulating the quantum circuit on a classical computer is extremely challenging\cite{pednault2019leveraging, tn-huang2020classical}.
+
+ %Therefore, fully explore the simulation capacity of classical computer sets a bar for demonstrating quantum supremacy. 
+ 
+ %\par However, simulating and emulating practical quantum circuits are difficult and are both compute-intensive and memory-intensive even on modern computing systems. For example, simulating xxx circuit with xxx qubit requires xxx memory and xxx days on Intel \todo{xxx version} CPU and xxx days on NVIDIA \todo{xxx version} GPUs. The reason is that 1) accurately simulating a quantum circuit requires storing all quantum state amplitudes, which grow exponentially as the number of qubits in the simulated quantum circuit increase, and 2) applying a gate to a quantum system requires a traversal of all the stored state amplitudes. Thus, simulating a quantum circuit has exponential complexity in both time and space dimension. However, when applying a gate to a $n$-qubit quantum circuit, the $2^n$ state amplitudes can be equally divided into groups, and each group of amplitudes are updated independently by the same matrix (see Equation \ref{eq:amplituesupdate} in Section \ref{section-2}). Therefore, modern GPUs are particularly suitable for such computational tasks, but unfortunately, the limited memory capacity and expensive data movement between CPU and GPU hinders the simulation of large circuits using GPUs. 
+ 
+In general, QCS is challenging as it is both compute-intensive and memory-intensive~\cite{fatima2020faster,markov2020massively}. 
+%For example, simulating xxx circuit with xxx qubit requires xxx memory and xxx days on Intel \todo{xxx version} CPU. 
+The reasons are: i) fully and accurately tracking the evolution of quantum system through classical simulation \cite{ding2020quantum} requires storing all the quantum state amplitudes, which carries a memory cost that grows exponentially as the number of qubits in the simulated quantum circuit increases, and ii) applying a gate within a quantum circuit requires a traversal of all the stored state amplitudes,  leading to exponentially scaling computational complexity.  
+Modern GPUs have been used to fuel QCS in high-performance computing (HPC) platforms. Specifically, when applying a gate to a $n$-qubit quantum circuit, the $2^n$ state amplitudes are evenly divided into groups, and each group of amplitudes is updated independently in parallel by GPU threads. 
+However, the promising parallelism of GPUs is diminished by the limited GPU on-board memory capacity. For example, simulating a quantum circuit with 34 qubits requires 256 GB of memory to store state amplitudes, which is beyond the memory capacity of any modern GPUs. 
+
+%massive and expensive data movement is required to transfer the state amplitudes between CPU and GPU during the simulation. As a results, simulating xxx circuit with xxx qubit still requires xxx days with using NVIDIA \todo{xxx version} GPUs. Therefore, all the existing simulation frameworks either do not support GPUs (e.g., \todo{***} or only provide native GPU support (e.g., \todo{***})).
+ 
+%\par Recent works have realized the importance of efficient and effective quantum circuit simulation using different computation resources. Simulations using CPUs on super computers and readily available devices have been investigated \cite{peta2017sc, wu2019full,pednault2019leveraging,pednault2017breaking,smelyanskiy2016qhipster,li2019quantum,fatima2020faster}. These works do not utilize GPU and thus the intrinsic parallelism of quantum circuit simulation is not fully utilized. Besides, there are also simulations using GPUs  \cite{doi2019quantum,li2020density,gutierrez2007simulation,amariutei2011parallel,li2017quantum,zhang2015quantum}\yilun{Should we include all references here or we only cite some most relevant ones and put others to related work section?}. However, for most of the works that use GPUs, the circuit scale of simulation is limited by the memory capacity of GPUs. In \cite{li2020density}, the authors proposed a multi-GPU simulation framework and the simulation capacity is enlarged by using thousands of nodes, such a platform is expensive and has limited accessibility to public. For single node simulation, the number of qubits is still limited by the memory capacity of GPU. To break this limit, authors in \cite{doi2019quantum} leverage memory on host device and simulate quantum circuit using both CPU and GPU. Their work has also been integrated to QISKit-Aer \cite{aleksandrowicz2019qiskit}. However, their strategy (see Section \ref{section-3}) has poor GPU utilization when the number of qubits is large due to its fixed chunk allocation and on-demand data exchange. As a result, these works fail to take full advantage of GPUs in simulating practical quantum circuits.
+
+
+%\xulong{We can think putting the following paragraph to section 2}
+%There have been many works focusing on optimizing the performance of quantum circuit simulation on different computing platforms. First,~\cite{peta2017sc, wu2019full,pednault2019leveraging,pednault2017breaking,smelyanskiy2016qhipster,li2019quantum,fatima2020faster} studied and improved the simulation performance when using CPUs on supercomputers and other distributed platforms. These works do not use GPUs in the simulation and thus cannot fully exploit the intrinsic parallelism of quantum circuit simulation. 
+
+% \xulong{Check my categorizing and text below and make sure it is correct.} 
+% \xulong{Also I do not like the paragraph below, it does not point out the problem clearly. The prior version is also not OK, it makes me feel you are increment on top of one prior work.}
+There exist several works optimizing QCS, including multi-GPU supported simulation~\cite{li2020density,li2017quantum}, OpenMP and MPI based CPU simulation~\cite{peta2017sc,wu2019full,pednault2017breaking}, and CPU-GPU collaborative simulation~\cite{doi2019quantum}. Most of these works focus on distributed simulation while failing to benefit from GPU execution due to the memory constraint. 
+% Most of the works aim at accelerating the state amplitudes update by leveraging the computational and memory-bandwidth advantages of GPUs. However, the maximum number of qubits in the simulated circuit is still limited by the total memory capacity of GPUs. 
+% To address this problem,  Li et al.~\cite{li2020density} proposed a multi-GPU simulation framework in which simulation scalability is increased by using thousands of server nodes. Although this framework allows for the treatment of a larger number of qubits, their approach necessitates thousands of GPUs for realistic simulation times, overlooking important areas of improvement on readily available GPU platforms. %improvement on an individual GPU basis. %\xulong{rephrase previous sentence, we should point out that the work multi-GPU work relies on employing hundreds of GPU to deliver feasible simulation time, but it does not full take advantage of each GPU, which is the target in this paper.}
+%For the simulation with limited number of GPUs, the number of qubits is still restrained by the GPU memory capacity. 
+% Doi et al.~\cite{doi2019quantum} proposed to solve this problem by leveraging the host memory to store the part of the quantum state amplitudes that does not fit in GPU memory. During simulation, required state amplitudes are fetched into GPU memory on demand. This work has also been integrated to QISKit ~\cite{qiskit2019ibm}. 
+In particular, our characterization shows that the state-of-the-art GPU-based simulation~\cite{doi2019quantum} has low GPU utilization when the number of qubits in the quantum circuit is large. As a result, most state amplitudes are stored and updated on the CPU, failing to take advantage of the GPU parallelization. Moreover, the static and unbalanced allocation of state amplitudes introduces frequent amplitude exchange between CPU and GPU, which introduces additional data movement and synchronization overheads. 
+
+% Therefore, none of prior works fully exploit the capacity of GPUs, especially when simulating a circuit that has a large number of qubits. %due to massive and expansive data movement between CPU and GPU. 
+
+% We analyzed the implementation details of this work and found that this inefficiency comes from the way the computation tasks are divided between CPU and GPU, and the large amount of memory data transfer involved in this design.
+
+
+ 
+%\par In this paper, we propose Q-GPU\yilun{Is this name OK?}, a framework to systematically and comprehensively enhance the simulation performance of practical quantum circuits. Our goal is to provide a high performance quantum simulation substrate that can fuel many research potentials in the NISQ era, including quantum algorithm developments, quantum architecture, quantum connection, and quantum error correction. The proposed framework leverage the modern GPU as the execution engine and is featured with an end-to-end optimization to fully take advantage of GPU execution with minimized data movement. Specifically, our approach includes the following optimizations.\yilun{should we itemize them here?} First, we dynamically allocate chunks on GPU and proactively exchange data between CPU and GPU. When the number of qubits is large, fixed chunk allocation in \cite{doi2019quantum} results in GPU being idle for most of the time. Thus our approach improves the utilization ratio of GPU during execution. Second, we leverage CUDA streams to overlap data movement in both directions between GPU and CPU, which reduces data transfer time. To reduce data transfer size, we then remove redundant data movements by skipping zero-valued chunks. Moreover, such redundancy is enlarged by our reordering algorithm without breaking the final state of a circuit. Finally, lossless data compression algorithms are utilized to reduce the data transfer size of non-zero amplitudes, which reduces data movements further. This paper makes the following contributions: 
+
+\par In this paper, we aim to provide a high-performance and scalable QCS using GPUs.
+% , which can fuel many research potentials in the NISQ era, including quantum algorithm developments, quantum architecture, quantum connection, and quantum error correction. 
+We propose \emph{Q-GPU}, a framework that significantly enhances the simulation performance for practical quantum circuits. The proposed framework leverages modern GPUs as the main execution engine and is featured with several end-to-end optimizations to fully take advantage of the rich computational parallelism on GPUs, while maintaining a minimum amount of data movement between the CPU and GPU. Specifically, our approach includes four optimizations. 
+First, instead of statically assigning state amplitudes on GPU and CPU as done in prior works~\cite{doi2019quantum}, Q-GPU dynamically allocates groups of state amplitudes on the GPU and proactively exchanges the state amplitudes between CPU and GPU. Doing so maximizes the overlap of data transfer between CPU and GPU, thereby reducing the GPU idleness. 
+% Second, we use CUDA streams to overlap data movement in two directions between GPU and CPU, which can significantly reduce the data transfer latency. 
+Second, Q-GPU prunes zero state amplitudes to avoid unnecessary data movement between CPU and GPU. 
+Third, we also propose compiler-assisted quantum gate reordering (complying with the gate dependencies) to enlarge the opportunity of pruning zero state amplitudes. 
+Finally, we propose efficient GPU-supported lossless data compression to further reduce data transfer caused by non-zero amplitudes. This paper makes the following contributions: %\xulong{may give a footnote to say why zeros are unnecessary amplitudes, or we can explain in the background.}
+
+\squishlist{}
+\item We use the popular IBM QISKit-Aer with its state-of-the-art CPU-GPU implementation~\cite{qiskit2019ibm}, and conduct an in-depth characterization of the simulation performance. We observe that the performance degrades significantly as the number of qubits increases due to the unbalanced amplitudes assignment, where most of the computation is done by the CPU. 
+
+\item We implement a dynamic state amplitude assignment to allow the GPU to update all state amplitudes. However, such an implementation did not provide any performance improvements and even worsened compared to the CPU execution due to the massive and expensive data movement between CPU and GPU.
+
+% Such performance degradation is caused by unbalanced amplitudes assignment, where most of computation is done on CPU. Moreover, the amplitudes exchange between CPU and GPU introduces additional overhead, making the performance even worse than using only CPU. 
+ %, leading to low GPU utilization. 
+ %Specifically, our experimental results show that, data movement occupies 10\% of total time, and execution on CPU occupies 89\% %\yilun{For baseline, CPU occupies most of time, we first try naive approach and data movement become the major problem, so should we mention naive approach before mention our framework?}
+ %\item \xulong{depends on how the chemistry example goes, I want to have a bullet here to show our Q-GPU works for practical quantum problems.}
+
+\item We propose Q-GPU, a framework comprising end-to-end optimizations to mitigate the data movement overheads and unleash the CPU capability in QCS. Specifically, the proposed Q-GPU is featured with the following major optimizations:
+i) dynamic state amplitudes allocation and proactive data exchange between CPU and GPU, ii) dynamic zero state amplitude ``pruning'', iii) dependency-aware quantum gate reordering to enlarge the potential of zero amplitude pruning, and iv) GPU-supported efficient lossless compression for non-zero amplitudes.
+
+\item We evaluate the proposed Q-GPU framework using eight practical quantum circuits. Experimental results indicate that in all circuits tested, Q-GPU significantly improves the QCS performance and outperforms the baseline by 2.53$\times$ on average. We also compare Q-GPU with Google Qsim-Cirq \cite{googleqsim} and Microsoft QDK \cite{msqdk}, and results show that Q-GPU approach outperforms Qsim-Cirq and QDK by 1.02$\times$ and 9.82$\times$, respectively.
+%  \item Our framework is scalable and extensible to multi-GPU scenario \todo{to be done}.
+\squishend{}
+ 
+
+\section{Background}
+\label{section-2}
+\subsection{Quantum Basics}
+
+Similar to the \textit{bit} concept in classical computation, quantum computation is built upon the \textit{quantum bit} or \textit{qubit} for short \cite{nielsen2002quantum}. A qubit is a two-level quantum system defined by two computational orthonormal basis states $|0\rangle$ and $|1\rangle$. A quantum state $|\psi\rangle$ can be expressed by any linear combination of the basis states. 
+\setlength{\abovedisplayskip}{1pt}
+\setlength{\belowdisplayskip}{1pt}
+\begin{equation}\footnotesize
+|\psi\rangle = a_0|0\rangle + a_1|1\rangle,
+\label{eq-1}
+\end{equation}
+
+\noindent where $a_0$ and $a_1$ are complex numbers whose squares represent the probability amplitudes of basis states $|0\rangle$ and $|1\rangle$, respectively. Note that we have $|a_0|^2 + |a_1|^2 = 1$, meaning that after measurement, the read out of state $|\psi\rangle$ is either $|0\rangle$ or $|1\rangle$, with probabilities $|a_0|^2$ and $|a_1|^2$, respectively. The states of a quantum system are generally represented by \textit{state vectors} as
+
+\begin{equation}\footnotesize
+|0\rangle = \begin{bmatrix} 1 \\ 0 \end{bmatrix}, |1\rangle = \begin{bmatrix} 0 \\ 1 \end{bmatrix}.
+\label{eq-2}
+\end{equation}
+
+\par To be more general, for an $n$-qubit system, there are $2^n$ state amplitudes. Then, the quantum state $|\psi\rangle$ can be expressed as a linear combination
+
+\begin{equation}\footnotesize
+|\psi\rangle = a_{0\dots00}|0\dots00\rangle + a_{0\dots01}|0\dots01\rangle + \dots + a_{1\dots11}|1\dots11\rangle.
+\label{eq-3}
+\end{equation}
+
+\noindent Similarly, the state of a $n$-qubit system can also be represented by a state vector with $2^n$ dimensions as
+\begin{align}\footnotesize
+\begin{split}
+|\psi\rangle & = a_{0\dots00}\begin{bmatrix} 1 \\ 0 \\ \vdots \\ 0 \end{bmatrix} + a_{0\dots01}\begin{bmatrix} 0 \\ 1 \\ \vdots \\ 0 \end{bmatrix} + \dots + a_{1\dots11}\begin{bmatrix} 0 \\ 0 \\ \vdots \\ 1 \end{bmatrix} =\begin{bmatrix} a_{0\dots00} \\ a_{0\dots01} \\ \vdots \\ a_{1\dots11} \end{bmatrix}.
+\label{eq-4}
+\end{split}
+\end{align}
+
+\par \textit{Quantum computation} describes changes occurring in this state vector. A quantum computer is built upon a \textit{quantum circuit} containing \textit{quantum gates} (or quantum operations), and a quantum algorithm is described by a specific quantum circuit. In simple terms, quantum gates are represented by unitary operations that are
+%\footnote{Gates and operations are equivalent in this paper, operations are more general since they include fused gates \cite{fatima2020faster,iten2019exact,qiskit2019ibm}} 
+applied on qubits to map one quantum state to another. A quantum gate that acts on $k$ qubits is represented by a $2^k\times2^k$ unitary matrix. 
+
+\par To illustrate how a quantum gate is applied to a state vector, let us consider a $2$-qubit system with a Hadamard gate/operation operating on qubit $0$. A Hadamard gate can be represented as  
+
+\begin{equation}\footnotesize
+H \equiv \frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix}.
+\end{equation}
+
+\noindent Then the state vector of this $2$-qubit system is updated through 
+
+\begin{equation}\footnotesize
+\begin{bmatrix} a_{00}^{\prime} \\ a_{01}^{\prime} \end{bmatrix} = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} a_{00} \\ a_{01} \end{bmatrix},
+\end{equation}
+
+\begin{equation}\footnotesize
+\begin{bmatrix} a_{10}^{\prime} \\ a_{11}^{\prime} \end{bmatrix} = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} a_{10} \\ a_{11} \end{bmatrix}.
+\end{equation}
+
+\noindent For an $n$-qubit system, when a $H$ gate is applied to qubit $j$ the amplitudes are transformed as \cite{de2007massively}:
+
+
+\begin{equation}
+\begin{bmatrix} a_{\times\dots\times0_{j}\times\dots\times}^{\prime} \\ a_{\times\dots\times1_{j}\times\dots\times}^{\prime} \end{bmatrix} = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} a_{\times\dots\times0_{j}\times\dots\times} \\ a_{\times\dots\times1_{j}\times\dots\times} \end{bmatrix}
+\label{eq:amplituesupdate}
+\end{equation}
+
+\noindent  
+Therefore, the indices of every pair of amplitudes have either 0 or 1 in the $j$th bit, while all other bits remain the same\footnote{``$\times$'' can be 0 or 1; the ``$\times$'' in the same position of $a_{\times\times\times\times\times\times\times0}$ and $a_{\times\times\times\times\times\times\times1}$ are the same.}. Note that each pair of amplitudes can be updated in parallel. 
+
+\subsection{Quantum Circuit Simulation (QCS)}
+
+% \xulong{It would be good to emphasize why quantum simulation is important and needed. I will also point it out in the introduction, but it is good to re-emphasize here. One more thing, quantum simulation has a dedicated meaning which is different from our work. Maybe we can rephrase it to quantum circuit simulation or quantum circuit emulation.}\yilun{Yes. In this manuscript, I didn't use 'quantum simulation'.}
+The purpose of QCS is to mimic the dynamics of a quantum system \cite{ding2020quantum}, and to reproduce the outcomes of a quantum circuit with high accuracy. There are several approaches to simulating a quantum circuit, each offering different advantages and drawbacks. We summarize the three most widely used approaches below. 
+
+%\xulong{please use labels for secitons, figures and tables in the text}
+\squishlist{}
+\item \textbf{Schr\"odinger style simulation:} Schr\"odinger simulation describes the evolution of a quantum system by tracking its quantum state. 
+% Recall from Section~\cite{ssec:xxx} that a quantum circuit consists of a sequence of quantum gates, each gate transform the state vector from one to another. The most straightforward way for simulating quantum circuits is 
+It tracks the transformations of the state vector according to Equation \ref{eq:amplituesupdate}. 
+%% removed by Xulong edits Schr\"odinger simulation is the most popular method being used in general quantum circuit simulators~\cite{fatima2020faster,wu2019full,li2020density}. In this paper, the proposed Q-GPU framework is based on IBM QISKit toolset which employs  Schr\"odinger simulation method to track the state vector. 
+Note that one can also track the density matrix $\rho = |\psi\rangle\langle\psi|$, which is useful when measurement is required during  simulation \cite{li2020density, ding2020quantum}. In this work, we only consider quantum measurements at the end of circuits.
+
+\item \textbf{Stabilizer formalism:} Simulation based on the stabilizer formalism is efficient for a restricted class of quantum circuits \cite{aaronson2004improved,nielsen2002quantum,ding2020quantum}. Specifically, stabilizer circuits (a.k.a Clifford circuits) can be simulated in $O(poly(n))$ space and time costs. Rather than tracking the state vector, the quantum state is uniquely represented and tracked by its stabilizers, which is essentially a group of operators derived from the Clifford group. A detailed description can be found in \cite{aaronson2004improved}.
+
+
+\item \textbf{Tensor network:}
+Tensor network simulators are useful when a single or few amplitudes of the full state vector are being updated as tensor networks~\cite{tn-2018validating,tn-huang2020classical,tn-lykov2020tensor,tn-markov2008simulating}.
+% are a collection of local operators.
+For example, one type of tensor network that are extremely common are matrix product states (MPS).
+When applied to a single amplitude in Equation \ref{eq-3}, the resulting state resembles a long string of matrix multiplications
+\begin{align}
+|\psi\rangle &= \sum_{j_0\dots j_{n-1}j_{n}} a_{j_0\dots j_{n-1}j_{n}}|j_0\dots j_{n-1}j_{n}\rangle \\
+ &= \sum_{j_0\dots j_{n-1}j_{n}} Tr[A^{j_0}\dots A^{j_{n-1}}A^{j_{n}}] |j_0\dots j_{n-1}j_{n}\rangle
+ \label{eq:TNS}
+\end{align}
+The matrices $A$ (rank-2 tensors) in Equation \ref{eq:TNS} can be thought of as a decomposition of the full coefficient tensor $a$.
+Despite the restriction of returning a limited number of amplitudes, tensor networks states are efficient as they compress the dimension of the problem from $O(2^n)$ to $O(nd^2)$ where $d$ is the dimension of the individual tensors in Equation \ref{eq:TNS}.
+
+\squishend{} 
+Among all these simulation methods, Schr\"odinger style simulation is widely used as the mainstream simulation method, and has been widely adopted in prior research works \cite{peta2017sc, wu2019full,pednault2019leveraging,pednault2017breaking,smelyanskiy2016qhipster,li2019quantum,fatima2020faster,amariutei2011parallel,doi2019quantum,de2007massively}.
+% since this returns a complete description (i.e. all amplitudes) of the quantum system rather than a subset of amplitudes. 
+Also, industrial quantum circuit simulators such as IBM QISKit \cite{qiskit2019ibm}, Google Qsim-Cirq \cite{smelyanskiy2016qhipster,peta2017sc} and Microsoft QDK~\cite{msqdk} 
+% \footnote{https://github.com/microsoft/iqsharp} 
+use full state vector simulations. 
+In this work, we build Q-GPU based on IBM QISKit-Aer, a high-performance C++ simulation backend of QISKit, since it contains the state-of-the-art GPU support.
+
+%\xulong{Here you need a summary to say why we choose the particular simulation in qiskit, based on the pros and cons you summarized above for each simulation.}
+
+%\xulong{Seems we need to discuss existing simulators here and then point out why we choose QISKit-Aer}
+
+% \subsection{Related Works}
+% \hl{We may need to move this section to the end of paper}
+% \begin{table}[h!]
+% \centering
+% \begin{tabular}{||c c c c||} 
+ 
+% \end{tabular}
+% \caption{Comparison with prior techniques.}
+% \label{table:1}
+% \end{table}
+% \begin{itemize}
+% \item
+% CPU
+% \item
+% GPU
+% \item
+% Multi-GPU
+% \end{itemize}
+
+\section{Characterization of QCS}
+
+\subsection{Quantum Circuit Benchmarks}
+\label{sec:bench}
+
+% \label{section-3}
+
+% \begin{table}[h!]
+% \centering
+% \begin{tabular}{||c c c c||} 
+% \end{tabular}
+% \caption{Characteristics of benchmarks.}
+% \label{table:2}
+% \end{table}
+
+%\xulong{I would not start this section with chemistry example. Instead, I would put a paragraph in the benchmark subsection and discuss chemistry example}
+
+%\xulong{I did not check the details of the text below. But in general, please simply the discussion. All we need is to say we develop a practical circuit for a real problem and discuss its uniqueness compared to other circuits in simulation}
+
+\begin{table}[t!]
+    \centering
+    \scriptsize
+        \caption{List of quantum circuit benchmarks.}
+        % \vspace{-6pt}
+    \begin{tabular}{||c|c||}
+        \hline
+        {\bf Abbrv.} & {\bf Application} \\
+        [0.5ex] 
+        \hline\hline
+        {\tt hchain} & Linear hydrogen atom chain \cite{10.1021/acs.jctc.9b01125} \\
+        \hline
+        {\tt rqc} & Random quantum circuit \cite{boixo2018characterizing} \\
+        \hline
+        {\tt qaoa} & \makecell{Quantum approximate \\ optimization algorithm \cite{farhi2014quantum}}  \\
+        \hline
+        {\tt gs} & Graph state \cite{koh2015further,hein2006entanglement} \\
+        \hline
+        {\tt hlf} & Hidden linear function \cite{bravyi2018quantum} \\
+        \hline
+        {\tt qft} & Quantum Fourier transform \cite{javadiabhari2015scaffcc} \\
+        \hline
+        {\tt iqp} & \makecell{Instantaneous quantum \\ polynomial-time \cite{bremner2011classical,bremner2016average}} \\
+        \hline
+        {\tt qf} & Quadratic form \cite{gilliam2019grover} \\
+        \hline
+    \end{tabular}
+    \label{tab:list-bench}
+            \vspace{-8pt}
+\end{table}
+
+In this paper, we characterize the performance of QCS using a rich set of quantum circuits. Table \ref{tab:list-bench} lists the circuit benchmarks. 
+\squishlist{}
+\item {\tt hchain:}
+This circuit which describes a system of hydrogen atoms arranged linearly is a representative quantum chemistry application\cite{motta2020ground,doi:10.1063/1.2770707,10.1063/1.2345196,10.1063/1.5129672,PhysRevA.95.020501}. This circuit incorporates increased circuit depth and an early entanglement in terms of total operations.
+% This quantum chemistry application represents an interesting benchmark in that it incorporates increased circuit depth representative of real workloads and an early entanglement in terms of total operations.
+\item {\tt rqc:}
+The random quantum circuit from Google \cite{boixo2018characterizing,bouland2019complexity} is used to represent the quantum supremacy compared to classical computers. 
+% Random quantum circuit from Google \cite{boixo2018characterizing,bouland2019complexity} is designed to ensure difficulty of simulation, and random circuit sampling is a particular application that classical computer cannot solve efficiently. {\tt rqc} set up a baseline for demonstrating the supremacy of quantum computing. \cite{boixo2018characterizing}. 
+\item {\tt qaoa:} 
+Quantum approximate optimization is a promising quantum algorithm in the NISQ era that produces approximate solutions for combinatorial optimization problems \cite{farhi2014quantum}. 
+% In this paper, we use it to solve the random graph partition problem. Similar to {\tt hchain}, {\tt qaoa} also has a deep circuit depth.
+\item {\tt gs:}
+This circuit is used to prepare graph states \cite{aschauer2005multiparticle} that are multi-particle entangled states. Examples include many-body spin states of distributed quantum systems that are important in quantum error correction \cite{lidar2013quantum}. 
+\item {\tt hlf:}
+This benchmark circuit solves the 2D hidden linear function problem \cite{bravyi2018quantum}. 
+\item {\tt qft:}
+The quantum Fourier transform circuit \cite{javadiabhari2015scaffcc} is the quantum analog of the inverse discrete Fourier transform. It is an important function in Shor's algorithm \cite{shor1999polynomial}.
+\item {\tt iqp:} 
+The instantaneous quantum polynomial circuit provides evidence that sampling the output probability distribution of a quantum circuit is difficult when using classical approaches \cite{bremner2011classical,bremner2016average}.
+\item {\tt qf:}
+This circuit implements a quadratic form on binary variables encoded in qubit registers. It is used to solve the quadratic unconstrained binary optimization problems \cite{gilliam2019grover}.
+
+\squishend{}
+
+% As quantum chemistry is a promising application for near-term quantum computing, the ability of simulators to efficiently treat these systems is essential for algorithmic development and characterization.\cite{10.1021/acs.chemrev.9b00829, 10.1080/00268976.2011.552441, 10.1021/acs.chemrev.8b00803} 
+% % what other works have done. we need citations here.
+% Many quantum applications are benchmarked on small molecular systems such as \ce{H2O}, \ce{CH4}, and others.\cite{10.5555/2685188.2685189,10.1021/acs.jpclett.1c00283,10.1103/PhysRevA.95.020501,10.1021/acscentsci.8b00788,SUGISAKI2019100002,tang2019qubitadaptvqe} 
+% While these systems are chemically important, they are fixed size with a fixed complexity (i.e. electron correlation), which is less desirable for the purposes of benchmarking.
+% % background on the system. i.e. why is it of relevance in chemistry, why is it sensible for quantum computing over previously used systems.
+% Previous work has shown that the linear hydrogen chain exhibits both tunable complexity and system size by varying the distance between and number of hydrogen atoms \cite{motta2020ground,doi:10.1063/1.2770707,10.1063/1.2345196,10.1063/1.5129672,PhysRevA.95.020501}.  
+% This parametric control extends to the resulting quantum circuit resulting in physically relevant circuits with tunable gate depth (complexity) and qubit count (system size)\cite{10.1021/acs.jctc.9b01125,10.1107/S2059798317016746}.
+% This quantum chemistry represents an interesting benchmark in that it incorporates increased circuit depth representative of real workloads and an early entanglement in terms of total operations.
+% %possibly add the percentages to table 6
+
+% \subsection{Simulation details}
+% For the hydrogen chain example, we created a circuit to describe a linear chain of 18 hydrogen atoms using the compact two-local representation.\cite{10.1038/nature23879,10.1002/qute.201900070} The hydrogen chain systems were simulated using the variational quantum eigensolver (VQE) algorithm to find the ground state energy by estimating the minimum eigenvalue of our matrix\cite{10.1038/ncomms5213}. 
+% VQE is an hybrid quantum-classical algorithm where a parameterized circuit is iteratively improved. 
+% Results for a single VQE quantum iteration are presented as the simulated circuit will be comparable in terms of hardware requirements.
+
+%\xulong{For Section 3.2, we start characterization}
+
+%\xulong{Discuss the benchmarks here}
+
+\subsection{Baseline QCS}
+\label{sec:baseline}
+In this paper, we use the popular IBM QISKit-Aer simulator. We consider the state-of-the-art GPU-supported simulation~\cite{doi2019quantum} in QISKit-Aer as our baseline. We run all simulations on a server with dual 10-core Intel Xeon Silver 4114 CPUs at 2.2 GHz, 384 GB of memory, and an NVIDIA P100 GPU with 16 GB of memory connected through PCI-e\footnote{We used the P100 GPU as the HPC platform to test and evaluated the proposed Q-GPU. It is important to emphasize that our approach is not bound to P100. Our proposed Q-GPU is applicable to any other GPU architectures.}. We use CUDA v10 and Nvprof~\cite{NVIDIAnvprof} to conduct our characterization. The simulation in QISKit-Aer has three key steps: 1) state vector partitioning, 2) static state amplitudes allocation, and 3) on-demand amplitudes exchange. 
+
+\noindent\textbf{Step 1: State vector partitioning:} QISKit-Aer first partitions the state vectors into "chunks". Chunk is the granularity used in the simulator to update the state vector. For illustrative purposes, let us assume we have a 7-qubit circuit, i.e., that there are in total $2^7$ different state amplitudes from $a_{0000000}$ to $a_{1111111}$. All the states are stored in a vector (i.e., the state vector), and this state vector is partitioned into chunks. For example, assuming we divide the state vector into 8 chunks, each chunk contains 16 state amplitudes as shown in Figure~\ref{fig-3}. The three most significant bits are used to index the chunks, and the remaining bits are as offsets within a chunk.
+
+\noindent\textbf{Step 2: Static chunk allocation:} After partitioning, these chunks are allocated into GPU memory based on the GPU memory availability. As illustrated in Figure~\ref{fig-3}, if a GPU can only store 3 chunks, the remaining 5 chunks will be stored in the host CPU memory. For example, when 64 GB memory is needed to simulate 32 qubits, the first 16 GB is allocated in GPU memory (in P100 GPU with 16 GB memory) and the remaining 48 GB is in the CPU memory. 
+% Note that while allocating memory on GPU, two extra chunks are reserved by QISKit-Aer as a temporal buffer for data exchange (discussed shortly).
+% \xulong{Do we need a reason to say why baseline GPU implementation use fixed allocation? E.g., to reduce communiction and data movement?}\yilun{I read the paper \cite{doi2019quantum}, I believe they just propose a simplest way to use CPU memory to simulate more qubits}
+
+\noindent\textbf{Step 3: Reactive chunk exchange:} During circuit simulation, a chunk exchange between the GPU and the CPU arises when the requested state amplitudes are not locally available on the GPU. In QISKit-Aer, the chunk exchange between the CPU and the GPU is triggered on-demand. That is, when both the chunks on the CPU and the GPU are involved in one state-update calculation, the corresponding CPU chunks are transferred to GPU for updating. After the operation, the updated chunks are transferred back to the CPU. Note that, the amount of data exchange in the following scenarios is dependent on the qubits in the specific gate simulation.
+
+\squishlist{}
+\item \textbf{Case 1: All the indices of the qubits involved in the current gate are smaller than the chunk size:}. For example, a gate on qubit $0$ requires amplitudes $a_{\times\times\times\times\times\times\times0}$ and $a_{\times\times\times\times\times\times\times1}$ 
+(see Equation~\ref{eq:amplituesupdate}). In this case,  each chunk can be updated independently without requiring extra data movement. 
+
+\item \textbf{Case 2: Some indices of qubits involved in the current gate are outside the chunk boundary:} In this scenario, let us assume there is a gate that operates on $q_6$, thereby the required pairs of amplitudes are $a_{\times0\times\times\times\times\times\times}$ and $a_{\times1\times\times\times\times\times\times}$. However, as depicted in Figure~\ref{fig-3}, none of the chunks contains a pair of required amplitudes, i.e., the computation for updating amplitudes involves more than one chunk. 
+Specifically, to update the pairs of amplitudes, we need ($chunk_0$, $chunk_2$), ($chunk_1$, $chunk_3$), $\dots$, and ($chunk_5$, $chunk_7$). However, ($chunk_1$, $chunk_3$) involves one chunk on the GPU and one chunk on the CPU. In this scenario, data exchange is required. 
+In the baseline QISKit-Aer simulation, the requested chunks are always copied from CPU to GPU. That is, in the example above, the CPU copies $chunk_3$ to GPU. After the $chunk_3$ is updated together with $chunk_1$, it is copied back to the CPU memory. 
+
+% \item \textbf{Case 2: Some indices of qubits involved in the current gate are outside the chunk boundary:} In this scenario, let us assume there is a gate that operates on $q_6$, thereby the required pairs of amplitudes are $a_{\times0\times\times\times\times\times\times}$ and $a_{\times1\times\times\times\times\times\times}$. However, as depicted in Figure~\ref{fig-3}, none of the chunks contains a pair of required amplitudes, i.e. the computation for updating amplitudes involves more than one chunk. 
+% For example, to update the pairs of amplitudes $a_{000\times\times\times\times\times}$ and $a_{010\times\times\times\times\times}$, we need $chunk_0$ and $chunk_2$. 
+% Similarly, one can find all the pairs of chunks that need to be updated together: ($chunk_0$, $chunk_2$), $\dots$, ($chunk_5$, $chunk_7$). For ($chunk_0$, $chunk_2$), ($chunk_4$, $chunk_6$), and ($chunk_5$, $chunk_7$), each pair of chunks can be updated on GPU or CPU independently. However, ($chunk_1$, $chunk_3$) requires one chunk on GPU and one chunk on CPU. In this scenario, data exchange is needed. 
+% In the baseline QISKit-Aer simulation, the requested chunks are always copied from CPU to GPU. That is, in the example above, the CPU copies $chunk_3$ to GPU. After the $chunk_3$ is updated together with $chunk_1$, it is copied back to the CPU memory. 
+\squishend{}
+
+Note that, as the GPU memory capacity is much less compared to the CPU host memory, a large number of chunks are statically allocated on CPU memory when the number of qubits is large. For instance, on the P100 GPU with 16 GB memory, we observe from experiments that when simulating a circuit that has 34 qubits, the state vector is divided into 8192 chunks, 496 chunks are allocated on GPU, while the remaining 7696 chunks are all on CPU. Therefore, one can expect that most of the time, the CPU does the state amplitude update without benefiting from the GPU acceleration. 
+% Moreover, since a large proportion of chunks are on CPU, the state amplitude update on GPU may request chunks from CPU.
+
+\begin{figure}[h!]
+\includegraphics[width=0.4\textwidth]{section-3/chunk-egs.pdf}
+\centering
+\caption{Example of baseline execution where the state vector is statically partitioned and allocated on CPU and GPU.} %\xulong{update to be more space efficient}}
+\label{fig-3}
+\vspace{-5pt}
+\end{figure}
+
+\subsection{Characterization and Observations}
+\label{sec:observation}
+
+% \begin{itemize}
+% \item
+% Benchmark characteristics
+% \begin{figure}[h!]
+% \caption{Execution time of baseline vs. number of qubits.}
+% \label{fig-1}
+% \end{figure}
+% \item
+% Platform
+% \item
+% Observations
+% \end{itemize}
+
+%\noindent From Table \ref{table-3}, we can see that the maximum number of qubits that can be simulated is limited by the size of GPU memory on the platform. In order to precisely describe the state of a quantum circuit, complex numbers in double-precision floating point format are used to represent state amplitudes. Given $n$ qubits, the size of the state vector is $2^{n+4}$ bytes. Thus, on a platform with $16 GB = 2^{30+4}$ bytes GPU memory, we should be able to simulate up to 30 qubits without encountering the out-of-memory problem. To verify this, we run our benchmarks on Nvidia P100 and Nvidia A100 GPUs; we use QISKit-Aer in both CPU and GPU modes. Figure \ref{fig-1} depicts simulation time for different number of qubits. When the number of qubits is smaller than 30, GPU mode has obvious acceleration compared with CPU mode, while the situation is reversed when the number of qubits is larger than 30. Due to the parallelism of simulating a quantum circuit, it is not surprising to see that GPU mode has better performance than CPU mode when qubits number is less than 30. When we simulate more than 30 qubits, the performance of GPU mode degrades dramatically although no out-of-memory problem occurs. To understand what happens when simulating 30 or more qubits, we profile our benchmark programs and the execution time breakdown is shown in Figure \ref{fig-2}. It is clear that for 30 or more qubits, 90\% of execution is done on CPU rather than GPU. \textbf{In other words, CPU dominates the execution time, while most of time GPU is idle}. 
+
+%%%%%%%%%%%%%%%% Xulong 
+
+%\xulong{One figure/table a paragraph. What you need to show here: 1. the memory footprint with different number of qubits. 2. the execution time scaling of baseline GPUs 3. The breakdown of data transfer/computation in CPU and baseline GPUs. 4. a timeline figure showing that most of the time the GPU is idle and waiting. Basically, this subsection shows the quantified results in baseline GPU}
+
+% \begin{table}[h!]
+% \centering
+% \footnotesize
+% \begin{tabular}{||c c||} 
+%  \hline
+%  Number of qubits & Memory Footprint (GB)\\ [0.5ex] 
+%  \hline\hline
+%  29 & 8 \\ 
+%  \hline
+%  30 & 16 \\
+%  \hline
+%  31 & \\
+%  \hline
+%  32 & \\
+%  \hline 
+%  33 & \\
+%  \hline
+%  34 &  \\ [1ex] 
+%  \hline
+% \end{tabular}
+% \caption{Example of GPUs, their memory capacity, and the maximum number of qubits they can simulate.\xulong{I do not think this worth a table. Can you actually extend the benchmark table with the memory footprint/size of each circuit with different number of qubits (as we discussed before?) }}
+% \label{table-3}
+% \end{table}
+
+In this section, we quantify the simulation performance of the baseline QISKit-Aer.
+% As discussed in Section \ref{sec:intro}, the memory footprint of QCS grows exponentially in the number of qubits. Specifically, when the number of qubits exceeds 30, the memory footprint is beyond 16 GB, which is larger than the memory capacity of the P100 GPU we used. As a result, the GPU cannot hold all the values in the state vector and explicit data transfer is required to copy the data back and forth between the host CPU memory and the GPU.
+We first study the scalability when the number of qubits increases. We observe that, if there are less than 30 qubits in the circuit, the baseline GPU simulates much faster than compared CPU-based simulation (e.g. 9.67$\times$ speedup for 29-qubit circuits on average), since the entire state vector fits in the P100 GPU memory and there is no need for data exchange and synchronization. However, the baseline GPU performance significantly drops when the number of qubits is larger than 30. It becomes even worse than running on the CPU alone when the number of qubits reaches 32. In particular, we observe a factor of $1.8\times$ slowdown for {\tt qft\_33}\footnote{In this paper, we use $n$ in the circuit name (e.g., {\tt circ\_n}) to represent a circuit with $n$ qubits.} as an example. 
+% This performance reduction results from an necessary data copy and synchronization overhead between CPU and GPU, resulting from the state vector exceeding the GPU memory.
+
+%\xulong{please check my text if it is accurate or not. Also, I have a confusion, if most of the work is done by the CPU, why it performs so worse than pure CPU version? Maybe the data copy overhead? If so, say it explicitly}
+
+\begin{figure}[h!]
+\includegraphics[width=0.45\textwidth]{section-3/baseline-breakdown.pdf}
+\caption{Baseline execution time breakdown.}%xulong{change y-axis label to percentage. do not use occupancy. also change all other figures accordingly}}
+\label{fig:basebreak}
+\vspace{-5pt}
+\end{figure}
+
+To investigate the reason for this slowdown, we show the breakdown of the execution time in Figure \ref{fig:basebreak}. One can observe that, on average, 89.34\%  of the execution is spent on the CPU, indicating that the GPUs are not properly used in the baseline execution for large number qubit circuits. Moreover, the overheads involve amplitude exchange and synchronization occupies 9.91\% of the average execution time, and the computation time of GPU only occupies 0.71\% of total time on average. \emph{In other words, most of the computation is performed by the CPU and the GPU is idle due to the static state chunk allocation in the baseline GPU execution.} In Figure \ref{fig:timeline-overlap}, \circledwhite{I} depicts the execution timeline of the baseline.
+% Moreover, amplitudes exchange between CPU and GPU occupies the rest  time. Note that such data movement will also incur synchronization overhead on CPU, since CPU needs to be aware of which chunk has already been updated by GPU.  
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \noindent 
+% We study the GPU utilization of the state-of-the-art quantum simulators on Nvidia P100 and A100 GPUs. From Table~\ref{table-3}, we can see that the maximum number of qubits that can be simulated is limited by the size of GPU memory on the platform. This is because for precisely recording the state of a quantum circuit, complex numbers in double-precision floating point format are used to represent state amplitudes. Given $n$ qubits, the size of the state vector is $2^{n+4}$ bytes. 
+% Thus, on our experiment platform with $16 GB = 2^{30+4}$ bytes GPU memory, theoretically we should only be able to simulate up to 30 qubits without encountering the out-of-memory problem. 
+% We run our benchmarks using QISKit-Aer in both CPU and GPU modes. Figure~\ref{fig-1} shows the latency of simulating quantum circuits with variant number of qubits. When there are less than 30 qubits in the quantum circuit, the simulation in GPU mode is much faster than the one in CPU mode; however, this is no longer true when the number of qubits is larger than 30. Due to the computation parallelism offered by GPU, it is not surprising to see that GPU mode has better performance than CPU mode when the number of qubits is less than 30. But it is strange that when we simulate more than 30 qubits, the performance of GPU mode degrades dramatically and no out-of-memory problem occurs. To understand the reason behind this phenomenon, we profile the simulations, and show the breakdown of the execution time breakdown in Figure \ref{fig-2} \footnote{Hereafter we use {\tt circ\_n} to represent a circuit with $n$ qubits}: when there are 30 or more qubits, over 90\% of the execution is actually executed on CPU rather than GPU. \textbf{\textit{In other words, CPU dominates the execution time, while for most of the time,  GPU is idle.}} 
+
+% \subsection{Baseline Simulation using GPU}
+
+% \noindent Based on the observations in Section~\ref{sec:observation}, we study the implementation details of QISKit-Aer to understand how CPU and GPU work together. The simulation in QISKit-Aer has three key steps: 1) state vector partition, 2) static memory allocation, and 3) data exchange on demand. 
+
+% \noindent\textbf{State vector partition:} For illustration purpose, assume we have a 7-qubit circuit, i.e. there are in total $2^7$ different states from $a_{0000000}$ to $a_{1111111}$. All the states are stored in a vector (the state vector), and this vector is partitioned further into chunks. For example, assume we divide the state vector into 8 chunks, each chunk contains 16 state amplitudes as shown in Figure~\ref{fig-3}. The three most significant bits are used to index the chunks, and the remaining bits are used to define the size of chunks. In Figure~\ref{fig-3}, the chunk size is 5.
+
+% \noindent\textbf{Static chunk allocation:} After partitioning state vector into chunks, these chunks are first allocated into GPU memory. As shown in Figure~\ref{fig-3}, if a GPU is only able to store 3 chunks, the remaining 5 chunks will be stored in CPU memory. Therefore, when 64 GB memory is needed for simulating 32 qubits, the first 16 GB will be allocated in GPU memory and the rest 48 GB will be in CPU memory. Note that while allocating memory on GPU, two extra chunks will be reserved as temporal buffer for data exchange.\xulong{Do we need a reason to say why baseline GPU implementation use fixed allocation? E.g., to reduce communication and data movement?}\yilun{I read the paper \cite{doi2019quantum}, I believe they just propose a simplest way to use CPU memory to simulate more qubits}\\
+% \noindent\textbf{Data exchange on demand:} In QISKit-Aer, the data exchange between CPU and GPU is triggered on-demand. That is, when both the chunks on CPU and GPU are involved in one state-update calculation (i.e. matrix multiplication), the corresponding CPU chunks will be transferred into GPU, and transferred back to CPU after we update these chunks. 
+% More specifically, when applying a gate to the state vector, one of the two following scenarios will occur:
+% \squishlist{}
+
+% \item \textbf{Case 1: All the indices of the qubits involved in the current gate are smaller than the chunk size:}. For example, a gate on qubit $0$ requires amplitudes $a_{\times\times\times\times\times\times\times0}$ and $a_{\times\times\times\times\times\times\times1}$\footnote{``$\times$'' can be 0 or 1; the ``$\times$'' in the same position of $a_{\times\times\times\times\times\times\times0}$ and $a_{\times\times\times\times\times\times\times1}$ should be same.} 
+% (see Equation~\ref{eq:amplituesupdate}). In this case, since one chunk contains all required amplitudes, each chunk can be updated independently without generating any data movement. 
+
+% \item \textbf{Case 2: Some indices of qubits involved in the current gate are larger than the chunk size:} Suppose we have a gate that operates on $q_6$, then it requires amplitudes $a_{\times0\times\times\times\times\times\times}$ and $a_{\times1\times\times\times\times\times\times}$. However, as shown in Figure~\ref{fig-3}, non of the chunks contains a pair of required amplitudes. For example, the corresponding amplitudes of $a_{000\times\times\times\times\times}$ are $a_{010\times\times\times\times\times}$. Thus, $chunk_0$ and $chunk_2$ must be updated together. Similarly, we can find all the pairs of chunks that need to be updated together: ($chunk_0$, $chunk_2$), $\dots$, ($chunk_5$, $chunk_7$). For ($chunk_0$, $chunk_2$), ($chunk_4$, $chunk_6$), and ($chunk_5$, $chunk_7$), each pair of chunks can be updated either on GPU or on CPU without data movement. However, ($chunk_1$, $chunk_3$) requires one chunk on GPU and one chunk on CPU. In this scenario, data exchange is needed. In QISKit-Aer, the data is always copied from CPU to GPU, and thus we need to copy $chunk_3$ to GPU and update it together with $chunk_1$. Afterwards, we will copy $chunk_3$ back to CPU.
+
+% \squishend{}
+
+
+
+% \begin{figure}[h!]
+% \includegraphics[width=0.4\textwidth]{section-3/chunk-egs.pdf}
+% \centering
+% \caption{Example of chunk partition in baseline}
+% \label{fig-3}
+% \end{figure}
+
+\subsection{Will a Naive Optimization Work?}
+\label{sec:naive}
+To improve the GPU utilization during simulation, an intuitive optimization would dynamically allocate the chunks and transfer the chunks to GPU for updates. In this section, we investigate whether the naive implementation works well or not.
+% Such a design can take advantage of GPU parallelization. 
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.45\textwidth]{section-3/naive-base.pdf}
+    \caption{Normalized execution time of naive approach.}% \xulong{put average}}
+    \label{fig:naivebase}
+    \vspace{-5pt}
+\end{figure}
+
+\begin{figure}[!h]
+\includegraphics[width=0.45\textwidth]{section-3/naive.pdf}
+\centering
+\caption{Execution time breakdown of naive optimization.} 
+%\xulong{narrow the figure}}
+\label{fig:naivebreak}
+\end{figure}
+
+We implemented the dynamic state vector chunk allocation in QISKit-Aer. Figure \ref{fig:naivebase} depicts the execution time of the naive optimization normalized to the baseline execution. Surprisingly, none of the quantum circuits we studied show improvements when using dynamic allocation. To further investigate the reason, we break down the execution time and show the results in Figure~\ref{fig:naivebreak}.
+As can be seen from the figure, while CPU execution time significantly reduces and the data movement dominates, indicating that the GPU is waiting for data most of the time during execution.
+Therefore, naive dynamic allocation alone does not work to deliver good QCS performance. More sophisticated end-to-end optimizations are required to systematically improve the QCS performance and scalability. 
+
+% though still low, the execution time of GPU increases as expected. Specifically, in naive optimization, amplitudes update occupies 2.34\% of total time in average. However, 
+
+%\xulong{remove the subsection below and distribute its discussion to proper places}
+
+% \subsection{GPU Deficiency of Baseline Execution}
+% \label{section-3-4}
+% \noindent Based on our observations and analysis on the baseline implementation, we have identified a concrete problem in it: static chunk allocation and reactive data exchange restrain the utilization of the GPU calculation resource when the number of qubits is larger than 30. When updating the same number of chunks, GPU outperforms CPU by many times. Assume we have 100 chunks on GPU and 100 chunks on CPU, after GPU finishes updating its 100 chunks, CPU may have only finished 10. However, in this implementation GPU stays idle after finishing its execution and waits for CPU, instead of taking over part of the remaining work on CPU: if GPU could help updating some of the 90 chunks on CPU, the simulation would become much faster. Intuitively, we can proactively exchange the data between CPU and GPU to improve the utilization of GPU. Thus, we first try a naive optimization, which is dynamic chunk allocation. 
+
+% \noindent\textbf{Dynamic Chunk Allocation:}
+% Initially, all chunks are stored in CPU memory. When we apply a gate to the state vector, we simply copy a group of chunks to GPU, after updating these chunks, we copy them back to CPU and proceed to next group of chunks until we traverse all chunks. Note that for different gates, the indices of chunks within a group are dynamically determined because different gates apply to different qubits (see examples in Section 3.2). \\
+% \noindent\textbf{Will Naive Optimization Work?}
+% Unfortunately, our experimental results show that this optimization does not solve the problem: though better than baseline, we find that the execution time is still longer than CPU mode after utilizing dynamic chunk allocation. Figure \ref{fig-4} shows the execution time breakdown of \hl{our benchmarks/a specific circuit}. Since this optimization forces all computation to be done on GPU, the proportion of CPU time is significantly reduced. Also, it can be seen that the computation time of GPU is lower than the time of CPU mode by \todo{***} times, but the major component of execution time for GPU mode becomes memory copy between CPU and GPU, meaning that data movement becomes the bottleneck. Table \ref{tab-2} summarizes the data transfer size for different benchmarks with 32 qubits. Such huge data movement is not only time-consuming but also power hungry, and makes it challenging to utilize the fast computing speed of GPU.
+
+
+
+% \begin{table}[h!]
+% \centering
+% \begin{tabular}{||c c c c||} 
+% \end{tabular}
+% \caption{Data transfer size of dynamic chunk allocation.}
+% \label{tab-2}
+% \end{table}
+
+\section{Q-GPU}
+\label{sec:qgpu}
+
+%\yilun{I add a restriction, "when memore requirement is beyond GPU's memory capacity"}
+
+%%%%%%%%%%%%% xulong: removed due to space
+% \noindent {\bf Our goal} in this paper is to fully utilize the computation parallelism in GPUs to accelerate the simulation of quantum circuits with a large number of qubits (i.e., the required memory is beyond GPU's memory capacity). Recall from the discussion in Section~\ref{sec:naive} that naive dynamic chunk allocation can potentially improve GPU utilization, but this involves significant overheads in data transfer undoing the performance gains. \textbf{our major design objective is to reduce data movements.} To this end, we propose a framework called {\it Q-GPU} with end-to-end optimizations to reduce the data movement overheads and improve the GPU utilization, while retaining precise simulation results to describe the quantum states of a quantum system.
+%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%% xulong: removed due to space
+% \noindent {\bf Challenges: }However, reducing data movement without losing precision is non-trivial. Simulating a quantum circuit is essentially applying a sequence of operations to a large complex vector, which stores amplitudes of each state. As discussed in section \ref{section-2}, each quantum operation requires one individual traversal of all state amplitudes in the whole state vector. Thus, the amount of data movement increases proportionally with the number of operation. Moreover, the bandwidth between CPU and GPU is limited (e.g., 16 GB/s in PCI-e 3.0, and 20 GB/s in NVLINK). Transferring the whole state vector for every quantum operation involves significant data transfer latency. As shown in Section~\ref{section-3-4}, only 2.34\% of the execution time is spent on real computing by the GPU. The rest of the execution time is waiting for the state vector transfer.  %Finally, it is difficult to directly apply general data compression algorithms on state amplitudes as they are complex values. Moreover, as the simulation continues, more and more qubits are changed from original states, resulting a complicated state amplitudes distribution. %The amplitudes become more complicated as the simulation continues since they represent a superposition of many states of entangled qubits. %\xulong{please check my text if it is correct.}
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%
+% \par However, reducing data movement without losing precision is non-trivial. Essentially, simulating a quantum circuit is applying a sequence of operations to a large complex vector, which stores amplitudes of each state. As illustrated in section \ref{section-2}, each operation requires one separate traversal of all state amplitudes, i.e. the whole memory. Thus the times of memory traversal is predetermined by the number of gates, which is difficult to further reduce during execution. Therefore, reducing data size during data transmission is the only way to reduce data movement. The data transfer size may be reduced through data compression, which is used in \cite{wu2019full} to reduce memory consumption. However, as indicated in \cite{wu2019full}, the amplitudes in state vector become more and more complicated as the simulation goes on, which makes it difficult to compress. As a result, they adopted lossy compression techniques to reduce data size, which also reduces the precision of results. Hence, the challenge remains of reducing data size while maintaining precision.
+
+% \yilun{I add a restriction, "when memore requirement is beyond GPU's memory capacity"}
+
+% \noindent {\bf Our goal} in this paper is to fully utilize the computation parallelism in GPUs to accelerate the simulation of quantum circuits with a large number of qubits (i.e., the required memory is beyond GPU's memory capacity). 
+
+% To achieve this goal, we first investigate a naive approach as illustrated in Section \ref{section-3-4}. Specifically, we store the entire state vector in CPU memory. For each operation, we dynamically copy a certain number of chunks to GPU, update the states of these chunks, and then copy them back to CPU memory. However, as we have observed in section \ref{section-3-4}, using such a mechanism will induce large amount of data movement, thus data transfer time becomes the major component of execution time. Therefore, \textbf{our major design objective is to reduce data movements.} To this end, we propose an efficient and effective framework Q-GPU for quantum circuit simulation on GPUs. It significantly reduces the data movements between CPU and GPU, and retains precise simulation results to describe quantum state of a quantum system.
+% \par However, reducing data movement without losing precision is non-trivial. Essentially, simulating a quantum circuit is applying a sequence of operations to a large complex vector, which stores amplitudes of each state. As illustrated in section \ref{section-2}, each operation requires one separate traversal of all state amplitudes, i.e. the whole memory. Thus the times of memory traversal is predetermined by the number of gates, which is difficult to further reduce during execution. Therefore, reducing data size during data transmission is the only way to reduce data movement. The data transfer size may be reduced through data compression, which is used in \cite{wu2019full} to reduce memory consumption. However, as indicated in \cite{wu2019full}, the amplitudes in state vector become more and more complicated as the simulation goes on, which makes it difficult to compress. As a result, they adopted lossy compression techniques to reduce data size, which also reduces the precision of results. Hence, the challenge remains of reducing data size while maintaining precision.
+
+\begin{figure}[t!]
+    \includegraphics[width=0.45\textwidth]{section-4/overview.pdf}
+    \centering
+    \caption{High level overview of Q-GPU.}%\xulong{use a different box for CPU and GPU memory. Then draw another box for the (4). What I want is to emphasize the boxes to be your optimizations (e.g., reducing data movement). BTW, it should be reducing moving zero amplitudes.}}%\xulong{need redraw the figure, put circled label and clearly mark the four optimization components and what they are appied to. Here is not to explain how they work, is to explain what they are and how they are inter-related.}}
+    \label{fig-5}
+    \vspace{-5pt}
+\end{figure}
+
+In this paper, we propose {\it Q-GPU}, a framework that features several end-to-end optimizations. Figure~\ref{fig-5} depicts the high-level overview of Q-GPU. (\circled{1}) Q-GPU performs proactive state amplitude transfer to fully utilize the bi-directional data transfer bandwidth between CPU and GPU (Section \ref{sec:overlap}). (\circled{2}) Before copying state amplitudes to GPU, Q-GPU performs dynamic redundancy elimination that prunes zero state amplitudes to avoid unnecessary data movements (Section \ref{sec:pruning}). (\circled{3}) Q-GPU features a compiler-assisted, dependency-aware quantum gate reordering to enlarge the potential of pruning (i.e., the number of zero amplitudes). (\circled{4}) Q-GPU implements a GPU-supported, lossless amplitude compression to further reduce the data transfer caused by non-zero state amplitudes with minimal runtime overheads (Section \ref{sec:compress}).
+% Pulling all together, Q-GPU provides significant simulation performance improvements and scalability for large number qubit circuits towards future quantum computing.
+
+% \par To overcome these challenges, we design Q-GPU. The high-level overview of our framework is shown in figure \ref{fig-5}. To store the state vector in memory, we partition the state vector into chunks and store them in CPU memory, then we dynamically push chunks to GPU memory for chunk update. As the data transfer dominates execution time, our framework overlaps the data transfer in both directions between CPU and GPU by utilizing CUDA streams (Section \ref{sec:overlap}) to reduce data transfer time. Before copying chunks to GPU, we first perform redundancy decision and skip unnecessary data movements (Section \ref{sec:pruning}). After the source of redundant data is identified, a mechanism is presented to enlarge redundancy by reordering gates (Section \ref{sec:reorder}) before execution. Finally, we utilize lossless data compression algorithms to further reduce data movements. Except for the beginning and the end of execution, CPU memory contains compressed chunks. After moving compressed chunks to GPU, we perform decompression, update and compression in order and then copy compressed chunks back to CPU (Section \ref{sec:compress}). By utilizing all these optimizations, Q-GPU significantly improves GPU utilization and reduces data movement between CPU and GPU. 
+
+\subsection{Proactive State Amplitudes Transfer}
+\label{sec:overlap}
+
+In the naive execution, one reason behind the poor GPU utilization is the sequential state amplitude transfer between CPU and GPU. Specifically, when the GPU finishes updating all local chunks, those chunks are first copied back to CPU memory before the CPU can transfer the next batch of un-updated chunks to the GPU. This restriction is reasonable in the scenarios when particular chunks are involved in consecutive updates since the chunks being copied from the GPU's memory cannot be overwritten during the copying. In other words, data movements are synchronized to avoid data conflicts.
+However, if the subsequent chunks from the CPU are not copied to the same memory locations on the GPU where current chunks are stored, such data conflict does not exist. As a result, one can transfer the chunks simultaneously from the CPU to the GPU and from the GPU to the CPU.
+
+In our work, Q-GPU leverages CUDA streams to enable concurrent and bi-directional chunk copy to fully utilize the available bandwidth between the CPU and GPU. To avoid potential data conflict, Q-GPU implements two CUDA streams and partitions the GPU memory into two halves. One stream is responsible for the first half partition that acts as a buffer holding the chunks the GPU is currently updating. The other stream is responsible for the second half partition that acts as a buffer for ``prefetching'' the next chunks for the GPU to update. The two memory partitions work as ``circular buffers'' to feed the GPU with the required chunks. These two streams can potentially overlap and execute concurrently. 
+%\xulong{we may need to push baseline as well here}
+%\par In Figure \ref{fig:timeline-overlap}, the proposed proactive state amplitudes transfer (\circledwhite{III}) achieves \circled{A} cycles saving compared with baseline (\circledwhite{I}) due to the overlapped data transfer, whereas the naive approach (\circledwhite{II}) has even longer execution time than baseline. 
+
+%\devin{This is based on Xulong's rewrite, but it was cutoff at the right margin so we need to check if this is what was actually written in his edits:}
+
+\par Figure \ref{fig:timeline-overlap} illustrates the timeline of the baseline and each of our optimizations. The proposed proactive state amplitude transfer (\circledwhite{III}) achieves \circled{A} cycles savings compared with the baseline (\circledwhite{I}). We also show that the naive approach (\circledwhite{II}) performs worse than the baseline. 
+
+%%%%%%%%%%Xulong: removed the details for space
+% The details of our design are explained as follows. Supposing there are $N$ chunks ($chunk_0$, $\cdots$, $chunk_{N-1}$) on the CPU memory, and $2n$ chunks on GPU memory. $iStream$ is used to determine which half of the chunks to operate on. After ($chunk_0$, $\dots$, $chunk_{n-1}$) are updated on the GPU, they are copied back to the CPU. In the meantime when these chunks are being updated, another stream prefetches ($chunk_n$, $\dots$, $chunk_{2n-1}$) to the GPU simultaneously. Note that, there is no chunk conflict since ($chunk_0$, $\dots$, $chunk_{n-1}$) and ($chunk_n$, $\dots$, $chunk_{2n-1}$) are stored on different half of the GPU memory. 
+%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{figure}[t!]
+    \includegraphics[width=0.45\textwidth]{section-4/timeline.pdf}
+    \centering
+    \caption{Time-line graph showing the benefits of each optimization in Q-GPU.}%\xulong{I want a more thorough figure to show all your optimizations with III, IV, V, VI etc, also use one sentence to mention in end of each opitmization in the text}}
+    \label{fig:timeline-overlap}
+    \vspace{-5pt}
+\end{figure}
+
+\subsection{Pruning Zero State Amplitudes}
+\label{sec:pruning}
+\noindent While overlapping improves the bandwidth utilization, the total amount of amplitudes that are transferred remains unchanged. 
+%We observe that there exist a considerable amount of zero state amplitudes that do not need to be updated during simulation.
+%\devin{Again, need to check if this is what Xulong was asking for to replace the above sentence:}
+To reduce the data movement, we observe that there exist a considerable amount of zero state amplitudes that do not need to be updated during simulation.
+Thus, those zero state amplitudes can be pruned before transferring the chunks. 
+ 
+% Next, we first discuss the potential of pruning and then propose a mechanism to dynamically prune the zero state amplitudes.
+
+%\xulong{we are using operation and gates mixed. you can either add a footnote at the first place saying that you used them interchangeably. or select on}
+
+\noindent \textbf{Source of zero amplitudes:}
+Let us assume there are $n$ qubits, the initial states are usually set as $|0\rangle^{\otimes{n}}$ in the general QCS, indicating that all qubits have zero probability of being measured as $|1\rangle$. 
+Hence, all state amplitudes are zeros, except for $a_{0_{1}0_{2}\dots0_{n}}$ which is 1. As the state of a particular qubit is unchanged until an operation is being applied on it, its state remains $|0\rangle$ until that operation happens. 
+For instance, if a particular qubit $q_k$ is $|0\rangle$, all the state amplitudes $a_{\times\dots\times1_{k}\times\dots\times}$ are zeros since $q_k$ has zero probability to be measured as $|1\rangle$. 
+%xulong{I still do not understand the following sentence, why half?}
+In general, if $m$ of $n$-qubits are not involved, amplitudes $a_{\times{0_{k_1}}\times{0_{k_2}}\dots\times{0_{k_m}}\times\times}$ are possible to be non-zero values, whereas the remaining amplitudes are guaranteed to be zero values, i.e. $2^n-2^{n-m}$ amplitudes are zero values.
+Therefore, even if only one qubit is not involved, then half of the state amplitudes are zeros. 
+%As a result, these zero amplitudes can be safely ``pruned'' before state chunk transferring without affecting the simulation results. Note that, pruning is effective until all qubits are involved. 
+
+\noindent \textbf{Pruning potential:}
+To investigate the potential of pruning, Table \ref{tab-inv} lists the number of total operations and the number of operations before all qubits are involved. For circuits like {\tt iqp}, we can expect a significant reduction of data movement after pruning since many qubits are not involved until the end of execution. However, for {\tt qft} and {\tt qf}, all qubits are involved at the beginning of execution, diminishing the potential of pruning benefits.  
+We also use {\tt hchain\_18} as an example and plot the distribution of state amplitudes after each operation (i.e., quantum gate) being applied in a quantum circuit. 
+Figure \ref{fig:hchain18state} shows the state amplitude distribution after 0, 30, 60 and 90 operations. One can observe that a large portion of state amplitudes are zeros at the beginning of the simulation. During simulation, the amplitudes are gradually updated to non-zero values since more qubits are involved. 
+%if there is an operation that applies to the corresponding qubits. 
+% Note that, although we use {\tt hchain\_18} as an example, the amplitudes distributions for other circuits share similar characteristics.
+
+% \noindent Overlapping effectively reduces data transfer time. However, overall amount of data transfer remains large, as shown in table \ref{tab-2}. In this section, we observe that there exists considerable redundant data movement, and propose a mechanism to prune such redundancy. \\
+% \noindent \textbf{Pruning Potentials: }To address the pruning potentials, we plot the distribution of state amplitudes after each operation for a quantum circuit. The amplitudes distributions for different circuits present similar characteristics. For illustration, we use {\tt hchain\_18} as an example. In this circuit, we have 474 operations in total, after each operation, we plot the amplitudes distribution of the circuit. Figure \ref{hchain18state} samples the state amplitudes after 0, 30, 60, 90 and 120 operations, it is obvious that a large majority of state amplitudes are zero at initial stage. More importantly, there are still lots of zero-valued amplitudes even after 60 operations. Eventually, the amplitudes become complicated after 120 operations.
+
+% \begin{figure*}[h!]
+% \centering
+% \includegraphics[width=0.95\textwidth]{section-4/state-distri.pdf}
+% \caption{State amplitudes distribution of {$\tt hchain\_18$}, after 0, 30, 60, 90 and 120 operations from left to right.}
+% \label{fig:hchain18state}
+% \end{figure*}
+
+\begin{figure*}[h!]
+    \centering
+    \subcaptionbox{\label{fig:step0}}[.22\textwidth]{\includegraphics[width=0.22\textwidth]{section-4/state_vec_0.pdf}}
+    \hspace{-5pt}
+    \subcaptionbox{\label{fig:step30}}[.22\textwidth]{\includegraphics[width=0.22\textwidth]{section-4/state_vec_30.pdf}}
+    \subcaptionbox{\label{fig:step60}}[.22\textwidth]{\includegraphics[width=0.22\textwidth]{section-4/state_vec_60.pdf}}
+    \vspace{-5pt}
+    \subcaptionbox{\label{fig:step90}}[.22\textwidth]{\includegraphics[width=0.22\textwidth]{section-4/state_vec_90.pdf}}
+    \vspace{-5pt}
+    \caption{State amplitudes distribution of {$\tt hchain\_18$}, after 0, 30, 60 and 90 operations from left to right. Blue and orange lines denote real and imaginary parts of an amplitude respectively.}
+    \vspace{-5pt}
+\label{fig:hchain18state}
+% \vspace{-5pt}
+\end{figure*}
+
+%\xulong{I am confused here so I did not change the paragraph below. are the redundancy all zeros all unchanged amplitudes. I remember we discussed they are all zeros, not unchanged amplitude???}
+\par In general, let us assume we have an operation involving $m$ states, if all of the states are zero, these $m$ states remain zeros after applying any operation. As a result, we do not need to transfer the zero state amplitudes to the GPU as their values will not change. Therefore, one can reduce the data movement between CPU and GPU by  pruning the zero state amplitudes. One intuitive approach is to check each state value by traversing all states. However, a more efficient approach can be adopted, as we illustrate below.
+
+
+
+% \par Consider we have an operation involving $m$ states, if all of the states are zero, these $m$ states will not be changed after applying any operation. In other words, the movement of these data are indeed redundant because we don't need to update them. Therefore, we can simply skip these states and do not move them between CPU and GPU so as to reduce data movement. To achieve this goal, one plausible way is to check each state by simply traverse them before moving them. However, this approach is proved to be too expensive after we identify the source of redundancy as follows. \\ 
+% \noindent \textbf{Source of Redundancy: }Assume we have $n$ qubits, the initial state is $|0\rangle^{\otimes{n}}$, which indicates that all qubits have zero probability to be measured as $|1\rangle$. Hence, all state amplitudes are zero, except that $a_{0_{1}0_{2}\dots0_{n}}$ is 1. Since the state of a single qubit is not changed until an operation acts on it, it will remain $|0\rangle$ until an operation involves it. Assume a qubit $q_k$ is $|0\rangle$, all state amplitudes $a_{*\dots*1_{k}*\dots*}$ are zero since $q_k$ is not possible to be $|1\rangle$. To assess the benefit of pruning, we count the number of operations before all qubits are involved for all benchmarks. Note that even one qubit is not involved, half of state amplitudes will be zero. Thus pruning is expected to effectively reduce data movements until all qubits are involved. In Table \ref{tab-inv}, we list the total number of operations for all benchmarks. The number of operations  before all qubits are involved are calculated to access the potential benefit of pruning. For circuits like {\tt iqp}, we can expect significant reduction of data movement after pruning, since not all qubits are involved until near the end of execution. However, for {\tt qft} and {\tt qf}, all qubits will be involved at the early stage of execution, thus the pruning potentials of these circuits are limited.  
+
+
+\begin{table}[t!]
+\centering
+\scriptsize
+\caption{The number of total operations and the number of operations before all qubits are involved for all circuits with 34 qubits.}
+\begin{tabular}{||c|c|c||} 
+ \hline
+ Circuit & Total Operations & \makecell{Operations Before \\ Completely Involved}  \\ [0.5ex] 
+ \hline\hline
+ {\tt hchain} & 1786 & 272 \\ 
+ \hline
+ {\tt rqc} & 124 & 54 \\
+ \hline
+ {\tt qaoa} & 754 & 19 \\
+ \hline
+ {\tt gs} & 37 & 16 \\
+ \hline
+ {\tt hlf} & 48 & 16 \\
+ \hline
+ {\tt qft} & 184 & 13 \\
+ \hline
+ {\tt iqp} & 146 & 132 \\
+ \hline
+ {\tt qf} & 222 & 16 \\ [1ex] 
+ \hline
+\end{tabular}
+\label{tab-inv}
+\end{table}
+
+%\xulong{Double check you discussion matches with algorithm. I did not check}
+\noindent \textbf{Pruning Mechanism: }In the proposed Q-GPU, we use bits in a binary string as flags to indicate whether a qubit has been involved after a set of gate operations (denoted as $involvement$ in Algorithm \ref{alg:pruning}). Initially, all the bits in $involvement$ are set to 0. When $q_k$ is involved, the $k$th bit in $involvement$ is set to 1. Recall that the state vector is partitioned into chunks, the index of a chunk, i.e., $iChunk$, determines whether a chunk will be transferred or not. 
+To compare $iChunk$ with flag bits in $involvement$, we define $iChunk^{\prime}$ as the left-shifted $iChunk$ to align with $involvements$. When $iChunk^{\prime}$ is larger than $involvement$, it indicates that at least one bit of $iChunk^{\prime}$ is 1 and the corresponding flag bit in $involvement$ is 0. In this situation, the corresponding qubit (i.e., indexed by this flag bit) has not been involved by any operation. 
+As such, we skip the remaining chunks and stop the iteration (line 5). On the other hand, if $iChunk^{\prime}$ is smaller than or equal to $involvement$, the redundancy within a chunk is determined by $iChunk^{\prime}$ \& $involvement$ (line 8). 
+For a qubit whose corresponding bit in $iChunk^{\prime}$ is 1, if it has already been involved by previous operations, its corresponding bit in $involvement$ is also 1. 
+Therefore, for all the qubits that is 1 in $iChunk^{\prime}$, if all of them have already been involved by previous operations, $iChunk^{\prime}$ $\&$ $involvement$ results in $iChunk^{\prime}$ itself. Otherwise, all the state amplitudes within this chunk are zeros, and we can prune this chunk. Moreover, the $chunkSize$ here is dynamically determined rather than a statically fixed value, which enhances the benefit of the above-discussed strategy. Specifically, we select $chunkSize$ by finding the least non-zero bit of $involvement$. 
+This is useful, especially at the beginning of the simulation where many state amplitudes are zeros. For instance, assuming we have an 8-qubit circuit and the $involvement$ flag is $00000011$ at the early execution stage, the $chunkSize$ is dynamically set to 2, which has fewer zeros within a chunk compared to a larger chunk. The $involvement$ flag bits are updated according to the qubits involved in each operation (line 14). In Figure \ref{fig:timeline-overlap}, the proposed pruning mechanism (\circledwhite{IV}) further saves (\circled{B}) cycle over \circledwhite{III}.  
+% \xulong{can we have an example to explain how it works to match the discussion above}
+
+
+% \noindent \textbf{Pruning Mechanism: }In our framework, we use an unsigned long int variable to indicate whether a qubit has already been involved, which is denoted as $involvement$ in algorithm \ref{alg:pruning}. Initially, $involvement$ is set as 0, when $q_k$ is involved, the $k$th bit of $involvement$ is flipped to 1. Recall that the state vector is partitioned to chunks, thus the index of a chunk, i.e. $iChunk$ determines whether a chunk should be moved or not. To compare $iChunk$ with $involvement$, we left shift $iChunk$ by $chunkSize$ to align it with $involvement$ and get $iChunk^{\prime}$. When $iChunk^{\prime}$ is larger than $involvement$, there is no doubt that at least one bit of $iChunk^{\prime}$ is 1, while this bit of $involvement$ is 0. Under this situation, the corresponding qubit of this bit has not been acted on by any operation, then we are confident to skip rest chunks and stop iteration (line 5). When $iChunk^{\prime}$ is smaller or equal to $involvement$, the redundancy of a chunk is determined by $iChunk^{\prime} \& involvement$ (line 8). In case all qubits whose corresponding bits in $iChunk^{\prime}$ are 1 have been involved, their corresponding bits in $involvement$ are also 1. Therefore, $iChunk^{\prime}$ $\&$ $involvement$ results in $iChunk^{\prime}$, otherwise we are confident that this chunk contains all-zero states and skip it. Moreover, the $chunkSize$ here is dynamically determined rather than a relatively large fixed value, which enhances the benefit of former strategy. To be more concrete, we select $chunkSize$ by locating the least non-zero bit of $involvement$. This trick is useful especially at initial stage of simulation. For better illustration, suppose we have a 8-qubit circuit and $involvement$ is $00000011$ at early stage, then the $chunkSize$ is set at 2. In contrast, we will move a much larger chunk that contains many zeros if we set $chunkSize$ at 6. Finally, $involvement$ is updated according to the qubits involved in current operation.
+
+% \xulong{can we have an example to explain how it works to match the discussion above}
+
+
+\begin{algorithm}[t!]
+\scriptsize
+\SetKwFunction{memCpy}{memCpy}
+\SetKwFunction{Exe}{execute}
+\SetKwFunction{Update}{updateInvolvement}
+\SetKwFunction{Get}{getChunkSize}
+    \SetKwInOut{KwIn}{Variable list}
+    \SetKwInOut{KwOut}{Output}
+    \KwIn{\makebox[1.5cm]{$N$} Total chunks number in CPU, \\
+    \makebox[1.5cm]{$involvement$} Flag indicating which qubits are involved}
+	
+	\tcc{Determine $chunkSize$ by locating the least non-zero bit of $involvement$}
+	$chunkSize$, $N$ = \Get{involvement}\\
+   	\For	{$iChunk\gets0$ \KwTo $N-1$} {
+   		$iChunk^{\prime} = iChunk << chunkSize$\\
+   		\If {$iChunk^{\prime} > involvement$  } {
+   			break
+   		}
+   		\If {$iChunk^{\prime} \& involvement \neq iChunk^{\prime}$} {
+   			continue
+   		}
+   		\tcc{Amplitudes update}
+   		\dots\\
+   	}
+	\Update{involvement}
+    \caption{Pruning zero state amplitudes.}
+    \label{alg:pruning}
+\end{algorithm}
+
+\subsection{Reordering to Delay Qubit Involvement}
+\label{sec:reorder}
+
+% \begin{figure}[h!]
+%   \subcaptionbox{\label{fig:orgorder}}{width=0.15\textwidth}{
+%     \includegraphics[width=\linewidth]{section-4/orgorder.pdf}
+%     \caption{Original order}}
+% %   \end{subfigure}%
+% %   \hspace*{\fill}   % maximize separation between the subsection-4
+%   \subcaptionbox{\label{fig:greedyorder}}{width=0.15\textwidth}{
+%     \includegraphics[width=\linewidth]{section-4/greedyorder.pdf}
+%     \caption{After greedy reordering}}%
+% %   \hspace*{\fill}   % maximize separation between the subsection-4
+%   \subcaptionbox{\label{fig:forwardorder}}{width=0.15\textwidth}{
+%     \includegraphics[width=\linewidth]{section-4/forwardorder.pdf}
+%     \caption{After forward-looking reordering}}%
+%   \label{fig:reorder}
+% \caption{Example of ${\tt gs\_5}$, the red numbers denote the execution order.}%\xulong{put figures 7, 8, 9 in one figure with (a), (b), (c) in one row cross two columns. Refer to the figure in different subsectinos}} \label{fig-8}
+% \end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \subcaptionbox{\label{fig:orgorder}}[.15\textwidth]{\includegraphics[width=0.15\textwidth]{section-4/orgorder.pdf}}
+    \hspace{0pt}
+    \subcaptionbox{\label{fig:greedyorder}}[.15\textwidth]{\includegraphics[width=0.15\textwidth]{section-4/greedyorder.pdf}}
+    \subcaptionbox{\label{fig:forwardorder}}[.15\textwidth]{\includegraphics[width=0.15\textwidth]{section-4/forwardorder.pdf}}
+    \vspace{00pt}
+    \caption{A walk-through example to illustrate the reordering benefits using ${\tt gs\_5}$. The red number denotes the operation orders before and after reordering.}
+    \vspace{0pt}
+\label{fig:reorder}
+\vspace{-5pt}
+\end{figure}
+
+\noindent  
+In order to enlarge the potential of pruning, such that more state amplitudes are zeros during simulation, we propose compiler-assisted, dependency-aware quantum operation reordering to delay the involvement of qubits. 
+Specifically, when applying a gate, we choose the one that incurs the minimum number of additional qubits to be involved with those qubits that have been already involved by previous operations. 
+For example, Figure~\ref{fig:orgorder} shows the {\tt gs\_5} circuit in the original execution order. The first five gates are $H$ gates, where each gate applies to an individual qubit. As a result, once these gates have been applied, all the five qubits are involved.
+% \footnote{Note that, even the $H$ gate is a single qubit operation, it involves updating the entire state vector amplitudes. This is because, whenever the state of a qubit $q_k$ is changed by an operation, the probabilities of this $q_k$ to be measured as $|0\rangle$ and $|1\rangle$ are also changed, therefore, the probability amplitudes $a_{\times\dots\times{0_k}\times\dots\times}$ and $a_{\times\dots\times{1_k}\times\dots\times}$ are all changed, resulting an entire traversal of state vector to update all amplitudes (refer back to Equation \ref{eq:amplituesupdate}).}
+%not only its state amplitudes changed, but it has to update all other non-zero state amplitudes to ensure the summation of state probabilities is 1 as we discussed in Section~\ref{ssec:xxx}}.%\xulong{Please check my footnote}. 
+The next operation is a CNOT gate applied to qubits $q_{0}$ and $q_{1}$ ($CNOT_{6}$). All the state amplitudes are likely non-zero because the qubits are involved by the $H$ gates. Therefore, applying this CNOT gate requires updating all the non-zero amplitudes in the state vector, leading to moving and traversing the entire state vector on the GPU. However, the $CNOT_{6}$ can be executed before some of the $H$ gates without violating the circuit semantics. This gate reordering allows more zero state amplitudes (fewer data movements) when simulating the $CNOT_{6}$ gate. 
+%This is beneficial since any gates that involve a single qubit does not require data movement. 
+It is also important to emphasize that any reordering must ensure that the gate dependencies are presented. For instance, $CNOT_{6}$ and $CNOT_{7}$ cannot be reordered due to the dependency on $q_0$.
+
+To this end, we propose a compiler-assisted optimization to reorder the gate sequence with the goal of delaying the qubit involvement. Specifically, gates that are applied on different qubits in a quantum circuit can be executed independently in any order and the execution sequence of these independent gates does not affect the final simulation result~\cite{li2019tackling,fatima2020faster,iten2019exact}. This provides us the opportunity to reorder the independent gates, we use a directed acyclic graph (DAG) to represent the gate dependency in a circuit. Based on the DAG, we reorder the independent gates such that the simulation sequence involves the minimum number of new qubits when simulating each gate. Specifically, we investigate two heuristic strategies: 1) greedy reordering, and 2) forward-looking reordering.
+
+\begin{algorithm}[t!]
+\scriptsize
+\SetKwFunction{getCost}{getCost}
+\SetKwFunction{append}{append}
+\SetKwFunction{erase}{erase}
+\SetKwFunction{numPre}{numPredecessors}
+\SetKwFunction{desc}{descendants}
+    \SetKwInOut{KwIn}{Input}
+    \SetKwInOut{KwOut}{Output}
+
+    \KwIn{\makebox[1.5cm]{$DAG$} A DAG representing circuit dependencies.}
+    \KwOut{
+    \makebox[1.5cm]{$gatesList$} List of gates after reordering,\\
+    }
+
+    $gatesList = [\ ]$\\
+    $exeList = [\ ]$\\
+    \tcc{First we build $DAG$ and push gates without predecessors to an execution list}
+    \For {$g$ in $DAG$}{
+    	\If {$g.\numPre{} == 0$}{
+    		$exeList.\append{g}$
+    	}
+    }
+	
+	\tcc{Then we traverse DAG in topological order and greedily decides the execution order of the gates}
+	\While {$exeList \neq \emptyset$ } {
+		$nextGate = NULL$ \\
+		$minCost = 0$ \\
+		\For {$g$ in $exeList$} {
+			$cost = g.\getCost{}$ \\
+			\If {$cost < minCost$} {
+				$minCost = cost$\\
+				$nextGate = g$\\
+			}
+		}
+		$exeList.\erase{nextGate}$ \\
+		$gatesList.\append{nextGate}$ \\
+		\For {$g$ in $nextGate.\desc{}$} {
+			$g.\numPre{} = g.\numPre{} - 1$ \\
+			\If {$g.\numPre{} == 0$} {
+				$exeList.\append{g}$
+			}
+		}
+	}
+	
+    \caption{Quantum operation reorder.}
+    \label{alg-3}
+\end{algorithm}
+
+\noindent\textbf{Greedy reordering:} greedy reordering traverses the DAG in topological order and greedily selects the gate (i.e., node in the DAG) that introduces the minimum number of new qubits to the list of updated qubits.
+%One simple and straightforward optimization is to traverse the DAG in topological order and greedily select a gate that introduces least new qubits at each step, eventually the original circuits is reordered. 
+The details of this method are illustrated in~Algorithm~\ref{alg-3}. First, gates without predecessors in the DAG can be executed at the first steps and are put into $exeList$. Second, we traverse the gates in $exeList$ and find the one that introduces the minimum number of newly involved qubits (lines 13 to 19). Then, we remove this gate from $exeList$ and append it to the list of re-ordered gates. Third, we traverse the descendants of this gate and if a descendant does not have any predecessors other than this current gate, it will be added to $exeList$ (lines 22 to 27). The second and the third steps are repeated until $exeList$ is empty.
+%For example, Figure~\ref{fig:greedyorder} shows the result of reordering the {\tt gs\_5} circuit using this algorithm. 
+In the rest of this section, we use Figure \ref{fig:orgorder} as the example to illustrate how we perform reordering. 
+At first, the $exeList$ is [$g_1$, $g_2$, $g_3$, $g_4$, $g_5$]. Since each of these five gates involves one new qubit, we randomly select one gate among them to start simulation. In this example, $g_1$ is selected as the starting gate. After traversing all its descendants, no new gates can be added into $exeList$. 
+Next, the $exeList$ becomes [$g_2$, $g_3$, $g_4$, $g_5$].
+%\xulong{Rewrite the following, I could not understand. Suggestions: discuss every step, what you choose, what is the content in $exeList$ and what are the involved qubits. Do not run through all steps back and forth}
+In the next three steps, we randomly select $g_3$, $g_5$ and $g_2$ since no new gates can be executed and all gates in $exeList$ have equal priority. Then the $exeList$ becomes [$g_4$, $g_6$]. 
+At this time, $involvedQubits$ is [$q_0$, $q_1$, $q_2$, $q_4$]. Therefore, $g_4$ involves one new qubit ($q_3$), whereas $g_6$ will not introduce any new qubits since it acts on $q_0$ and $q_1$ that are already in the involved list. 
+Therefore, we will greedily select $g_4$ to execute since it involves the least new qubits. 
+One can follow these reordering steps to reach the new ordering shown in Figure~\ref{fig:greedyorder}.
+As a result, the number of involved qubits at each step is 1 $\to$ 2 $\to$ 3 $\to$ 4 $\to$ 4 $\to$ 4 $\to$ 5 $\to$ 5 $\to$ 5. Since the baseline is 1 $\to$ 2 $\to$ 3 $\to$ 4 $\to$ 5 $\to$ 5 $\to$ 5 $\to$ 5 $\to$ 5, the final involvement is delayed by two steps.
+However, a better solution for reordering is to select $g_2$ and $g_6$ in the second and the third step, since applying these two gates only adds one qubit to $exeList$, while applying $g_3$ and $g_5$ adds two. Thus greedy reordering may misses the optimal choice.
+
+% \begin{figure}[t!]
+%   \begin{subfigure}{0.25\textwidth}
+%     \includegraphics[width=\linewidth]{section-4/graph-state-5-order1.pdf}
+%     \caption{Circuit after \textit{greedy reordering}} \label{fig-8c}
+%   \end{subfigure}%
+%   \hspace*{\fill}   % maximize separation between the subsection-4
+%   \begin{subfigure}{0.2\textwidth}
+%     \includegraphics[width=\linewidth]{section-4/graph-state-5-order1-dag.pdf}
+%     \caption{DAG after \textit{greedy reordering}} \label{fig-8d}
+%   \end{subfigure}%
+% \caption{${\tt gs\_5}$ after \textit{greedy reordering}} \label{fig-greedy}
+% \end{figure} 
+
+\begin{algorithm}[t!]
+\scriptsize
+\SetKwFunction{getCost}{getCost}
+\SetKwFunction{qubits}{qubits}
+\SetKwFunction{Push}{push}
+\SetKwFunction{insert}{insert}
+\SetKwFunction{erase}{erase}
+\SetKwFunction{desc}{descendants}
+\SetKwFunction{numPre}{numPredecessors}
+    \SetKwInOut{KwIn}{Input}
+    \SetKwInOut{KwOut}{Output}
+
+    \KwIn{
+	\makebox[1.5cm]{$g$} Gates from $exeList$, \\
+    \makebox[1.5cm]{$exeList$} List of gates that are executable, \\
+    \makebox[1.5cm]{$involvedQubits$} Set of qubits which have already been acted on.
+	}
+    \KwOut{\makebox[1.5cm]{$cost$} Potential involved qubits after executing $g$.}
+	
+	$costCurrent = 0, costLookAhead = 0$\\
+	
+    \tcc{First we compute additional qubits that will be acted on by executing current gate}
+    \For {$q$ in $g$.\qubits{}} {
+    	\If {$q$ not in $involvedQubits$} {
+    		$costCurrent = costCurrent + 1$\\
+    		$involvedQubits.\insert{q}$		 
+    	}
+    }
+    
+    $exeList.\erase{g}$\\
+    \For {$g^\prime$ in $g.\desc{}$} {
+    	\If {$g^\prime$.\numPre{} == 1} {
+    		$exeList$.\Push{$g^\prime$}
+    	}
+    }
+	
+	\tcc{Then we traverse current $exeList$ and compute the cost of selecting a gate that involve least additional qubits}
+	\For {$g^{\prime\prime}$ in $exeList$} {
+		$curCostLookAhead = 0$ \\
+		\For {$q^\prime$ in $g^{\prime\prime}$.\qubits{}} {
+			\If {$q^\prime$ not in $involvedQubits$} {
+				$curCostLookAhead = curCostLookAhead + 1$ \\
+			}
+		}
+		\If {$curCostLookAhead < costLookAhead$} {
+			$costLookAhead = curCostLookAhead$
+		}
+	}
+	$cost = costCurrent + costLookAhead$ \\
+	\Return {$cost$}
+    \caption{Cost calculation in forward-looking reordering.}
+    \label{alg:costcomp}
+\end{algorithm}
+
+% \begin{figure}[t!]
+%   \begin{subfigure}{0.25\textwidth}
+%     \includegraphics[width=\linewidth]{section-4/graph-state-5-order2.pdf}
+%     \caption{Circuit after \textit{forward-looking reorder}} \label{fig-forwarda}
+%   \end{subfigure}%
+%   \hspace*{\fill}   % maximize separation between the subsection-4
+%   \begin{subfigure}{0.2\textwidth}
+%     \includegraphics[width=\linewidth]{section-4/graph-state-5-order2-dag.pdf}
+%     \caption{DAG after \textit{forward-looking reorder}} \label{fig-forwardb}
+%   \end{subfigure}%
+% \caption{${\tt gs\_5}$ after \textit{forward-looking reorder}.} \label{fig-forward}
+% \end{figure} 
+
+\noindent\textbf{Forward-looking reordering:}
+To address the deficiency in greedy-reordering, we propose Forward-looking reordering that looks ahead of all the equal-priority gate candidates before making a decision. We implemented a $cost$ counter to determine the priority of the gates in $exeList$. In \textit{greedy reordering}, the $cost$ is simply computed by counting new involved qubits (line 3-8 in Algorithm \ref{alg:costcomp}). 
+The $cost$ in forward-looking reordering is computed using Algorithm \ref{alg:costcomp}. Note that, $exeList$ and $involvedQubits$ are just copies of the original ones, thus their original values are not changed. In forward-looking reordering, the $cost$ of selecting a gate in $exeList$ consists of two components: $costCurrent$ and $costLookAhead$ (line 1). The $costCurrent$ is the same with the $cost$ used in greedy reordering. Let us still use the example in Figure \ref{fig:orgorder} to illustrate Algorithm \ref{alg:costcomp}. 
+Initially, the $exeList$ is also [$g_1$, $g_2$, $g_3$, $g_4$, $g_5$]. We take $g_1$ as an example to explain the computation of $costLookAhead$. First, we assume $g_1$ has already been executed. Then, the $costCurrent$ is 1 and $involvedQubits$ becomes [$q_0$] (lines 3-8). Since no descendants of $g_1$ can be executed, the $exeList$ becomes [$g_2$, $g_3$, $g_4$, $g_5$] (lines 9-14). Then, we traverse the $exeList$. For each gate in $exeList$, we compute the cost of selecting this gate by counting the new involved qubits (lines 18-21) and selecting the least cost as $costLookAhead$.
+Now, executing any gate in $exeList$ will involve one new qubit, thus $costLookAhead$ is computed as 1 (lines 16-26). Similarly, one can find that all gates at the first step have equal priority. 
+For the purpose of illustration, we assume $g_1$ is randomly selected. Then the $exeList$ becomes [$g_2$, $g_3$, $g_4$, $g_5$].
+Although all gates still have equal $costCurrent$, we can find that $g_2$ has the least $costLookAhead$. The reason is that, when we assume executing $g_2$ and look ahead from $g_2$, we find that executing $g_6$ introduces no new qubits. In contrast, look ahead after executing other gates will introduce new qubits.   
+Finally, we get the result of forward-looking reorder as shown in Figure \ref{fig:forwardorder}. 
+Clearly, the $involvement$ at each step become 1 $\to$ 2 $\to$ 2 $\to$ 3 $\to$ 3 $\to$ 4 $\to$ 4 $\to$ 4 $\to$ 5. Compared with greedy reordering, we further delay the final involvement by two steps. 
+
+\begin{figure}[h!]
+\includegraphics[width=0.49\textwidth]{section-4/involvement.pdf}
+\centering
+\caption{Qubit $Involvement$ during simulation in three representative circuits.}%\xulong{I would put 10^6 on the top, next to the 50 label.}}
+\label{fig-inv}
+\vspace{-5pt}
+\end{figure}
+
+\noindent \textbf{Reorder effectiveness:}
+To assess the performance of the reordering algorithms discussed above, we implement them to reorder the original operation sequences for all benchmark circuits that have 22 qubits and plot the $involvement$ (Algorithm \ref{alg:pruning} in Section \ref{sec:pruning}) after each gate has been applied. For the purpose of illustration, we depict the results of three representative benchmark circuits in Figure \ref{fig-inv}. 
+For each order, i.e original order, greedy-reorder, and forward-looking reorder, the ``speed'' of reaching the maximum $involvement$ indicates the pruning potential. 
+We observe that, forward-looking reordering results in the largest pruning potential, while greedy reordering only works for {\tt qft\_22} and even results less pruning potential than baseline for {\tt gs\_22}. Particularly. for {\tt gs\_22} and {\tt qft\_22}, forward-looking reordering effectively delays the involvement of qubits. Thus, we can expect the pruning potentials of these circuits to be enlarged by forward looking reordering. However, for {\tt qaoa\_22}, none of the reordering algorithms work due to the prevalent dependencies among the gates. Refering back to Figure \ref{fig:timeline-overlap}, when reordering (\circledwhite{V}) is employed, we can prune more chunks, which saves additional \circled{C} cycles compared to \circledwhite{IV}.  
+
+% \yilun{I still want this to be there and will just show less figures, because I only use 22 qubits here and these are just samples and hints for the results, in the results section I will refer back to these figures to give the explanation. Similarly, I will do same thing for section \ref{sec:compress}}
+% \xulong{This figure should be in the result section to show the effectiveness of your reordering}
+% \todo{Figure~\ref{fig-inv} shows the evolution of $involvement$ in algorithm~\ref{alg:pruning} with \textit{greedy reordering} and \textit{forward-looking reorder}, respectively. We use 22-qubit circuits, and thus the maximum value of $involvement$ is $2^{22}=4194304$. For each order, i.e original order, greedy-reorder, and forward-looking reorder, the speed of reaching the maximum $involvement$ indicates the redundancy of this order. In Figure~\ref{fig-inv}, we can see that reordering works for {\tt qaoa}, {\tt gs}, {\tt hlf}, {\tt qft} and {\tt qf}. In these circuits, \textit{forward-looking reorder} always works better than or equal to \textit{greedy-reorder}. However, for {\tt hchain}, {\tt rqc} and {\tt iqp}, reordering is not able to enlarge redundancy.}
+
+
+%\xulong{You did not discuss figure 9 at all in the text! here is where you should discuss figure 9 compared to the greedy in figure 8}
+
+%To compute $costLookAhead$, let us assume gate $g$ is selected. We first remove $g$ from $exeList$ and add executable \xulong{what is $g^{\prime}$} $g^\prime$ to $exeList$. Then, we update the $involvedQubits$ by adding new qubits of that are involved by executing gate $g$ (line 1). %\xulong{I do not understand from this point. unable to re-write the rest of this paragraph. Please rewrite} 
+%Note that, $exeList$ and $involvedQubit$ are all copies of original one to guarantee that we won't destroy the original state in this hypothetical scenario. Next, we use the same strategy as \textit{greedy reordering} to select $g^{\prime\prime}$ and compute the cost of $g^{\prime\prime}$ as $costLookAhead$.
+%Finally, $cost$ is determined by the sum of $costCurrent$ and $costLookAhead$. Note that $costCurrent$ will have higher weight when two gates have same $cost$.
+
+
+% We propose a new algorithm named Forward-looking reorder. The main difference between our algorithm and greedy reordering is that our approach is always aware of the next step, i.e. it looks ahead before making a decision. To achieve this, we modify how to count $cost$ and thus determine the priority of the gates in $exeList$: in \textit{greedy reordering}, $cost$ is computed by simply counting new introduced qubits based on the involved qubit list, while in our approach, $cost$ is computed using algorithm～\ref{alg:costcomp}. A detailed explanation of algorithm \ref{alg:costcomp} is as follows:
+
+%Figure \ref{fig-forward} shows the result after reordering the same circuit in Figure \ref{fig-8}. The involved qubits at each step becomes 1 $\to$ 2 $\to$ 2 $\to$ 3 $\to$ 3 $\to$ 4 $\to$ 4 $\to$ 4 $\to$ 5. Clearly, \textit{forward-looking reorder} works better than the original approach. The difference is that current approach is aware of next step, i.e. it looks ahead before making a decision. Indeed, we sacrifice a little complexity when computing cost and determine each gate's priority in $exeList$. For \textit{greedy reordering}, the $cost$ is computed by simply counting new qubits based on involved list, while in current design, the $cost$ is computed by using algorithm \ref{alg:costcomp}. A detailed explanation of algorithm \ref{alg:costcomp} is as follows:
+
+% \squishlist{}
+% \item $cost$ of selecting a gate in $exeList$ consists of two components: $costCurrent$ and $costLookAhead$. 
+% \item $costCurrent$ is same with $cost$ in \textit{greedy reordering}.
+% \item To compute $costLookAhead$, we enter a hypothetical situation assuming $g$ is selected. We first change the state of $exeList$ by erasing $g$ from $exeList$ and adding executable $g^\prime$ to $exeList$. Then we change the state of $involvedQubits$ by adding new qubits of $g$. Note that $exeList$ and $involvedQubit$ are all copies of original one to guarantee that we won't destroy the original state in this hypothetical scenario. Next, we use the same strategy as \textit{greedy reordering} to select $g^{\prime\prime}$ and compute the cost of $g^{\prime\prime}$ as $costLookAhead$.
+% Finally, $cost$ is determined by the sum of $costCurrent$ and $costLookAhead$. Note that $costCurrent$ will have higher weight when two gates have same $cost$.
+% \squishend{}
+
+
+
+% \par As shown in Figure~\ref{fig-forward}, For gs\_5, the involved qubits at each step becomes 1 $\to$ 2 $\to$ 2 $\to$ 3 $\to$ 3 $\to$ 4 $\to$ 4 $\to$ 4 $\to$ 5. 
+% Figure~\ref{fig-inv} shows the evolution of $involvement$ in algorithm~\ref{alg:pruning} with \textit{greedy reordering} and \textit{forward-looking reorder}, respectively. We use 22-qubit circuits, and thus the maximum value of $involvement$ is $2^{22}=4194304$. For each order, i.e original order, greedy-reorder, and forward-looking reorder, the speed of reaching the maximum $involvement$ indicates the redundancy of this order. In Figure~\ref{fig-inv}, we can see that reordering works for {\tt qaoa}, {\tt gs}, {\tt hlf}, {\tt qft} and {\tt qf}. In these circuits, \textit{forward-looking reorder} always works better than or equal to \textit{greedy-reorder}. However, for {\tt hchain}, {\tt rqc} and {\tt iqp}, reordering is not able to enlarge redundancy.
+
+\subsection{Non-zero State Compression}
+\label{sec:compress}
+
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.49\textwidth]{section-4/statedistri.pdf}
+%     \caption{State amplitudes distribution of ${\tt gs\_20}$, we divide the state vector into segments with equal size and show the first four of them}
+%     \label{fig:compressibility}
+% \end{figure}
+
+% \noindent \textbf{Motivation:}
+\noindent {\bf Compressibility:} While pruning removes the zero state amplitudes, those non-zero amplitudes still cause data movement overheads especially for circuits that do not have large pruning potentials (e.g., {\tt qaoa} in Figure \ref{fig-inv}). Targeting reducing the data movement caused by non-zero state amplitudes, we investigate the potential compressibility and propose a GPU-supported efficient lossless data compression in Q-GPU. Specifically, we observe that many non-zero entries within a state vector, after each operation, have similar amplitude values. In other words, there is a significant ``spatial'' similarly among consecutive state amplitudes in the state vector. To demonstrate the compressibility, we use {\tt qaoa\_20} and {\tt iqp\_20} as examples and show the residuals by subtracting the consecutive state amplitudes. As one can observe from Figure~\ref{fig:residual}, for {\tt qaoa\_20}, most of the residuals are zero or very close to zero, indicating a potential for residual-based compression. However, {\tt iqp} will be less compressible due to more diverse distribution. 
+
+
+
+% Amplitudes are stored in the format of $(Re\{a_0\},Im\{a_0\},...,Re\{a_{n-1}\},Im\{a_{n-1}\})$. Obviously, same pattern repeatedly occurs in most of these segments. Similar phenomena can be observed for {\tt qft, qaoa, qf}. 
+% The repetition observed in amplitude distributions indicates that they can be compressed, based on prediction. Specifically, the state amplitudes of previous period, can be regarded as the prediction value of current period, then we can compute the residual between current period and previous period, if the residual is small, we can represent it more intelligently and thus reduce the data size. 
+% Previous works solved different problems based on similar ideas \cite{tang2020enhancing, pekhimenko2012base, o2011floating}. 
+% \par To assess the compressibility of different circuits, we divide the state amplitudes into small, uniform length periods. For each period, we use the previous period as a reference and compute the residual of current period. Then we plot the distribution of residuals for different circuits. In Figure \ref{fig:residual}, the residuals of {\tt gs\_20} contain many zero values, thus we can infer that it is compressible. Moreover, for {\tt qft}, {\tt qaoa}, {\tt qf}, a large amount of zero-valued residuals are also observed. However, for {\tt  hchain\_18}, the residuals fluctuate dramatically, indicating a lower compressibility. In addition, the residuals of {\tt rqc, iqp and hlf} also have similar random fluctuating patterns.
+
+% we use {\tt gs$_{20}$} as an example and show its state amplitude distribution in Figures \ref{fig:compressibility} a), b), c), and d). The four figures indicate spatial similarity among the consecutive amplitudes ( 
+
+% As illustrated above, we utilize reordering to enlarge the pruning potentials for circuits. However, as shown in Figure \ref{fig-inv} and Table \ref{tab-inv}, not all circuits have large pruning potentials even after reordering. 
+% Moreover, both pruning and reordering aim at reducing the movement of zero-valued amplitudes; however, there is still a large proportion of non-zero data movements during execution. 
+% Fortunately, such non-zero quantum state amplitudes are compressible since many amplitudes share the same value \cite{wu2019full,zulehner2018advanced}. We further analyze such characteristics for quantum circuits and design an efficient lossless compression algorithm in Q-GPU. Figure \ref{fig:compressibility} depicts the segments of the state amplitude distribution in {\tt gs$_{20}$}. Amplitudes are stored in the format of $(Re\{a_0\},Im\{a_0\},...,Re\{a_{n-1}\},Im\{a_{n-1}\})$. Obviously, same pattern repeatedly occurs in most of these segments. Similar phenomena can be observed for {\tt qft, qaoa, qf}. 
+% The repetition observed in amplitude distributions indicates that they can be compressed, based on prediction. Specifically, the state amplitudes of previous period, can be regarded as the prediction value of current period, then we can compute the residual between current period and previous period, if the residual is small, we can represent it more intelligently and thus reduce the data size. 
+% Previous works solved different problems based on similar ideas \cite{tang2020enhancing, pekhimenko2012base, o2011floating}. 
+% \par To assess the compressibility of different circuits, we divide the state amplitudes into small, uniform length periods. For each period, we use the previous period as a reference and compute the residual of current period. Then we plot the distribution of residuals for different circuits. In Figure \ref{fig:residual}, the residuals of {\tt gs\_20} contain many zero values, thus we can infer that it is compressible. Moreover, for {\tt qft}, {\tt qaoa}, {\tt qf}, a large amount of zero-valued residuals are also observed. However, for {\tt  hchain\_18}, the residuals fluctuate dramatically, indicating a lower compressibility. In addition, the residuals of {\tt rqc, iqp and hlf} also have similar random fluctuating patterns.
+
+% \begin{figure}[h!]
+%   \begin{subfigure}{0.15\textwidth}
+%     \includegraphics[width=\linewidth]{section-4/qaoa_distri_delta.eps}
+%     \caption{${\tt qaoa\_20}$} \label{fig:resqaoa}
+%   \end{subfigure}%
+%   \hspace*{\fill}   % maximize separation between the subsection-4
+%   \begin{subfigure}{0.15\textwidth}
+%     \includegraphics[width=\linewidth]{section-4/hidden_linear_function_distri_delta.eps}
+%     \caption{${\tt hlf\_20}$} \label{fig:reshlf}
+%   \end{subfigure}%
+%   \hspace*{\fill}   % maximize separation between the subsection-4
+%   \begin{subfigure}{0.15\textwidth}
+%     \includegraphics[width=\linewidth]{section-4/iqp_distri_delta.eps}
+%     \caption{${\tt iqp\_20}$} \label{fig:resiqp}
+%   \end{subfigure}%
+%   \label{fig:reorder}
+
+%     % \centering
+%     % \includegraphics[width=0.48\textwidth]{section-4/residual.pdf}
+%     \caption{Residual distributions for {\tt qaoa\_20} ${\tt hlc\_20}$ and ${\tt iqp\_20}$}
+%     % %\todo{add qaoa}}
+%     \label{fig:residual}
+% \end{figure}
+
+\begin{figure}[h!]
+    % \centering
+    % \subcaptionbox{\label{fig:resqaoa}}[.15\textwidth]{\includegraphics[width=0.16\textwidth]{section-4/qaoa_delta.pdf}}
+    % \hspace{-5pt}
+    % \subcaptionbox{\label{fig:reshlf}}[.15\textwidth]{\includegraphics[width=0.16\textwidth]{section-4/hlf_delta.pdf}}
+    % \subcaptionbox{\label{fig:resiqp}}[.15\textwidth]{\includegraphics[width=0.16\textwidth]{section-4/iqp_delta.pdf}}
+    % \vspace{-5pt}
+    % \caption{Residual distributions for ${\tt qaoa\_20}$, ${\tt hlc\_20}$ and ${\tt iqp\_20}$.} 
+    % \vspace{-5pt}
+    \includegraphics[width=0.45\textwidth]{section-4/residual.pdf}
+    \centering
+    \caption{Residual distributions for ${\tt qaoa\_20}$ and ${\tt iqp\_20}$.}
+\label{fig:residual}
+\vspace{-5pt}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=0.45\textwidth]{section-4/compress.pdf}
+    \centering
+    \caption{Overview of compression in Q-GPU.}
+    \label{fig:compression-flow}
+    \vspace{-5pt}
+\end{figure}
+
+\noindent \textbf{Compression Strategy:}
+We use the GFC algorithm \cite{o2011floating} in Q-GPU. We implement the GFC as GPU kernels to perform the compression in parallel, thereby reducing the compression and decompression overheads. Specifically, the amplitudes on the GPU are partitioned into micro-chunks with a size of 32 amplitudes. Each GPU warp iteratively compresses/decompresses in parallel. Figure~\ref{fig:compression-flow} (on the top) shows the compressed format. For the 32 values of a micro-chunk, we first store a 4-bit prefix for each of them, where one bit is used to record the sign of the residual and another three bits are a count of leading zero bytes of the residual. 
+Figure \ref{fig:compression-flow} also illustrates the GPU support of compression and decompression in Q-GPU. The compression is performed on the GPU after updating the chunk before copying it to the CPU. All of the chunks are equally divided into ``segments''. We empirically choose the segment size to match the GPU parallelism such that the GPU is properly utilized during compression. The compressed segments are transferred to the CPU instead of the original state chunks. 
+The CPU keeps the compressed segments and copies the compressed segments to the GPUs upon request. Once the chunks are copied to the GPU, the amplitudes are decompressed, updated, and then compressed. 
+As can be seen from Figure \ref{fig:timeline-overlap}, compression (\circledwhite{VI}) saves \circled{D} cycles over \circledwhite{V} and introduces negligible overhead. Later, in section~\ref{sec:exp}, we quantify the overheads incurred by the compression and decompression procedures. 
+
+% After compression, each segment is transformed to variable-sized compression format. For each chunk, we only copy the compressed segments back to CPU. Thus CPU memory contains compressed chunks after the first operation. 
+% Starting from the second operation, we first copy compressed segments to GPU. Then we utilize a decompression kernel to decompress these segments. 
+% Note that, we should be careful at this step, since some chunks may still be in uncompressed format. The reason is that, as explained in Section \ref{sec:pruning}, we may not iterate through all chunks on CPU during the first operation when utilizing our pruning mechanism. Therefore, here we set a flag for each chunk, indicating whether it is stored in compressed format on CPU. When we execute the compression kernel, a chunk with original format will be skipped. As simulation goes on, all chunks are stored in compressed format on CPU. Finally, after the last operation, we do not perform compression and simply copy original chunks back to CPU memory. 
+
+
+% For each iteration, we will save the current value each thread processes. In the next iteration, the previously saved values will be considered as the predictions of current values. Then we compute the residuals between current values and previous values. Note that all zeros will be used for prediction if there is no previous micro-chunks. For each 64-bit value, the residual is recorded in the compressed format, as shown in Figure \ref{fig:compressformat} \cite{o2011floating}. For the 32 values of a micro-chunk, we first store a 4-bit prefix for each of them, one bit is used to record the sign of the residual, and another three bits are the counting of leading zero bytes of residual. Then we store the residual non-zero bytes for each 64-bit value. Similarly, for the decompression of a micro-chunk, we can use the information of previous micro-chunk to convert it to the original format. In conclusion, a chunk of amplitudes are divided into segments, and all segments are compressed and decompressed independently, thus can be executed in parallel. Each segment is divided into micro-chunks of 32 doubles, and each micro-chunk is compressed and decompressed using information from the previous micro-chunk. 
+
+% In this work, we use the GFC algorithm described in \cite{o2011floating} for compression, and integrate it into Q-GPU. For each chunk of amplitudes on GPU, we partition it into segments, and every 32 64-bit values in a segment is a micro-chunk. Each warp iteratively processes the micro-chunks in its assigned segment, with 32 threads in a warp processing 32 different values in parallel. For each iteration, we will save the current value each thread processes. In the next iteration, the previously saved values will be considered as the predictions of current values. Then we compute the residuals between current values and previous values. Note that all zeros will be used for prediction if there is no previous micro-chunks. For each 64-bit value, the residual is recorded in the compressed format, as shown in Figure \ref{fig:compressformat} \cite{o2011floating}. For the 32 values of a micro-chunk, we first store a 4-bit prefix for each of them, one bit is used to record the sign of the residual, and another three bits are the counting of leading zero bytes of residual. Then we store the residual non-zero bytes for each 64-bit value. Similarly, for the decompression of a micro-chunk, we can use the information of previous micro-chunk to convert it to the original format. In conclusion, a chunk of amplitudes are divided into segments, and all segments are compressed and decompressed independently, thus can be executed in parallel. Each segment is divided into micro-chunks of 32 doubles, and each micro-chunk is compressed and decompressed using information from the previous micro-chunk. 
+
+% \begin{figure}[t!]
+%     \centering
+%     \includegraphics[width=0.48\textwidth]{section-4/compformat.pdf}
+%     \caption{Compressed format of micro-chunks.\xulong{merge this with the figure 14 as we discussed}}
+%     \label{fig:compressformat}
+% \end{figure}
+
+
+% \noindent \textbf{Integration Details:}
+% Figure \ref{fig:compression-flow} illustrates how compression and decompression work within Q-GPU. During the first operation, the whole state vector is stored in CPU memory with original format. 
+% After copying chunks to GPU and update them, a compression kernel is executed to compress these chunks. 
+% To utilize the parallelism of GPU, all chunks are equally divided into segments, then all segments are compressed in parallel. 
+% After compression, each segment is transformed to variable-sized compression format. For each chunk, we only copy the compressed segments back to CPU. Thus CPU memory contains compressed chunks after the first operation. 
+% Starting from the second operation, we first copy compressed segments to GPU. Then we utilize a decompression kernel to decompress these segments. 
+% Note that, we should be careful at this step, since some chunks may still be in uncompressed format. The reason is that, as explained in Section \ref{sec:pruning}, we may not iterate through all chunks on CPU during the first operation when utilizing our pruning mechanism. Therefore, here we set a flag for each chunk, indicating whether it is stored in compressed format on CPU. When we execute the compression kernel, a chunk with original format will be skipped. As simulation goes on, all chunks are stored in compressed format on CPU. Finally, after the last operation, we do not perform compression and simply copy original chunks back to CPU memory. 
+
+\section{Experimental Evaluation}
+\label{sec:exp}
+
+% \begin{table}[t!]
+%     \centering
+%     \begin{tabular}{c|c}
+%          &  \\
+%          & 
+%     \end{tabular}
+%     \caption{Simulation platforms}
+%     \label{tab:sim-plat}
+% \end{table}
+
+%\xulong{before you report the characterization in section 3, in the baseline simualtion, you need mention the platform, the version of Xeon CPUs, frequency, the GPU p100 configuration, etc}
+
+%\xulong{Use QISKit, or QISKit-Aer consistently in the paper}
+
+In this section, we evaluate Q-GPU using the eight circuits in Table~\ref{tab:list-bench}. We implement Q-GPU by substantially extending IBM QISKit-Aer. The evaluation is conducted on the same CPU-GPU platform used for characterization. For all experiments, the default optimizations in QISKit-Aer are turned on in both baseline and Q-GPU evaluation. To show the effectiveness of each optimization, we test \emph{six different versions} of executions for all quantum circuit benchmarks:
+
+% In this section, we present and discuss the results from experimental evaluation of our proposed scheme. We implement Q-GPU within QISKit-Aer and simulations are run for all benchmarks in Table~\ref{tab:list-bench}. For all experiments, the default optimizations in QISKit are turned on. For all quantum circuits tested, the number of qubits exceeds the memory capacity of the tested GPU. Our experimental evaluation include \todo{xx} folds. 
+% First, we evaluate the overall performance of Q-GPU and analyze the impact of different optimizations proposed in Section \ref{sec:qgpu}. In all benchmarks tested, Q-GPU shows significant speedup compared with baseline. \todo{Second, we extend Q-GPU to other platforms. Particularly, we test the performance of Q-GPU using NVIDIA V100 and achieve similar performance improvement.} Third, the impact of Q-GPU is further verified by comparing the performance with QISKit-Aer which uses only CPU+OpenMP. The performance gains shown in the following sections demonstrate that GPUs can be used to accelerate quantum simulations, even when memory required for a circuit exceeds what is available.
+% Finally, we compare Q-GPU to other simulators including Microsoft QDK and Google Qsim-Cirq to further confirm the impact of our work. 
+% \par In this work, we test \emph{6 different versions} for the execution of our benchmark quantum circuits:
+
+\squishlist{}
+
+\item \emph{Baseline:}
+This version is the implementation with state-of-the-art GPU support~\cite{qiskit2019ibm} in QISKit-Aer that supports GPU acceleration. As illustrated in Section \ref{sec:baseline}, state amplitudes are statically allocated on the GPU and CPU in this version. 
+
+\item \emph{Naive:}
+This version is the intuitive implementation discussed in Section  \ref{sec:naive}, which dynamically allocates state amplitudes to GPU. The performance of this version is dominated by expensive data movements.
+
+\item \emph{Overlap:}
+This version implements the first optimization -- proactive state amplitude transfer -- in Q-GPU. This version is built upon the {\it Naive} version and its details are discussed in Section \ref{sec:overlap}.
+
+% In this version, we partition the GPU memory into two halves, and enable prefetching of state amplitudes from CPU by utilizing CUDA streams. This strategy fully exploits the transmission bandwidth between CPU and GPU, and reduces nearly half of the data transfer time in the Naive implementation. (Section \ref{sec:overlap}). 
+
+\item \emph{Pruning:}
+This version adds the proposed pruning mechanism (Section \ref{sec:pruning}) to {\it Overlap}. By skipping the data movement of zero state amplitudes, the amount of data movement is reduced.
+
+\item \emph{Reorder:}
+In this version, we implement \emph{forward-looking reorder} algorithm (Section \ref{sec:reorder}) to enlarge the potential for pruning. This reordering is performed by a simple compiler pass integrated in the Q-GPU. 
+
+% In this version, we implement \emph{forward-looking reorder} algorithm (Section \ref{sec:reorder}) before running a circuit. The execution order of operations is changed to prolong zero states in qubits, enhancing the potential for pruning.
+
+\item \emph{Compression/Q-GPU:}
+In this version, all optimizations are employed with compression. We also call it \emph{Q-GPU}. Compression (Section \ref{sec:compress}) is added on top of {\it Reorder}. This version achieved the best performance.
+
+
+% While Pruning and Reorder already reduce the zero-valued data movements, \emph{Compression} further reduces the non-zero data movements. Plus all previous optimizations, Compression achieves the best performance.
+
+\squishend{}
+
+\subsection{Overall Performance}
+\label{perfvali}
+
+% scalability
+% data movements
+% compression ratio
+
+\begin{figure*}[t!]
+	\includegraphics[width=0.95\textwidth]{section-5/mainres.pdf}
+	\centering
+	\caption{Normalized simulation time for circuits with different number of qubits (the lower the better).} \label{fig:mainres}
+% 	\vspace{-5pt}
+\end{figure*} 
+
+
+% \begin{figure}[t!]
+% 	\includegraphics[width=0.45\textwidth]{section-5/main-res.pdf}
+% 	\centering
+% 	\caption{Runtime speedup for different versions of Q-GPU} \label{fig:mainres1}
+% \end{figure} 
+
+% \yilun{I don't have naive 31 32 data and naive is worse than baseline}
+
+% Among the 6 versions above, Overlap, Pruning, Reorder and Compression are the key features in Q-GPU. Our purpose is to evaluate the effectiveness of these key optimizations. First, by comparing with the baseline, we verify that Q-GPU has significant performance improvement when simulating circuits with large number of qubits. Second, by comparing the data transfer time with naive approach, we verify that Overlap, Pruning, Reorder and Compression reduce the excessive data movements step by step. Third, we conduct in-depth analysis for different versions to illustrate where each version works best.
+Figure~\ref{fig:mainres} shows the overall performance and scalability among the six versions for all eight quantum circuits. The y-axis in the figure denotes the normalized execution time to the {\it Baseline} version. From the figure, one can make the following observations. 
+First, by adding the proposed optimization in Q-GPU, our approach significantly reduces the execution time of QCS  across all the circuits. 
+Specifically, {\it Overlap}, {\it Pruning}, {\it Reorder}, and {\it Compression/Q-GPU} see a 24.96\%, 44.54\%, 56.78\%, and 71.66\% execution time reduction over the baseline execution for the largest number of qubits that can run on our platform. 
+Second, the scalability of QCS performances is significantly improved by ``breaking'' the memory capacity in Q-GPU. 
+The average achieved performance outperforms baseline by 2.53$\times$ for 34 qubits. Although we only simulate up to 34 qubits due to the CPU memory limitation (384 GB) in our system (Section \ref{sec:observation}), one can infer from the trend that our optimizations are scalable to larger sized circuits.
+Third, Q-GPU has different accelerations for different circuits. Specifically, for {\tt gs}, {\tt qft}, {\tt qaoa} and {\tt iqp}, higher execution time reduction is observed, whereas for {\tt hchain} and {\tt rqc}, less speedup is observed. 
+This is because, for {\tt hchain} and {\tt rqc}, reordering cannot enlarge the pruning potential because of dependent gates. Their amplitude residuals also have disperse distribution (similar to {\tt iqp} in Figure \ref{fig:residual}). Thus, either \emph{Reorder} or \emph{Compression} improves little for these two benchmarks. 
+Finally, for different circuits, a certain version may not have the same acceleration effects. For example, {\it Overlap} version generates a similar execution time reduction in all circuits tested. 
+However, for {\it Pruning}, {\it Reorder} and {\it Compression}, the runtime reduction is different between different circuits. For example, {\it Pruning} and {\it Reorder} improve little for {\tt qaoa} and {\tt qf} because these two circuits do not have much potential of pruning the zero amplitudes. 
+That is, their qubits get involved quickly with dependent operations. However, {\tt qaoa} achieves significant benefits by compression as the great potential of compressibility. (discussed in Section~\ref{sec:compress}).
+
+
+% Among the 6 versions above, Overlap, Pruning, Reorder and Compression are the key features in Q-GPU. Our purpose is to evaluate the effectiveness of these key optimizations. First, by comparing with the baseline, we verify that Q-GPU has significant performance improvement when simulating circuits with large number of qubits. Second, by comparing the data transfer time with naive approach, we verify that Overlap, Pruning, Reorder and Compression reduce the excessive data movements step by step. Third, we conduct in-depth analysis for different versions to illustrate where each version works best.
+% \par We present the results of different versions in Figure \ref{fig:mainres}, y-axis denotes the normalized execution time to Baseline version. For each version, the runtime grows with the increase in the number of qubits. Although we only simulate up to 34 qubits which reaches the memory limit of our system \todo{xx table}, we can infer from the trends that our optimizations are scalable to even larger size of circuits. 
+% Clearly, Overlap, Pruning, Reorder and Compression all consume less time than baseline version, confirming the impact of our optimizations in Section \ref{sec:qgpu}. As we stack all the optimizations, the runtime performance of Compression is the best. 
+
+% From Figure \ref{fig:mainres}, we can also observe that, our framework has different acceleration effects for different circuits. Specifically, for {\tt gs}, {\tt qft}, {\tt qaoa} and {\tt iqp}, we observe that the execution time is less than 20\% of Baseline version with all optimizations turned on. 
+% In contrast, for {\tt hchain} and {\tt rqc}, the runtime stays higher than 50\% of Baseline version. 
+% Moreover, for different benchmark circuits, a certain version may not have the same acceleration effects. For Overlap version, we can observe similar runtime reduction in all benchmarks tested. However, for Pruning, Reorder and Compression, the runtime speedup is significantly different between different circuits. For example, Pruning and Reorder improves little performance for {\tt qaoa} and {\tt qf}, while at least one of Pruning and Reorder has obvious improvement for other circuits. Such difference also exists in Compression version. 
+% To identify the source of these variances, we conduct further analysis by profiling the simulation. 
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.45\textwidth]{section-5/data-mov-red.pdf}
+    \caption{Normalized data transfer time (lower the better).}
+    \label{fig:data-mov-red}
+    \vspace{-5pt}
+\end{figure}
+
+
+To further understand the execution reduction, Figure~\ref{fig:data-mov-red} plots, for each version, the exposed data movement time. In this figure, the y-axis represents the data movement time normalized to the {\it Naive} version. Clearly, one can observe a step-wise data movement reduction in the versions with our optimizations. 
+First, {\it Overlap} uniformly reduces the data transfer time by an average of 46.14\%. Note that, the savings generated in {\it Overlap} are independent of circuit types, that is the reason behind execution time reduction in Figure~\ref{fig:mainres}. 
+For {\it Pruning} and {\it Reorder}, the reduction of data movement time varies in different circuits. This is because the number of zero state amplitudes and the potential of pruning heavily rely on the circuit type. 
+For example,  {\tt qaoa}, {\tt qft}, and {\tt qf} get all qubits involved at early stage of simulation. Hence, pruning is less effective for these circuits compared to others. 
+Also, as discussed in Section~\ref{sec:reorder}, {\it Reorder} has little effects on {\tt hchain}, {\tt rqc}, {\tt qaoa}, and {\tt qf} due to dependent operations in these circuits. 
+Therefore, {\it Reorder} delivers similar data transfer time reduction with  {\it Pruning} for these circuits. However, for those circuits with less dependent operations, {\it Reorder} significantly reduces their data movement time by enlarging the pruning potential. For circuits like  {\tt qaoa}, {\tt gs}, {\tt qft} and {\tt qf},  {\it Compression} effectively reduces the data movement by leveraging the spatial similarity discussed in Section \ref{sec:compress}. 
+In a nutshell, for all circuit benchmarks tested, the reductions of data transfer time are the main reason behind the execution time reduction in Figure \ref{fig:mainres}.
+
+% , indicating that Q-GPU effectively and consistent with our design objectives (Section \ref{sec:qgpu}), that is to reduce data movements. 
+
+We also quantify the computation time of compression and decompression in Figure \ref{fig:overhead}. Overall, the compression and decompression overhead is 3.12\% and 2.74\% of the GPU execution time. Potentially one may further optimize the compression and decompression by overlapping them on GPU, but we found the overhead is negligible compared to the significant reduction in execution time that we achieved. We also want to emphasize that the execution times reported in Figure~\ref{fig:mainres} have all the sources of overhead included.
+
+% To understand the execution reduction, Figure \ref{fig:data-mov-red} plots, for each version,
+% the exposed data movement time. In this figure, y-axis is normalized to the naive approach. Clearly, in all benchmarks tested, data movements decrease step by step after stacking each of the optimizations in Q-GPU. 
+% As expected, Overlap uniformly reduces the data transfer time by almost 50\% compared to the naive approach. The reason is that Overlap enables data transfer in both directions between CPU and GPU, as explained in Section \ref{sec:overlap}. Obviously, the savings of time in Overlap version are independent of circuit types, thus we observe similar reductions of data transfer time in all circuits, which also leads to simular reductions of runtime in Figure \ref{fig:mainres}. 
+% However, for Pruning and Reorder, the reduction of data movements differ significantly in different benchmarks. The distinctions of data transfer time in Pruning version correspond to the pruning potentials of different circuits, refer back to Table \ref{tab-inv}, it is clear than {\tt qaoa}, {\tt qft} and {\tt qf} get all qubits involved at early stage of execution. Hence in Pruning version, the reduction of data transfer time for these circuits is less obvious than other benchmarks, which also explains the similar pattern of runtime reduction shown in Figure  \ref{fig:mainres}. 
+% Also, as indicated in Section \ref{sec:reorder} , Reorder has little effects on {\tt hchain}, {\tt rqc}, {\tt qaoa} and {\tt qf}. Therefore, in the Reorder version, the data transfer time is similar to Pruning version for these circuits. Note that, in Figure \ref{fig:mainres}, Reorder also has little impact on the runtime of these circuits. 
+% In conclusion, in all benchmarks tested, as we stack the optimizations step by step, the reductions of data transfer time are consistent with the performance improvements in Figure \ref{fig:mainres}, indicating that our optimizations are effective and consistent with our design objectives (Section \ref{sec:qgpu}), that is to reduce data movements. 
+
+% \par Next we delve into the Compression version a bit more. We observe that, the data transmission rate is similar across all experiments, thus the compression ratios can be obtained from Figure \ref{fig:data-mov-red} by comparing the size of the green bars with the red bars. 
+% Clearly, for {\tt qaos, gs, qft and qf}, we achieve high compression ratios. The reason is that, as explained in Section \ref{sec:compress}, the state amplitudes present periodic distributions, indicating that the amplitudes in current period can be precisely predicted by using the values of previous period. In contrast, the compression ratio of other circuits are less obvious, this is caused by the significant amplitudes fluctuations. \todo{cp gate}. Figure \ref{fig:overhead} concludes the computation time of compression kernel and decompression kernel in our framework. Clearly, for {\tt qaoa}, {\tt qft} and {\tt qf}, compression and decompression account for a higher occupation of total time. As can be seen from Figure \ref{fig:data-mov-red}, Q-GPU reaches higher compression ratio for the state amplitudes in these circuits. Hence the proportions of data movements in these circuits decrease significantly, which results in a higher ratio of compression and decompression. In average, the proportions of compression and decompression are less than 3\%, confirming that our compression strategy is efficient with acceptable overhead. 
+
+
+% \begin{table}[t!]
+% \centering
+% \footnotesize
+% \begin{tabular}[width=0.45\textwidth]{|c|c|}
+%     \hline
+%     Benchmark & \makecell{Compression \\ Ratio} \\ 
+%     [0.5ex] 
+%     \hline\hline
+%     {\tt hchain\_34} & \todo{xx} \\
+%     \hline
+%     {\tt rqc\_32} & \todo{xx} \\
+%     \hline
+%     {\tt qaoa\_33} & \todo{xx} \\
+%     \hline
+%     {\tt gs\_33} & 3.61 \\
+%     \hline
+%     {\tt hlf\_33} & 7.54 \\
+%     \hline
+%     {\tt qft\_33} & 8.33 \\
+%     \hline
+%     {\tt iqp\_33} & 7.19 \\
+%     \hline
+%     {\tt qf\_33} & 9.89 \\
+%     \hline
+%     avg &  \\
+%     \hline
+    
+% \end{tabular}
+% \caption{Compression ratio and compression overheads}
+% \label{tab:compress-ratio}
+% \end{table}
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.45\textwidth]{section-5/overhead.pdf}
+    \caption{Compression and decompression overheads.}%\xulong{DO not use occupancy, change the y-axis to percentage}} 
+    \label{fig:overhead}
+    \vspace{-5pt}
+\end{figure}
+
+
+% \begin{itemize}
+
+% \item
+% x-timeline y-utilization (partial execution time is enough)
+% \end{itemize}
+% \subsection{Sensitivity Study / Platform Portability}
+% \begin{itemize}
+% \item
+% V100, A100
+% \end{itemize}
+
+
+\subsection{Comparison with OpenMP}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.45\textwidth]{section-5/cmp-openmp.pdf}
+	\caption{Comparison with OpenMP.} %\xulong{I would rename it to avoid confusion}} 
+	\label{fig:cmp-openmp}
+	\vspace{-5pt}
+\end{figure}
+
+Many publicly available quantum simulators and existing works employ OpenMP to parallelize the QCS on CPUs~\cite{pednault2017breaking,fatima2020faster,smelyanskiy2016qhipster}. 
+We compare Q-GPU with these OpenMP implementations. Specifically, we chose the OpenMP implementation in the most recent QISKit simulator and plot the results in Figure  \ref{fig:cmp-openmp}. 
+We also compared our approach with other simulators in the next section, where the OpenMP is used by default in the simulators. 
+On average, across eight circuits, Q-GPU outperforms the OpenMP QISKit by 1.79$\times$. Particularly, Q-GPU achieved 12.79$\times$ speedup in {\tt qft}. For {\tt gs}, {\tt iqp} and {\tt qf}, Q-GPU achieves more than 2$\times$ speedup. However, for {\tt hchain} and {\tt rqc}, Q-GPU performs worse than OpenMP. This is because the pruning potential and the compressibility are low in both circuits where Q-GPU is less effective. %\xulong{check my reason.} 
+
+
+% Recall that in Section~\ref{section-3}, the advantage of baseline using GPU vanishes when the required memory  exceeds the memory capacity of GPU. However, Q-GPU sustains better performance than using only CPU with the number of qubits grows. 
+% We turned on all optimizations of Q-GPU and compare the simulation performance with  QISKit-Aer using only CPU. 
+% Figure \ref{fig:cmp-openmp} depicts the runtime speedup of our framework compared to QISKit that only use CPU. 
+% In most benchmarks tested, Q-GPU has obvious speedup. In average, Q-GPU achieves 2.81 times speedup. Especially, Q-GPU reaches 6.8 times speedup when simulating {\tt qft}. For {\tt gs, iqp} and {\tt qs}, Q-GPU achieves more then twice speedup. Besides, we can also achieve obvious speedup for {\tt qaoa} and {\tt hlf}. However, for {\tt hchain} and {\tt rqc}, Q-GPU works worse than CPU+OpenMP. 
+% The performance variances of different circuits can also be verified in Figure \ref{fig:mainres}. 
+% In particular, Reorder and Compression both significantly improves the performance of simulating {\tt qft}, thus Q-GPU  outperforms CPU+OpenMP by nearly 7 times when simulating {\tt qft}. However, for the simulation of {\tt hchain} and {\tt rqc}, either Reorder or Compression cannot further improve the performance of Q-GPU, resulting in the runtime remaining longer than CPU+OpenMP. In conclusion, for 6 of the 8 benchmarks tested, Q-GPU demonstrates significant speedup compared with QISKit-CPU, indicating that our framework continues to take advantage of GPU despite the limited memory capacity. 
+
+\subsection{Comparison with Other Simulators}
+\label{sec:others}
+
+\begin{figure}[h]
+    % \includegraphics[width=0.45\textwidth]{section-5/cmp-others.pdf}
+    % \centering
+    % \label{fig:cmpother}
+  \begin{subfigure}{0.235\textwidth}
+    \includegraphics[width=\linewidth]{section-5/cmp-qsim.pdf}
+    \caption{Comparison with Qsim-Cirq} \label{fig:qsim}
+  \end{subfigure}%
+\hspace{1pt}
+  \begin{subfigure}{0.235\textwidth}
+    \includegraphics[width=\linewidth]{section-5/cmp-qdk.pdf}
+    \caption{Comparison with QDK} \label{fig:qdk}
+  \end{subfigure}%
+  
+\caption{Comparisons of Q-GPU to the simulator from Microsoft QDK v0.15 and Google Qsim-Cirq v0.8.0.}. %\xulong{you should have the bar of qim and qdk, normalized everything to baseline.}} \label{fig:others}
+\label{fig:others}
+\vspace{-5pt}
+\end{figure}
+
+%@\xulong{Use @misc clause in the reference for the github links}
+We compare Q-GPU with other simulators, including Google Qsim-Cirq v0.8.0 plus Cirq v0.9.2~\cite{googleqsim} and Microsoft QDK v0.15~\cite{msqdk}. In our experiments, we run these simulators on the same CPU (Section \ref{sec:baseline}). Note that, both Qsim-Cirq and QDK are OpenMP enabled and we observe that they used all available threads during execution on the CPU. We report the results in Figure~\ref{fig:others}. 
+
+It is important to note that, to enable the simulation of the same circuits on Qsim-Cirq, we need to first transform our circuit benchmarks into  OpenQASM codes \cite{cross2017open}. Then, we need to import the OpenQASM codes to Qsim-Cirq for execution. Unfortunately, not all the transformed circuits can be simulated on Qsim-Cirq due to the lack of support for particular gates (i.e., the ``cp'' gate cannot be recognized by Qsim-Cirq). As a result, we can only run  {\tt gs} and {\tt hlf} successfully. This motivates our future research on uniform support of Quantum programming models. Figure~\ref{fig:qsim} shows the normalized speedup of the proposed Q-GPU compared to Qsim-Cirq. Q-GPU outperforms the Google Qsim-Cirq by 1.02$\times$ on average. 
+
+To run the same quantum circuit on Microsoft QDK v0.15, we have to further convert the OpenQASM codes to ``qsharp", i.e., the quantum language used in Microsoft. The conversion only succeeded for {\tt qft}, {\tt iqp}, {\tt hlf}, and {\tt gs}. The normalized simulation time is plotted in Figure~\ref{fig:qdk}. On average, Q-GPU performs 9.82$\times$ better than Microsoft QDK. 
+
+% We also compare Q-GPU to other simulators including google Qsim-Cirq and Microsoft QDK. Note that in our experiments, we use these simulators in the same platform. Also, we observe that both Qsim-Cirq.and QDK use all available threads. 
+% To enable the simulation of same circuits across different simulators, we first transform our benchmarks into OpenQASM codes \cite{cross2017open}. Then we follow the instructions in \url{https://quantumai.google/cirq/interop} to import OpenQASM codes to Qsim-Cirq. 
+% In our work, we test {\tt qft, iqp, hlc, gs, qf, rqc} using Qsim-Cirq v0.8.0 plus Cirq v0.9.2, only {\tt gs} and {\tt hlf} run successfully. This is caused by the different supported gates in Qsim-Cirq and QISKit. 
+% As shown in Figure \ref{fig:qsim}, for {\tt gs\_33, gs\_34, hlf\_33} and {\tt hlf\_34}, Q-GPU all achieves better performance. 
+% For Microsoft QDK, we use the converter in \url{https://github.com/quantastica/qconvert-js} to convert OpenQASM codes to "qsharp", i.e. the quantum language in Microsoft. We run simulations for {\tt gs, qft, iqp, hlc, qf} and {\tt rqc}. 
+% Then we encounter errors when simulating {\tt qf} and {\tt rqc}. For all other circuits that can be run correctly, we observe that Q-GPU outperforms QDK by many times. Particularly, we achieve more than 14 times speedup for {\tt qft}. 
+% In conclusion, we compare the performance of Q-GPU with other simulators and observe obvious acceleration for all circuits tested, which further confirm the impact of our work.
+
+
+% \subsection{Comparison with State-of-the-art}
+% \subsection{Working with Multi-GPU}
+% \begin{itemize}
+% \item
+% Baseline
+% \item
+% Baseline plus our approach
+% \end{itemize}
+
+
+\section{Related Works}
+\label{sec:related}
+To the best of our knowledge, Q-GPU is the first work that systematically optimizes quantum circuit simulation on a GPUs. We summarize the related prior efforts below.
+
+% \noindent{\bf Quantum circuit simulation: }
+Prior works have focused on QCS optimizations on different platforms, from readily available devices to cloud environments~\cite{smelyanskiy2016qhipster,wu2019full,pednault2017breaking,peta2017sc,fatima2020faster,pednault2019leveraging,tn-huang2020classical,zulehner2018advanced}. 
+Thomas et al. \cite{peta2017sc} simulated 45-qubits circuit using 8,192 nodes. They optimized single node performance by using automatic code generation and optimization of compute kernels. 
+Edwin et al. \cite{pednault2017breaking} claimed to simulate more than 49 qubits by partitioning quantum circuits to ``subcircuits'' and delay their entanglements. 
+In \cite{wu2019full}, the authors proposed lossy data compression to reduce the memory requirement of simulating large-scale quantum circuits. 
+Aneeqa et al. \cite{fatima2020faster} focused on fully exploiting single CPU performance for simulating a large number of qubits. The developed algorithm aims to reorder circuits such that more gates can be simulated in parallel.
+Compared with all these efforts, Q-GPU takes advantage of GPUs while managing the data movement between CPU and GPU. 
+First, we identify the source of zero state amplitudes in QCS, and propose a pruning mechanism to safely reduce unnecessary computation on these states, which saves not only computation but also data movement.
+%First, our pruning and reordering exploit the zero state amplitudes and save not only the data transfer, but also the computation. 
+Unlike prior works using reordering to aggregate gates, \cite{fatima2020faster,iten2019exact,shi2019optimized} 
+%reduce quantum error~\cite{xxx} or improve quantum entanglement~\cite{xxx}, 
+we propose reordering algorithms to enlarge the pruning potential. Moreover, Q-GPU is the first framework that leverages the GPU to implement a lossless compression that does not affect accuracy of QCS.  Finally, it is important to emphasize that Q-GPU is complementary to existing cloud-based quantum simulation frameworks, and can be integrated within these frameworks for further QCS improvements.
+
+% designed for GPU and do not use CPU for any computation of updating quantum circuits. In \cite{pednault2017breaking}, the authors propose to delay the merging of quantum state information in subcircits. When simulating subcircuits independently, full state information immediately cannot be immediately obtained. While in our work, we do not use such circuit partitions and keep tracking full state vector. Moreover, the scheme in \cite{pednault2017breaking} only delayed the entangling gates, but our approach also delays the single-qubit gates; we are the first to delay quantum gates to delay the involvement of qubits. 
+% Data compression is used in \cite{wu2019full} to reduce the memory requirement of simulating a quantum circuit. In our work, we are the first to use data compression to reduce data movement between CPU and GPU for QCS. In addition, the scheme in \cite{wu2019full} used lossy compression algorithms, which reduced the fidelity of simulation results. However, our lossless algorithm retains the accuracy of the simulation results.
+% Reordering was used in \cite{fatima2020faster} to aggregate more gates of same type and simulate them together. In contrast, we are the first to utilize reordering to enlarge the pruning potential of state amplitudes, and reduce the data transfer size between CPU and GPU. 
+% Meanwhile, although our approach focus on QCS on GPUs, our proposed reordering and pruning method are also complementary to the CPU optimizations mentioned above, since skipping the update of zero-valued states also accelerate the simulations using CPUs. 
+% designed for GPU and do not use CPU for any computation of updating quantum circuits. In \cite{pednault2017breaking}, the authors propose to delay the merging of quantum state information in subcircits. When simulating subcircuits independently, full state information immediately cannot be immediately obtained. While in our work, we do not use such circuit partitions and keep tracking full state vector. Moreover, the scheme in \cite{pednault2017breaking} only delayed the entangling gates, but our approach also delays the single-qubit gates; we are the first to delay quantum gates to delay the involvement of qubits. 
+% Data compression is used in \cite{wu2019full} to reduce the memory requirement of simulating a quantum circuit. In our work, we are the first to use data compression to reduce data movement between CPU and GPU for QCS. In addition, the scheme in \cite{wu2019full} used lossy compression algorithms, which reduced the fidelity of simulation results. However, our lossless algorithm retains the accuracy of the simulation results.
+% Reordering was used in \cite{fatima2020faster} to aggregate more gates of same type and simulate them together. In contrast, we are the first to utilize reordering to enlarge the pruning potential of state amplitudes, and reduce the data transfer size between CPU and GPU. 
+% Meanwhile, although our approach focus on QCS on GPUs, our proposed reordering and pruning method are also complementary to the CPU optimizations mentioned above, since skipping the update of zero-valued states also accelerate the simulations using CPUs.
+There are also several works that utilize GPUs to accelerate QCS \cite{gutierrez2007simulation,doi2019quantum,li2017quantum,amariutei2011parallel,li2020density,zhang2015quantum,avila2014gpu}. Most of these works have limited capability in simulating large quantum circuits due to the limited memory capacity of GPUs. 
+Ang et al. \cite{li2020density} proposed a multi-GPU centric QCS framework that tracks the density matrix. However, their framework cannot simulate a large number of qubits since it is limited by the aggregated memory capacity of multi-GPUs. For a single-node, they can only simulate up to 14 qubits on an NVIDIA V100 GPU. 
+Jun et al. \cite{doi2019quantum} proposed a CPU-GPU co-simulation method that enables simulation using a GPU even when the required memory exceeds the GPU memory capacity. Their method is also integrated into the IBM QISKit and is used as the baseline in this paper. 
+In summary, compared to prior work, Q-GPU breaks the GPU memory capacity limitation, i.e., it is able to simulate 34 qubits which require 256 GB memory on a 16 GB memory GPU, and fully takes advantage of GPU parallelization. The fundamental design innovation behind this is to dynamically and proactively transfer the state amplitudes through end-to-end optimizations to minimize the data movement overheads caused by state amplitudes transfer.  
+
+% fully utilize the computation capacity of GPUs, especially when the required memory is far beyond the memory capacity of GPUs, and is scalable with the number of qubits. We are the first to identify that, data movements between CPU and GPU is the bottleneck of realizing high GPU utilization when simulating large number of qubits. We are the first to propose a framework that significantly reduces such expensive and excessive data movements. \yilun{claim our approach is also extensible to multi-GPU env?}
+
+
+% \par There are also several works that utilize GPUs to accelerate QCS \cite{gutierrez2007simulation,doi2019quantum,li2017quantum,amariutei2011parallel,li2020density,zhang2015quantum,avila2014gpu}. Most of the works has limited capacity of simulating large quantum circuits, which is caused by the limited memory capacity of GPUs. 
+% Ang et al. \cite{li2020density} proposed a GPU-centric QCS framework that track density matrix. By minimizing the involvement of CPU and communication between GPUs, their framework achieved significant improvement in a multi-GPU environment. However, most of experiments in their work are run for circuits with small number of qubits. And the capacity of simulating circuits with large number of qubits is still limited by the memory capacity of GPUs. For single-node simulation, they can only simulate up to 14 qubits on a V100 GPU. Jun et al. \cite{doi2019quantum} propose a CPU-GPU co-simulation scheme, which first enabled simulation using GPU even the required memory exceeds the memory capacity of GPUs. Their strategy is to first allocatethe state vector on GPU memory, and in case insufficient, they allocate remaining states to CPU memory. Their scheme achieved better performance than using CPU only, and can simulate large number of qubits beyond GPU memory. However, their scheme is not scalable as the number of qubits increases, which is identified in Section \ref{sec:bench}. 
+% Comparatively, Q-GPU can fully utilize the computation capacity of GPUs, especially when the required memory is far beyond the memory capacity of GPUs, and is scalable with the number of qubits. We are the first to identify that, data movements between CPU and GPU is the bottleneck of realizing high GPU utilization when simulating large number of qubits. We are the first to propose a framework that significantly reduces such expensive and excessive data movements. \yilun{claim our approach is also extensible to multi-GPU env?}
+
+% \noindent{\bf Quantum computing architecture: }
+% Prior works have extensively studied compiler assisted approaches to enhance the fidelity and accelerate the execution time in real quantum machines \cite{li2019tackling}. \yilun{I don't think this need another bullet, in the compiler works in quantum computer architecture, they are not reorganizing circuits. They basically do not change the execution order of gates, what they do is like, given a sequence of gates, find the mapping of qubits to physical qubits and insert minimum swaps to make this fixed order sequence of gates executable on real quantum machines with limited connectivity, I don't see much relevance to our work. Particularly, \cite{li2019tackling} do use DAG, but the just search the DAG and insert SWAPS, they do not change the execution order, I already mentioned this paper in section 3, it seems weird to mention too many works that have nothing to do with QCS} \todo{Maybe we can introduce some in introduction? Because these are indeed important quantum relevant works in our community}
+
+\section{Concluding Remarks}
+In this paper, we propose Q-GPU, a framework tailored with GPU optimizations to effectively improve the quantum circuit simulation performance for quantum circuits with a large number of qubits. The Q-GPU is able to deliver scalable simulation performance based on the four internal end-to-end optimizations, including i) proactive state amplitudes transfer, ii) zero state amplitudes pruning, iii) delayed qubit involvement, and iv) lossless non-zero state compression. Experimental results across eight representative quantum circuits indicate that Q-GPU achieves 2.53$\times$ average execution time reduction on a single GPU. It also outperforms the most recent OpenMP CPU implementation and other publicly available quantum simulators. 
+
+%\xulong{If space allows, I will write future works here.***** We believe building such an optimized QCS framework is meaningful to foster future quantum computing. We envision a robust simulation framework can open at least three research avenues. First, xxx. Second, xxx. Finally, xxx. }
+
+%%%%%%% -- PAPER CONTENT ENDS -- %%%%%%%%
+
+
+%%%%%%%%% -- BIB STYLE AND FILE -- %%%%%%%%
+\bibliographystyle{IEEEtranS}
+\bibliography{refs}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
