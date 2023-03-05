@@ -30,17 +30,20 @@ Method & EBE (meV)                               \\
 HF            & -0.4        \\
 EOM-CCSD      & 180.6          \\
 EOM-CCSD(T)(a)$^*$ & 195.8          \\
-EOM-CCSDT     & 197.5\footnote{\label{eomccsdt}Estimated by adding the difference of EBEs from the EOM-CCSD(T)(a)$^*$ and EOM-CCSDT calculations with the aug-cc-pVDZ+3s1p basis set to the value from EOM-CCSD(T)(a)$^*$/aug-cc-pVTZ+7s7p.} 
-(212.0)
-\footnote{\label{dfunc}Estimated by adding the difference between the EBEs calculated with the EOM-CCSD(T)(a)$^*$ with the aug-cc-pvTZ+3s1p and aug-cc-pVTZ+3s1p3d basis sets to the estimate described in footnote \ref{eomccsdt} to assess the effect of incorporating diffuse d functions into the basis.}  \\
+    EOM-CCSDT     & 197.5\tnote{1}
+    (212.0)\tnote{2} \\
 AFQMC SD/HF(N)//SD/NO SDCI(A)     & 194 $\pm$ 10 \\ \hline
 \multicolumn{2}{c}{R = \SI{7.0}{\angstrom}}                    \\ 
 HF            & 41.3        \\
 EOM-CCSD      & 140.2    \\
 EOM-CCSD(T)(a)$^*$ & 141.7    \\
-EOM-CCSDT    & 143.3\textsuperscript{\ref{eomccsdt}}  (154.2)\textsuperscript{\ref{dfunc}}     \\
+EOM-CCSDT    & 143.3\tnote{1}  (154.2)\tnote{2}     \\
 AFQMC SD/HF     & 181 $\pm$ 5 \\ 
 \end{tabular}
+\begin{tablenotes}
+\item[1] This EOM-CCSDT/aug-cc-pVTZ+7s7p value was estimated by adding the difference of EBEs from the EOM-CCSD(T)(a)$^*$ and eom-ccsdt calculations with the aug-cc-pVDZ+3s1p basis set to the value from EOM-CCSD(T)(a)$^*$/aug-cc-pVTZ+7s7p.
+\item[2] The EOM-CCSDT/aug-cc-pVTZ+7s7p3d value was estimated by adding the difference between the EBEs calculated with the eom-ccsdpt(a)$^*$ with the aug-cc-pVTZ+3s1p and aug-cc-pVTZ+3s1p3d basis sets to the eom-ccsdt/aug-cc-pVTZ+7s7p estimated value in footnote [1] to assess the effect of incorporating diffuse d functions into the basis.
+\end{tablenotes}
 %\end{ruledtabular}
 \end{table}
 
@@ -105,7 +108,7 @@ In this case, the EOM-CCSD and EOM-CCSD(T)(a)$^{*}$ calculations give EBEs of 14
 Thus unlike the situation for R = \SI{4}{\angstrom}, the inclusion of triples in the EOM-CC procedure is relatively unimportant at R = \SI{7}{\angstrom}.
 The DMC calculations using SD HF trial wave functions give an EBE of 141 $\pm$ 14 meV, while the DMC calculations using as trial wave functions single determinants of B3LYP orbitals, single determinants generated using the restricted SDCI procedure, or MD trial wavefunctions generated using the CIPSI procedure give similar EBEs values ranging  from 159 $\pm$ 8 to 164 $\pm$ 9 meV. 
 
-Since the anion is bound in the HF approximation at R = \SI{7}{\angstrom}, we also were able to calculate EBEs using separate, frozen-core coupled-cluster calculations for the neutral and anion with the following coupled-cluster methods: coupled-cluster singles, doubles, and a perturbative treatment of triples $\Delta$CCSD(T)\cite{CCSDpT}, coupled-cluster singles, doubles, and triples ($\Delta$CCSDT)\cite{deltaccsd,CCSDT1,CCSDT2,CCSDT3}, and CCSDT with the perturbative treatment of quadruple excitations ($\Delta$CCSDT(Q)).\cite{CCSDTpQ1} methods.
+Since the anion is bound in the HF approximation at R = \SI{7}{\angstrom}, we also were able to calculate EBEs using separate, frozen-core coupled-cluster calculations for the neutral and anion with the following coupled-cluster methods: coupled-cluster singles, doubles, and a perturbative treatment of triples $\Delta$CCSD(T)\cite{10.1016/S0009-26148987395-6}, coupled-cluster singles, doubles, and triples ($\Delta$CCSDT)\cite{10.1063/1.5128795,10.1063/1.452353,10.1016/0009-26148880110-6,10.1063/1.459002}, and CCSDT with the perturbative treatment of quadruple excitations ($\Delta$CCSDT(Q))\cite{10.1063/1.1950567} methods.
 The $\Delta$ indicates that the EBE is derived from the energy difference between the separate calculations on the neutral and anion. The $\Delta$CCSDT and $\Delta$CCSDT(Q) calculations were carried out with only the aug-cc-pVDZ+3s1p basis set.
 These calculations indicate that full treatment of the triples, and even approximate treatment of the quadruple excitation contributions, has less than a 1 meV effect on the EBE of the \ce{(H2O)4} cluster model at R = \SI{7.0}{\angstrom}.
 On the other hand, the inclusion of diffuse d function in the supplemental set of functions leads to a 12 meV increase in the EBE. With this correction we obtain an estimated EOM-CCSDT EBE of 154 meV, which is in good agreement with the DMC results using suitable trial wave functions.
