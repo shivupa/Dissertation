@@ -48,6 +48,19 @@
 \usepackage{tablefootnote}
 \usepackage{booktabs}
 \usepackage{threeparttable}
+% Appendix 2
+\usepackage{subcaption}
+\usepackage[ruled, vlined, linesnumbered, commentsnumbered]{algorithm2e}
+\usepackage{tikz}
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+  \node[shape=circle,draw,fill=black,text=white,font=\bf,inner sep=0.5pt] (char)
+  {\scriptsize#1};
+}}
+
+\newcommand*\circledwhite[1]{\tikz[baseline=(char.base)]{
+  \node[shape=circle,draw,fill=white,text=black,font=\bf,inner sep=0.5pt] (char)
+  {\scriptsize#1};
+}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Change Figure and Table Numeration
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -59,7 +72,8 @@
 \degree{Master of Science, Duquesne University, 2017\\Bachelor's of Arts, Washington and Jefferson College, 2015}
 \school{Dietrich School of Arts and Sciences}
 \date{\today}
-\year{2022}
+%\year{2022}
+\setyear{2022}
 \keywords{hail-to-pitt, pittetd, theses, format}
 \subject{Dissertation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
