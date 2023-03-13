@@ -1,0 +1,60 @@
+\subsection{Nonvalence Anions}
+
+Nonvalence anions are formed when a molecule weakly captures an electron in an extremely diffuse orbital.
+It is helpful to further differentiate nonvalence anions due to the dominant mechanism of binding into nonvalence electrostatically bound anions (NVEBs) and nonvalence correlation bound anions (NVCBs).
+Nonvalence electrostatically bound anions bind an electron using a permanent electrostatic moment.
+For example, an electron can be captured by a molecule or molecular cluster with a sufficiently strong dipole moment, creating a nonvalence electrostatically bound anion also called a dipole bound anion (DBA).
+Nonvalence correlation bound anions require electron correlation effects to account for the binding of the electron.
+This is not to say that the neutral system giving rise to a NVCB lacks any permanent electric moments, but rather, that the uncorrelated description of a system containing these permanent moments will not bind the electron.
+%The discussion below includes a more detailed description of these systems along with paradigmatic examples.
+
+\subsubsection{Nonvalence Electrostatically Bound Anions}
+
+Dipole-bound anions (DBAs) are formed when a molecule with sufficiently large dipole moments (1.625 D in the Born-Oppenheimer approximation) capture an electron in a diffuse, nonvalence orbital.\cite{Jordan_Luken_JCP_1976,Gutowski_Jordan_PRA_1996,Barnett_JCP_1988,Fermi_Teller_PhysRev_1947,Turner_Anderson_PhysRev_1968,Crawford_ProcPhysSoc_1967,Garrett_CPL_1970,Garrett_PRA_1971,Lykke_PRL_1984,Desfrancois_Schermann_PRL_1994,Simons_JPCA_2008,Jordan_Wang_Ann_Rev_2003}.
+Initially, one may be tempted to think that electron correlation would not play a significant role in such systems given the diffuse nature of the excess electron.
+However the excess electron is bound far from the valence electrons, there is a dispersion interaction between the excess electron and the neutral molecule.\cite{Gutowski97,Gutowski98}
+However, considering the simplified expression for London dispersion it can be seen that the dispersion interaction is dependent on the polarizability of the two interacting entities.\cite{London1937}
+\begin{equation}
+	E_{\mathrm{Disp}} = -\left(\frac{3h}{2R^6}\right) \left(\alpha_i \alpha_j \right) \left(\frac{\nu_k \nu_j}{\nu_k + \nu_j} \right)
+\end{equation}
+where $\alpha$ is the static polarizability, $\nu$ is the ionization potential, and $R$ is the separation distance.
+The diffuse electron is spread over a large volume, and therefore has a large polarizability leading to a large dispersion interaction.
+
+\begin{figure}{r}
+    \centering
+	\includegraphics[width=0.9\textwidth,keepaspectratio]{Images/chapter1/h2o4_labeled.eps}
+	\caption{A model \ce{(H2O)4} system. The separation between the dimers $R$ is variable, but the separation of two waters within each dimer $r=\SI{2.77514}{\angstrom}$ is fixed.}
+	\label{fig:h2o4}
+\end{figure}
+Nonvalence correlation bound anions are similar to DBAs, but the leading contribution to the binding energy comes from electronic correlation.
+Often this means NVCB anions do not posses a dipole moment.
+For DBAs, the Hartree-Fock can bind an electron for molecules with dipole moments above the critical threshold, although the electron would be considerably underbound.
+For NVCB anions, it has been shown that the HF solution is qualitatively incorrect.
+Rather than binding the electron, the HF solution collapses onto the continuum yielding a wavefunction for the neutral plus an excess electron in a continuum orbital.
+When this occurs, methods that build upon the HF result such as single reference perturbation theory, or even coupled cluster methods, will also fail to bind the excess electron.
+A simple example of this is a model water tetramer cluster that has been studied previously in our group.\cite{Voora2017}
+This model system can be seen in fig.~\ref{fig:h2o4}.
+This system has no dipole moment, and the electron is bound by electrostatics and correlation effects.
+By increasing the separation between the two pairs of water dimers, one can induce a crossover from a nonvalence electrostatically-bound anion to a nonvalence \textit{correlation-bound} anion.
+DBAs can serve as a pathway to valence-bound anions\cite{Hendricks_JCP_1998,Compton_JCP_1996,Desfrancois_JCP_1996,Desfrancois_JPCA_1998}, and nonvalence correlation bound anions can as well. \cite{Voora20142}
+
+\begin{figure}{r}
+	\centering
+	\includegraphics[width=0.9\textwidth,keepaspectratio]{Images/chapter1/morse.eps}
+	\caption{Illustrative potential energy curves for a neutral molecule and its corresponding dipole-bound or correlation-bound anion. The energy difference at the neutral geometry is the vertical attachment energy. The energy difference at the anion geometry is the vertical detachment energy. The energy difference between the two respective minima is the \textbf{adiabatic electron affinity}.}
+	\label{fig:morse}
+\end{figure}
+
+Fig.~\ref{fig:morse} shows illustrative potential energy curves for a hypothetical bound anion.
+The coordinate ($R$) represents a collective variable which captures the change in geometry ($\delta R$) that the neutral molecule undergoes upon capturing an electron.
+The change in energy associated with binding the electron and the subsequent change in geometry is termed the adiabatic electron affinity.
+The change in energy associated only with binding the electron may occur at either the neutral or anionic geometry and is termed the vertical electron affinity and vertical detachment energy respectively.
+The extremely diffuse nature of the excess electron in DBAs and NVCB anions often results in a very minor change in geometry.
+In the limit of zero change in geometry ($\delta R \rightarrow 0$), the adiabatic electron affinity, vertical electron affinity, vertical detachment energy are equal.
+Therefore, for DBAs it is sufficient to calculate only one of these energies.
+In practice, and in this work, it is easiest to calculate the vertical electron affinity as this only requires the ground state neutral geometry.
+%The dipole-bound anion may not be the lowest energy anion which could lead to difficulties as optimizing an excited state geometry can be a numerically difficult procedure.
+%For example, if one is optimizing a geometry for a CIS excited state, one must ensure that the same state is being located at all points of an optimization.
+%This could happen because the initial
+The magnitude by which the electron is bound is also referred to as the electron binding energy (EBE).
+The sign convention adopted is that a positive electron binding energy indicates that the the electron is bound.

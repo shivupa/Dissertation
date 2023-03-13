@@ -1,0 +1,315 @@
+%% ****** Start of file aiptemplate.tex ****** %
+%%
+%%   This file is part of the files in the distribution of AIP substyles for REVTeX4.
+%%   Version 4.1 of 9 October 2009.
+%%
+%
+% This is a template for producing documents for use with 
+% the REVTEX 4.1 document class and the AIP substyles.
+% 
+% Copy this file to another name and then work on that file.
+% That way, you always have this original template file to use.
+\documentclass[aip,
+jcp,
+% bmf,
+% sd,
+% rsi,
+ amsmath,amssymb,
+%  floatfix,
+%  preprint,%
+ reprint,
+ longbibliography]{revtex4-1}
+%\documentclass[aip,reprint]{revtex4-1}
+\usepackage[utf8]{inputenc}
+\usepackage[version=4]{mhchem}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{tablefootnote} 
+\usepackage{braket} 
+
+
+\usepackage{siunitx}
+\DeclareSIUnit{\angstrom}{\mbox{\normalfont\AA}}
+
+ \bibliographystyle{apsrev4-1}
+% marks overfull lines with a black rule on the right
+
+\begin{document}
+\title{The binding of atomic hydrogen on graphene from density functional theory and diffusion Monte Carlo calculations}
+
+% JCP doesn't have a note about this footnote business but JAP does
+%https://aip.scitation.org/jcp/info/policies
+%https://aip.scitation.org/jap/info/policies
+
+\author{Amanda Dumi}
+\affiliation{Department of Chemistry, University of Pittsburgh, Pittsburgh, Pennsylvania 15260,
+USA}
+\author{Shiv Upadhyay}
+\affiliation{Department of Chemistry, University of Pittsburgh, Pittsburgh, Pennsylvania 15260,
+USA}
+\author{Leonardo Bernasconi}
+\affiliation{Department of Chemistry, University of Pittsburgh, Pittsburgh, Pennsylvania 15260,
+USA}
+\affiliation{Center for Research Computing,
+University of Pittsburgh, Pittsburgh, Pennsylvania 15260, USA}
+\author{Hyeondeok Shin}
+\affiliation{Computational Science Division, Argonne National Laboratory, Argonne, Illinois 60439, USA}
+\author{Anouar Benali}
+\affiliation{Computational Science Division, Argonne National Laboratory, Argonne, Illinois 60439, USA}
+\author{Kenneth D. Jordan}
+\email[Corresponding author: ]{jordan@pitt.edu}
+\affiliation{Department of Chemistry, University of Pittsburgh, Pittsburgh, Pennsylvania 15260,
+USA}
+\affiliation{Department of Chemical and Petroleum Engineering, University of Pittsburgh, Pittsburgh, Pennsylvania 15260,
+USA}
+\date{\today}
+
+% Use the \preprint command to place your local institutional report number 
+% on the title page in preprint mode.
+% Multiple \preprint commands are allowed.
+%\preprint{}
+
+
+
+% repeat the \author .. \affiliation  etc. as needed
+% \email, \thanks, \homepage, \altaffiliation all apply to the current author.
+% Explanatory text should go in the []'s, 
+% actual e-mail address or url should go in the {}'s for \email and \homepage.
+% Please use the appropriate macro for the type of information
+
+% \affiliation command applies to all authors since the last \affiliation command. 
+% The \affiliation command should follow the other information.
+
+
+%\email[]{Your e-mail address}
+%\homepage[]{Your web page}
+%\thanks{}
+%\altaffiliation{}
+
+
+% Collaboration name, if desired (requires use of superscriptaddress option in \documentclass). 
+% \noaffiliation is required (may also be used with the \author command).
+%\collaboration{}
+%\noaffiliation
+
+
+% \pacs{}% insert suggested PACS numbers in braces on next line
+
+%\maketitle must follow title, authors, abstract and \pacs
+
+% Body of paper goes here. Use proper sectioning commands. 
+% References should be done using the \cite, \ref, and \label commands
+\begin{abstract}
+In this work density functional theory (DFT) and diffusion Monte Carlo (DMC) methods are used to calculate the binding energy of a H atom chemisorbed on the graphene surface.
+The DMC value of the binding energy is about 16\% smaller in magnitude than the Perdew-Burke-Ernzerhof (PBE) result.
+The inclusion of exact exchange through the use of the Heyd–Scuseria–Ernzerhof (HSE) functional brings the DFT value of the binding energy closer in line with the DMC result.
+It is also found that there are significant differences in the charge distributions determined using PBE and DMC approaches.
+\end{abstract}
+\maketitle 
+\section{Introduction}
+The unique electronic, optical, and transport properties of graphene make it an important system for a wide range of applications, many of which involve or are impacted by the adsorption of atoms or molecules.
+To bring these applications to fruition, a deeper understanding of the interaction of atoms and molecules with graphene is required, and, not surprisingly, this has been the subject of several experimental and theoretical studies. \cite{doi:10.1021/acs.jpca.0c06595,10.1016/j.carbon.2021.02.056,10.1063/1.3569134,shin_diffusion_2019,10.1103/PhysRevB.84.033402, D1CP02473F,doi:10.1126/science.1158877,10.1038/nature04233,Alekseeva2020,10.1016/j.rser.2015.05.011,reactions2030014,doi:10.1063/1.2963976,doi:10.1021/nl801417w}
+
+The adsorption of H atoms on graphene has been the subject of multiple studies.\cite{doi:10.1016/j.cplett.2010.10.1002/wcms.136010.027,10.1063/1.3569134,10.1016/j.rser.2015.05.011,reactions2030014,doi:10.1063/1.2963976,doi:10.1021/nl801417w}
+It is known that there is both a weakly absorbed state in which barriers for diffusion are small and a much more strongly bound chemisorbed state \cite{SHA2002318,JELOAICA1999157}, which is the focus of this work.
+Chemisorbed H atoms open up the band gap and allow for tuning of electronic properties. \cite{10.1007/s40089-017-0203-5}
+It has been demonstrated that even a single chemisorbed hydrogen atom causes an extended magnetic moment in the graphene sheet.\cite{gonzalez-herrero_atomic-scale_2016,GonzlezHerrero2019} 
+On the other hand, there is evidence that given the ready diffusion of H in the physisorbed state, the H atoms tend to pair up on the surface leading to non-magnetic species.\cite{10.1088/2053-1583/ab03a0}
+Finally, interest in the hydrogen/graphene system has  also been motivated by the potential use of graphene and graphitic surfaces for hydrogen storage.\cite{Alekseeva2020}
+In spite of the interest in H chemisorbed on graphene, we are unaware of experimental values of the binding energy.
+
+Most computational studies of adsorption of atoms and molecules on graphene have employed density functional theory (DFT), primarily due to its favorable scaling with system size, allowing for the treatment of larger periodic structures.
+However, a reliable theoretical description of interactions at the graphene surface has proven to be challenging for DFT.\cite{doi:10.1021/acs.jpca.0c06595,10.1016/j.carbon.2021.02.056,10.1063/1.3569134,doi:10.1063/1.4977994}
+In recent years considerable progress has been made in extending correlated wave function methods to periodic systems. \cite{doi:10.1063/1.5091445,doi:10.1063/5.0049890,10.1038/nature11770,doi:10.1063/5.0036363, doi:10.1063/5.0021036,doi:10.1063/1.4976937}
+Among these methods, the diffusion Monte Carlo (DMC)\cite{foulkes01} method, which  is a real-space stochastic approach to solving the many-body Schr{\"o}dinger equation is particularly attractive given its low scaling with the number of electrons and high parallelizability.
+DMC also has the advantages of being systematically improvable and its energy being much less sensitive to the basis set employed than methods that work in the space of Slater determinants. In DMC calculations, the atomic basis set is important only to the extent that it impacts the nodal surface.
+DMC has been used to describe the adsorption of various species on graphene including \ce{O2}\cite{shin_diffusion_2019}, a water molecule\cite{10.1103/PhysRevB.84.033402,doi:10.1021/acs.jpclett.8b03679}, and a platinum atom.\cite{D1CP02473F}
+In a study of a physisorbed H atom on graphene, Ma et al.~found that different DFT functionals gave binding energies ranging from 5 to 97 meV, while DMC calculations gave a value of only 5 $\pm$ 5 meV.\cite{10.1063/1.3569134}
+Various DFT calculations utilizing the Perdew-Burke-Ernzerhof (PBE)\cite{10.1103/PhysRevLett.77.3865} and Perdew-Wang (PW91)\cite{PW91} functionals predict the chemisorbed H atom species to be bound by 480 to 1,440 meV.\cite{10.1016/j.carbon.2006.09.027, doi:10.1063/1.3187941, 10.1103/PhysRevLett.93.187202, 10.1103/PhysRevB.78.041402, doi:10.1063/1.3072333, 10.1088/0957-4484/19/15/155708,10.1088/1742-6596/100/5/052087, 10.1016/j.jmmm.2009.11.014,PhysRevB.77.035427}
+However, this large spread is primarily a result of some calculations employing small supercells resulting in an unphysical description of the low-coverage situation, too small a $k$-point grid, or small atom-localized basis sets that do not adequately describe the binding and introduce large basis set superposition error (BSSE).
+In the present work, we use the DMC method to calculate the binding energy of H to graphene in the chemisorbed state.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Methods}
+All calculations reported in this study used a 5x5x1 supercell of graphene, 
+as it was large enough to make inconsequential the interaction between periodic images of the adsorbed hydrogen atom and to assure that there are essentially unperturbed C atoms between the buckled regions in adjacent images in the $x$ and $y$ directions.
+The geometries of graphene, both pristine and with a chemisorbed H atom, were provided by Kim et al.,\cite{doi:10.1021/acsami.1c21821} and were obtained using the PBE+D3 DFT method.\cite{doi:10.1063/1.3382344,10.1103/PhysRevLett.77.3865} 
+For all systems, a vacuum spacing of \SI{16}{\angstrom} was used.
+
+\subsection{Density functional theory calculations}
+The single particle orbitals used in the trial wave functions for variational Monte Carlo (VMC) and DMC calculations were calculated using the PBE functional with the correlation consistent electron core potential (ccECP)\cite{ccecp_1,ccecp_2} pseudopotentials and a plane wave basis with an energy cutoff of 3,400 eV.
+Monkhorst-Pack $k$-point grid meshes\cite{PhysRevB.13.5188} were employed with a 13.6 meV Marzari-Vanderbilt-DeVita-Payne cold smearing of the occupations.\cite{PhysRevLett.82.3296}
+The PBE results were converged at a 6x6x1 $k$-point grid to 1 meV for graphene and graphene with an adsorbed hydrogen atom. The hydrogen atom trial was generated using a 1x1x1 $k$-point grid. Convergence studies can be found in Table S1 and S2 of the Supplementary Material.
+
+In addition to the PBE calculations used to generate the trial wave functions for DMC, DFT calculations were carried out with the PBE0\cite{doi:10.1063/1.478522} and Heyd–Scuseria–Ernzerhof (HSE) functionals\cite{doi:10.1063/1.2404663} to determine if inclusion of exact exchange proves important for the adsorption energy.
+Due to the inclusion of exact exchange, these calculations would be computationally prohibitive in a plane wave basis, particularly with the high energetic cutoff required by the ccECP pseudopotential.
+For this reason, they were carried out all-electron with the POB-TZVP Gaussian type orbital (GTO) basis set.\cite{Peintinger2012-ff}
+Due to the use of GTOs, these calculations suffer from basis set superposition error (BSSE), which we corrected using Grimme's geometry-dependent counterpoise correction scheme.\cite{KruseGrimme2012,Brandenburg2013} This correction resulted in a 113 meV reduction in the magnitude of the binding energy when using the PBE0 functional.
+For the PBE0 and HSE calculations, a 12x12x1 $k$-point grid was used to assure binding energies converged to within 2meV.
+Convergence data are supplied in Table S3 of the Supplementary Material.
+
+The plane wave DFT calculations were carried out with the QUANTUM ESPRESSO version 6.3 code.\cite{doi:10.1063/5.0005082,QE-2009,QE-2017}
+The Gaussian basis DFT calculations were carried out with CRYSTAL17,\cite{10.1002/wcms.1360,doi:10.1063/5.0004892} save for the HSE calculation of the isolated hydrogen atom which was carried out using NWChem version 6.8\cite{NWCHEM} using the same basis as the calculations in CRYSTAL17.
+
+\subsection{Quantum Monte Carlo calculations}
+DMC is a projector quantum Monte Carlo (QMC) method, solving the Schr\"{o}dinger equation in imaginary time $\tau=it$; any initial state $\ket{\psi}$, that is not orthogonal to the true ground state $\ket{\phi_0}$ , will evolve to the ground state in the long time limit.
+When dealing with Fermionic particles, the DMC method requires the use of the fixed-node approximation\cite{Anderson1980} to maintain the antisymmetric property of the wave function. 
+For efficient sampling and to reduce statistical fluctuations, we use a Slater-Jastrow trial wave function fixing the nodes through a Slater determinant comprised of single-particle orbitals, which, in this work, are expanded in a B-spline basis.
+The Jastrow factor is a function that reduces the variance by explicitly describing dynamic correlation.
+The Jastrow factor contains terms for one-body (electron-ion), two-body (electron-electron) and three-body  (electron-electron-ion) interactions.
+The one- and two-body terms were described with spline functions\cite{10.1109/MCSE.2010.122}, while the three-body terms were represented by polynomials.\cite{10.1103/PhysRevB.70.235119}
+10 parameters were used for the one-body terms per atom type, and 10 parameters were employed per spin-channel for the two-body terms. The cutoffs on the one- and two-body terms were fixed to the Wigner-Seitz radius of the simulation cell.
+The three-body terms were comprised of 26 parameters per term with a cutoff of 10 Bohr.
+The parameters in the Jastrow factor were separately optimized for each geometry with the linear method\cite{10.1103/PhysRevLett.98.110201} using VMC.
+To reduce the cost of the DMC calculations as well as to reduce the fluctuations near the ionic core regions, ccECP pseudopotentials were used to replace the core electrons.\cite{ccecp_1,ccecp_2}
+The ccECP pseudopotentials were designed to be used with high-accuracy many-body methods.
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth,keepaspectratio]{hgraphene_python.eps}
+    \caption{ Perpendicular view of the simulation cell (top) and a parallel view obtained by projection onto the $xz$-plane (bottom). The carbon atoms are colored gray and the hydrogen atom is denoted as white. For the perpendicular view, the cyan line represents the slice of the cell used to visualized electron density differences. For the parallel view, the dotted cyan line represents the mean carbon $z$ position. Blue outlined atoms are greater than one standard deviation away from the mean carbon $z$ position, whereas yellow atoms are between 0.5-1.0 $\sigma$.}
+    \label{fig:cell}
+\end{figure}
+The non-local effects due to the pseudopotentials were addressed using the determinant-localization approximation along with the t-moves method (DLTM).\cite{zen_new_2019, 10.1063/1.3380831}
+Finite size effects were addressed using twist averaging.\cite{PhysRevE.64.016702} The twist angles were chosen to be the symmetry unique points of the 6x6x1 $k$-point grid shifted by half a grid step away from the gamma point in each direction.
+
+The DMC calculations were performed using the branching scheme proposed by Zen
+et al. (ZSGMA)\cite{10.1103/PhysRevB.93.241118} with a population control target of 8,192 walkers and a time step of 0.005 a.u., which represented a balance between computational cost and finite timestep error in previous work.\cite{10.1103/PhysRevB.100.075430}
+
+
+
+We define the binding energy as
+\begin{equation}
+E_b=E_{dgr+H}-(E_{gr}+E_{H})
+\label{eq:binding}
+\end{equation}
+where $E_{dgr+H}$ is the energy of the distorted graphene sheet with a chemisorbed atomic hydrogen, $E_H$ is the energy of a hydrogen atom, and $E_{gr}$ is the energy of a pristine graphene sheet.
+In the chemisorbed state, the hydrogen atom bonds directly over a carbon atom, causing this carbon to be pulled out of the sheet towards the hydrogen.\cite{doi:10.1063/1.4896611,doi:10.1126/science.aaw6378} 
+The adjacent carbons are also pulled in the direction of the hydrogen leading to a distorted graphene sheet.
+
+
+The QMC calculations were carried out using the QMCPACK code, with the workflow between QUANTUM ESPRESSO and QMCPACK managed by Nexus.\cite{QMCPACK_1,QMCPACK_2,10.1016/j.cpc.2015.08.012}
+Figures~\ref{fig:cell} and \ref{fig:densdiff_dmcminusdft} were rendered with matplotlib\cite{matplotlib} and the density plots were generated using VESTA.\cite{10.1107/S0021889811038970}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results \& Discussion}
+
+\subsection{Binding energy}
+ \begin{table}[ht]
+     \caption{Binding energy (meV) of a hydrogen atom chemisorbed on graphene calculated with various DFT functionals and with DMC.}
+    \centering
+    \begin{tabular}{lr}%\hline%\toprule
+    Method & Binding energy\\\hline \\\\[-2em]%
+    \multicolumn{2}{c}{\bfseries This Work} \\
+    PBE \footnote{\label{pw}Calculation was done in the plane wave basis} & -821\\ %-820.5815227
+    PBE\footnote{\label{gbs}Calculation was done in the Gaussian basis set with corrections for BSSE. Values in parentheses include a correction for the basis set incompleteness as described in the text.} & -871\\ 
+    PBE0\textsuperscript{\ref{gbs}}& -851 (-800)\\ 
+    HSE\textsuperscript{\ref{gbs}}& -794 (-743)\\ 
+    DMC  & -691 $\pm$ 19 \\ \hline \\\\[-2em]%-690.8154569 $\pm$ 18.61340357
+    \multicolumn{2}{c}{\bfseries Previous Work}\\
+    PW91  &  -810 to -830\cite{doi:10.1063/1.3187941}, -870\cite{10.1103/PhysRevLett.93.187202}\\
+    PBE  & -790\cite{10.1103/PhysRevB.78.041402}, -840\cite{doi:10.1063/1.3072333}, -980\cite{10.1088/0957-4484/19/15/155708}\\
+     \hline%\bottomrule
+    \end{tabular}
+\label{tab:summary_energetics}
+ \end{table}
+ 
+
+Table~\ref{tab:summary_energetics} contains a summary of the binding energies of a hydrogen atom chemisorbed on graphene from this work and selected values from previous publications using the PW91 and PBE functionals.
+These literature values range from -790 to -980 meV.
+This wide spread of binding energies is caused by (1) the use in some studies of small supercells for which there are sizable interactions between the CH groups in adjacent cells, and (2) the use in some studies of small atom-centered basis sets without corrections for BSSE.
+Our calculations with the PBE functional in conjunction with a plane wave basis set give a binding energy of -821 meV. 
+This should be contrasted with our -691 $\pm$ 19 meV DMC result.
+There are several possible sources for the difference between the PBE and DMC values of the binding energy. 
+These include errors in the DFT calculations due to self interaction and planar graphene having more multiconfigurational character than H/graphene, with this being better described with DMC than with PBE.
+We note that the inclusion of the D3 dispersion correction with the PBE functional only changes the magnitude of the binding energy by 0.03 eV.
+
+The PBE binding energy is 51 meV lower in magnitude in the plane wave than in the GTO basis set when the same $k$-point grid is used, and this value is used as a correction for the basis set incompleteness error for the results with other functionals in Table~\ref{tab:summary_energetics}.
+The calculations in the GTO basis set give a slightly smaller in magnitude binding energy with PBE0 than with PBE.
+However, with HSE, we obtain a binding energy 77 meV smaller in magnitude than the PBE result.
+Applying the correction for the basis set incompleteness error, we obtain -800 meV for the PBE0 binding energy and -743 meV for the HSE binding energy, with the latter being in reasonable agreement with the DMC result of -691 meV.
+Although the 130 meV difference between the plane-wave PBE and DMC values of the binding energy may appear to be small, this energy difference, of that magnitude is consistent with an order of magnitude change in the hydrogen evolution current at room temperature on graphene electrodes.\cite{doi:10.1021/acsami.1c21821}
+
+
+ 
+In order to better understand the origin of the difference in the PBE and HSE H-atom adsorption energies, we also carried out non-self-consistent calculations, using PBE densities to evaluate the HSE energies.  These calculations gave a binding energy only 21 meV smaller in magnitude than obtained from the self-consistent HSE calculations.  This demonstrates that the functional is more important than the density in establishing the binding energy. Detailed information can be found in Table S4 of the Supplementary Material.
+ 
+Detailed results of the DMC calculations can be found in Tables S5-S7 in the Supplementary Material.
+
+\subsection{Binding density}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth,keepaspectratio]{hgraphene_minus_distgraphene_minusH_montage_labelled_lowres.jpg}
+    \caption{Change of the electron density due to the adsorption of the H atom to the distorted graphene sheet (Eq.~\ref{eq:bindingdensity}). $\rho_b$ from PBE calculations is shown from an oblique angle (A) and aligned along the $c$ axis (B). $\rho_b$ from DMC calculations (C) and (D) is shown from the same perspectives. Gold and blue represent a gain and loss of electron density, respectively. Note that there is a region of increased charge density at the C-H bond that is enveloped by a region of loss in the charge density. The binding density was visualized using an isovalue of 2.8$\times10^{-5}$ for DMC and 3.9$\times10^{-5}$ for PBE, in both cases capturing 95\% of the differential charge density.}
+    \label{fig:densdiff}
+\end{figure*}
+It is instructive to examine the change in the electron density associated with the binding of the H atom to the distorted graphene as determined from the PBE and DMC calculations.
+The density change is given by
+\begin{equation}
+\rho_b=\rho_{dgr+H}-(\rho_{dgr}+\rho_{H}),
+\label{eq:bindingdensity}
+\end{equation}
+where $\rho_{H}$ is the charge density of the hydrogen atom, and $\rho_{dgr+H}$ and $\rho_{dgr}$ are the charge densities of the distorted graphene sheet with and without hydrogen, respectively. For the QMC density, the density was accumulated during the VMC and DMC calculations, the mixed estimator bias was found to be insignificant, and was thus not corrected.
+
+The $\rho_b$ density differences for both DMC and PBE are shown in Figure \ref{fig:densdiff}. 
+The dark blue and gold regions represent a loss and gain of electron density, respectively.
+As expected, there is a shift in electron density from the carbon atom participating in the carbon-hydrogen bond as well as to the three adjacent carbon atoms. 
+These qualitative changes in the density are consistent with previous theoretical and experimental studies.\cite{doi:10.1063/1.4896611,doi:10.1126/science.aaw6378}
+The rehybridization from $sp^2$ to $sp^3$ of the carbon participating in the CH bond and the weakening of the $\pi$ bonds due to the distortion of the graphene lead to the electron density shift.
+The change in the charge distribution is similar for PBE and DMC, with the most noticeable difference being a greater increase of density at remote C atoms in the DMC than in the PBE calculations.
+
+\subsection{Charge density differences between DMC and PBE}
+In this section, the difference between the DMC and PBE charge densities for distorted graphene with the adsorbed hydrogen atom as well as for pristine planar graphene without the adsorbed hydrogen atom are considered. 
+The charge density difference for each system is calculated according to 
+\begin{equation}
+    \Delta\rho_{system} =\rho_{system}^{DMC}- \rho_{system}^{PBE},
+    \label{eq:densdiff}
+\end{equation}
+where $\rho_{system}^{DMC}$ is the DMC charge density of a given system (either distorted graphene with the adsorbed hydrogen or pristine graphene) and $\rho_{system}^{PBE}$ is the corresponding PBE charge density.
+$\Delta\rho_{gr}$ and $\Delta\rho_{dgr+H}$ are reported in Figure~\ref{fig:densdiff_dmcminusdft} along the 110 slice through the unit cell, which captures the carbon-hydrogen bond.
+From the top-down perspective in Figure~\ref{fig:cell}, the 110 lattice plane bisects the cell diagonally through the longer of the two diagonals and is indicated by the solid cyan line.
+In Figure~\ref{fig:densdiff_dmcminusdft}, blue represents areas where the PBE density is larger, while gold areas represent areas where the DMC density is larger.
+The DMC density, in comparison with the PBE density, has greater weight in the bonding region between atoms.
+We note that the HSE density displays similar differences as the PBE density. Figure S2 of the Supplementary Material includes a visualization of the DMC-HSE density difference.
+This is the case for both the planar graphene without hydrogen and the system with hydrogen chemisorbed to graphene.
+Even though there are significant differences between the PBE and DMC densities for both systems, the difference is similar in the two systems, consistent with it not introducing a large error in the PBE value of the binding energy.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth,keepaspectratio]{qmc_2d_slice_graphene.eps}
+    \includegraphics[width=\columnwidth,keepaspectratio]{qmc_2d_slice_hgraphene.eps}
+    \caption{Visualization of the difference of PBE and DMC densities sliced along the 110 lattice plane of the unit cell for the graphene sheet, $\Delta\rho_{gr}$, (top) and H adsorbed onto graphene, $\Delta\rho_{dgr+H}$, (bottom). The abscissa represents traversing the 110 plane in fractional coordinates, while the ordinate represents traversing the $c$ axis in fractional coordinates. Blue regions represent places where the PBE density is larger, while the gold color represents regions where the DMC density is larger. }
+    \label{fig:densdiff_dmcminusdft}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusions}
+Calculations of the binding energy of a hydrogen atom on a graphene sheet were carried out using various DFT methods and with DMC.
+The DMC calculations provide a benchmark value of the binding energy.
+
+Our best estimate of the binding energy from DMC calculations is -691 $\pm$ 19 meV.
+The PBE result obtained with a plane-wave basis set gives a binding energy about 20\% larger in magnitude than the DMC result.
+The global hybrid functional, PBE0, gives a binding energy close to that of PBE.
+In comparison, HSE, a range-separated hybrid functional, gives a smaller binding energy of -743 meV, after a correction applied for the basis set incompleteness error, and is much closer to the value from DMC calculations.
+Interestingly, there are significant differences in the DMC and PBE charge densities of both graphene and H/graphene.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Supplementary Material}
+The Supplementary Material document includes the total energies and error bars for the quantum Monte Carlo calculations, the total energies for the DFT calculations, and details of the convergence of the DFT total energies with respect to the $k$-point grid and kinetic energy cutoff of the plane wave basis, and a comparison of the density difference of DMC-PBE and DMC-HSE.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Acknowledgements}
+We thank Dr. Dan Sorescu for helpful discussion and for sharing the coordinates of his calculations.
+A.B. and H.S were supported by the U.S. Department of Energy, Office of Science, Basic Energy Sciences, Materials Sciences and Engineering Division, as part of the Computational Materials Sciences Program and Center for Predictive Simulation of Functional Materials.
+An award of computer time was provided by the Innovative and Novel Computational Impact on Theory and Experiment (INCITE) program.
+The DMC and plane wave DFT calculations used resources of the Argonne Leadership Computing Facility, which is a DOE Office of Science User Facility supported under contract DE-AC02-06CH11357. The DFT calculation using Gaussian orbitals were carried out on computing resources in the University of Pittsburgh's Center for Research Computing. K.D.J. acknowledges NSF (CBET-2028826) for partial support of this work. S.U. was supported in part by the Pittsburgh Quantum Institute (PQI) Graduate Quantum Leader Award.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Data Availability Statement}
+ The data that support the findings of this study are openly available on the Materials Database Facility at \url{https://acdc.alcf.anl.gov/mdf/detail/dumi_dmc_hgraphene_v1.3}, with the following DOI: 10.18126/s1wc-tya.
+
+% \bibliographystyle{IEEEtran}
+\bibliography{theory}
+
