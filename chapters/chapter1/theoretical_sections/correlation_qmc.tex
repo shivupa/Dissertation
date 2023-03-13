@@ -31,11 +31,15 @@ The propagation of a state in imaginary time (multiplying $\ket{B'}$ and inserti
 \end{equation}
 The term $\braket{B'|e^{-(\hat{H}-E_r)\tau}|B}$ is the propagator (Green's function), which is unknown. 
 The short time approximation to the Green's function (eq.~\ref{eqshorttimeprop}) however can be be constructed by Suzuki-Trotter decomposition of the exponential, which is exact as $\Delta \tau \rightarrow 0$.\cite{Trotter,Suzuki}
-\begin{align}
-\braket{B'|\Psi(\tau)} &= \int dB_{n} \cdots dB_{1} dB \braket{B'|e^{-(\hat{H}-E_r)\Delta\tau}|B_{n}}\\
-                       &\braket{B_{n-1}|e^{-(\hat{H}-E_r)\Delta\tau}|B_{n-2}}\cdots \braket{B_{2}|e^{-(\hat{H}-E_r)\Delta\tau}|B_{1}} \braket{B_{1}|\Psi(0)}
+\begin{equation}
+\begin{aligned}
+    \braket{B'|\Psi(\tau)} = \int dB_{n} \cdots dB_{1} dB &\braket{B'|e^{-(\hat{H}-E_r)\Delta\tau}|B_{n}}\\
+                                                          &\braket{B_{n}|e^{-(\hat{H}-E_r)\Delta\tau}|B_{n-1}}\\
+                                                          &\cdots \\
+                                                          &\braket{B_{2}|e^{-(\hat{H}-E_r)\Delta\tau}|B_{1}} \braket{B_{1}|\Psi(0)}
     \label{eqshorttimeprop}
-\end{align}
+\end{aligned}
+\end{equation}
 For diffusion Monte Carlo (DMC), $\ket{B}$ is chosen to be real space $\ket{R}$.
 For auxiliary field quantum Monte Carlo (AFQMC), $\ket{B}$ is chosen to be an over-complete set of nonorthogonal determinants $\ket{D}$.
 This space may seem complicated, but its use is motivated by the fact that Fermionic antisymmetry is built in.
