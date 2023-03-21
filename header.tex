@@ -61,6 +61,15 @@
 \usepackage{tablefootnote}
 \usepackage{booktabs}
 \usepackage{threeparttable}
+% Chapter 5
+\newcommand{\shivten}[5]{% #1 presuperscript, #2 presubscript, #3 tensor symbol, #4 postsuperscript, #5 postsubscript
+    \sideset{^{#1}_{#2}}{^{#4}_{#5}}{\mathop{#3}}
+}
+\usepackage{chem_braket}
+\newcommand{\citehere}{\textcolor{red}{\bf\textsuperscript{\textdagger}}}
+\newcommand{\citeherecomment}[1]{\textcolor{red}{\bf\textsuperscript{\textdagger} #1}}
+\usepackage{braket}
+\newcommand{\todo}[1]{\textcolor{shiv_red}{\bf [TO DO: #1 ]}}
 % Appendix 2
 \usepackage{subcaption}
 \usepackage[ruled, vlined, linesnumbered, commentsnumbered]{algorithm2e}
