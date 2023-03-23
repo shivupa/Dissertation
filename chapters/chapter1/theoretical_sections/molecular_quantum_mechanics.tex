@@ -1,3 +1,40 @@
 \subsection{Molecular Quantum mechanics}
+Computational chemistry has established itself as a tool for the elucidation and predicition of chemical processes.
+For a wide variety of problems such as chemical reactivity, molecular structure, and spectroscopic identification, molecular quantum mechanics provides great insight.
+
 \subsubsection{Schrodinger's Equation}
+Molecular Quantum Mechanics  involves the solution of a quantum many body problem for a chemical system. Since experimental observables can be represented as quantum mechanical operators, molecular quantum mechanics can both be verified by comparison to experimental results and also provide atomistic insight into experimental results.
+The work in this thesis will only include nonrelativistic systems and time independent states so the time-independent Schrodinger equation will be the target equation which we seek to solve,
+\begin{equation}
+H_{mol} \Psi = E \Psi,
+\end{equation}
+where
+\begin{equation}
+H_{mol} = T_{\mathrm{elec}} + T_{\mathrm{nuc}} + V_{\mathrm{elec-elec}} + V_{\mathrm{elec-nuc}} + V_{\mathrm{nuc-nuc}}.
+\end{equation}
+The nonrelativistic Schrodinger equation contains the sum over the kinetic energy operators for the electrons and nuclei ($T$) and their corresponding pairwise interaction potentials ($V$).
+The dimensionality of this problem restricts its solution to simple, few-particle problems such a s the hydrogen atom or the hydrogen molecular anion.
+
 \subsubsection{Born Oppenheimer Approximation}
+A common approximation which enables the solution of the Schrodinger equation is the Born-Oppenheimer Approximation.
+This approximation involves an assumption that the nuclei are fixed and the electrons see the static potential of these nuclei.
+A physical rationalization of this approximation relies on the mass difference between electrons and nuclei as the lightest nucleus, a proton, is roughly 1800 times more massive then an electron.
+Due to the extreme difference in masses, it can be assumed that any rearrangement of the nuclei results in an instantaneous rearrangement of the electrons.
+This approach has several practical advantages.
+
+First, the dimensionality of the problem is greatly reduced.
+By fixing the nuclei, the nuclei degrees of freedom are removed from the the problem.
+The nuclei's kinetic energy operators are also removed, and the pairwise intereaction between the nuclei becomes a constant energy shift.
+
+Second, the Born-Oppenheimer Approximation allows for a logical source for a basis expansion for the elctrons.
+Consider the hydrogen molecular ion without the introduction of fixed nuclei, the natural basis for the electron is prolate spherical coordinates /Strumian functions.\todo{fix}
+Note that the basis functions have explicit dependence on the electron's coordinates and also the nuclei's coordinates
+As the number of nuclei and electrons grows this interdependence becomes an immediate barrier to obtaining a solution to the Schrodinger equation.
+By making the electronic wave function only have a paraetric depedence on the nuclei's coordinates, we enable the use of atom centered basis functions.
+This approximation is therefore central to the wildly popular linear combination of atomic orbitals (LCAO) approach.
+
+Third, the Born-Oppenheimer approximation gives us the concepts of a molecule and its associated potential energy surface.
+A potential energy surface is a multidimensional scalar function of a molecule in a particular electronic state in which the energy is a function of the nuclear positions of a molecule.
+In modern computational chemsitry, it is routine that we consider that we have a molecule and we can optimize the geometry optimization in ground or excited states.
+One expects that these geometries and the associated observables correspond to ground or exctied states of chemical systems.
+This way of thinking about molecules depends on a decoupling of the nuclei and electron coordinates enabled by the BO approximation.
