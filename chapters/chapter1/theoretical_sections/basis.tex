@@ -1,0 +1,32 @@
+\subsection{Basis}
+Invoking the Born-Oppenheimer approximation, allows us to define a basis for the electronic degrees of freedom.
+Since the goal is to represent the electron density that is expected to be localized around the nuclei, a natural basis for representing this density is a set of atomic orbitals centered at the nuclei.
+For computational reasons, gaussian orbitals are used to represent molecular orbitals,
+\begin{equation}
+\psi_{\textrm{MO}} = \sum_{i} \Phi_{\textrm{AO}} = \sum_{i} N(L, \alpha) Y_{lm}(\theta, \phi) e^{-\alpha |r - R_A|^2},
+\end{equation}
+where $r_A$ is the location of the atomic center where this gaussian orbital is centered, $Y_{lm}(\theta, \phi)$ is a spherical harmonic, and $N(L, \alpha)$ is a normalization constant.
+This approach is also called the linear combination of atomic orbitals (LCAO).
+
+As a simple example for a two electron problem, we write the wave function using the LCAO approach,
+\begin{equation}
+\Psi = \phi_{MO1}(r_1) \phi_{MO2}(r_2).
+\label{eq:hartreeproduct}
+\end{equation}
+However, since electrons are fermions any wave function ansatz must be antisymmetric.
+The ansatz in eq.~\ref{eq:hartreeproduct}, also known as the Hartree product, is not antisymmetric,
+\begin{equation}
+\Psi(1,2) = \phi_{MO1}(r_1) \phi_{MO2}(r_2) \neq -\phi_{MO1}(r_2) \phi_{MO2}(r_1) = -\Psi(2,1).
+\end{equation}
+This can be remedied by writing the ansatz wave function as, 
+\begin{equation}
+\Psi = \phi_{MO1}(r_1) \phi_{MO2}(r_2) - \phi_{MO1}(r_2) \phi_{MO2}(r_1),
+\label{eq:2pslaterdet}
+\end{equation}
+which can be easily verified to be antisymmetric by interchanging the two particles.
+The expansion in eq.~\ref{eq:2pslaterdet} is the expansion of a determinant of a 2$\times$2 matrix.
+The generalization of the ansatz for N electrons is a Slater determinant,
+\begin{equation}
+det.
+\end{equation}
+Slater determinants serve as the many electron wave function basis for our calculations.

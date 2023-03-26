@@ -1,1 +1,13 @@
 \subsection{Mean Field Methods}
+The electronic time independent Schrodinger equation is still a many body problem, and due to its multidimensional nature, it does not lend itself to an easy solution.
+The common approximation for many body problems in physics is a mean-field approximation.
+Mean-field approximations involve mapping an interacting problem onto a noninteracting problem with averaged interactions.
+The Hartree-Fock method involves mapping the interacting quantum many-body problem onto a noninteracting problem with each electron interacting with the average potential of the other electrons.
+Since the average potential that each electron experiences is dependent on the density of each of the other electrons, the solution to the Hartree-Fock equations must be found iteratively.
+This means that the independent particle densities yield averaged interaction potentials that yield new independent particle densities, and this process is repeated.
+Eventually, the previous iteration's densities are unchanged in an iteration, a condition termed self-consistency.
+Once this condition has been fulfilled, we stop iterating, and we have found the mean-field solution.
+
+\shiv{add hf algo}
+The above described Hartree-Fock algorithm for a Slater determinant trial wavefunction is given in listing 1.
+The linear algebra machinery makes the Hartree-Fock method amenable to solution on modern computational hardware.

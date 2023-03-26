@@ -1,3 +1,24 @@
 \subsection{Correlated Methods}
+Once the Hartree-Fock method, has converged a single Slater determinant wave function is obtained.
+The description of the wave function captures many of the salient properties of the system.
+For example, if we knew the exact nonrelativistic energy for a system, the HF energy accounts for \shiv{99} of the exact energy.\shiv{cite pople}
+We define the missing energy as the correlation energy,
+\begin{equation}
+E_{\mathrm{corr}} = E_{\mathrm{exact}} - E_{\mathrm{HF}},
+\end{equation}
+since it is the portion of the energy missed due to the use of averaged interactions between electrons.
 
-\shiv{define correlation}
+If the correlation energy per electron were constant, then computational chemistry would be much easier.
+For example, if one were calculating the atomization energy of a water molecule,
+\begin{equation}
+    E_{\mathrm{atom}} = E_{\mathrm{H2O}} - 2 E_{\mathrm{H}} - E_{\mathrm{O}},
+\end{equation}
+each term would have a constant shift, and the relative energy difference $E_{\mathrm{atom}}$ would be equivalent if calculated with the exact energy or the HF energy.
+Unfortunately this is not the case, and thus we aim to capture the correlation energy accurately for a chemical system.
+
+In this thesis 3 main approaches are used to recover electron correlation:
+\begin{itemize}
+\item \textbf{Density Function Theory}- Since the Hartree-Fock method neglects $e^{-}$ correlation by using an averaged potential, DFT attempts to modify the effection potential to recover correlation energy.
+\item \textbf{Wave function based methods}- Build upon a Hartree-Fock wavefunction and reincorporate correlation through methods such as perturbation theory.
+\item \textbf{Stochastic methods}- Randomly sample correlated forms of wave functions, which would be difficult or impossible to solve deterministically, to recover correlation.
+\end{itemize}
