@@ -90,8 +90,8 @@ If the densities are iterated without first converging the independent densities
 \subsubsection{Implementation Details}
 The specific implementation chosen here is a direct SCF algorithm.
 The direct SCF algorithm is extremely efficient when combined with incremental Fock formation plus integral-based and density-based screening using the Cauchy-Schwarz inequality.
-Incremental fock formation has been implemented, but given the highly coupled nature of multicomponent calculations, we have found screening must be handled with care.
-In further studies, we plan to implement density based screening to achieve a linear scaling FOck build algorithm.
+Incremental Fock formation has been implemented, but given the highly coupled nature of multicomponent calculations, we have found screening must be handled with care.
+In further studies, we plan to implement density based screening to achieve a linear scaling Fock build algorithm.
 DIIS extrapolation is used to accelerate convergence.
 Symmetric orthogonalization and canonical orthogonalization are implemented with a preference for canonical orthogonalization as it handles linear dependencies in the a.o. basis.
 
@@ -175,7 +175,7 @@ The CI eigenvalue problem,
 \begin{equation}
     H_{\mathrm{CI}} C = E C
 \end{equation}
-is solved using the Davidson diagonalization method.
+is solved using the Davidson diagonalization method.\citehere
 For small CI spaces, the hamiltonian matrix can be explicitly constructed, but for larger spaces a determinant-driven direct CI method is used.
 
 The advantage of a direct CI approach is that the Hamiltonian matrix is never explicitly constructed.
@@ -218,7 +218,7 @@ Similarly for the two particle sigma formation, there are two classes of contrib
     \item same particle and same spin contributions ($\sigma^{A\alpha A\alpha}$, $\sigma^{A\beta A\beta}$, $\sigma^{B\alpha B\alpha}$, $\sigma^{B\beta B\beta}$)
     \item different particle or different spin contributions ($\sigma^{A\alpha A\beta}$, $\sigma^{B\alpha B\beta}$, $\sigma^{A\alpha B\alpha}$, $\sigma^{A\beta B\beta}$, $\sigma^{A\alpha B\beta}$, $\sigma^{A\beta B\alpha}$)
 \end{enumerate}
-By breaking the contributions into these two clases, separate strategies can be developed to handle the cases.
+By breaking the contributions into these two classes, separate strategies can be developed to handle the cases.
 
 Additionally, natural spin orbitals are constructed from the one particle reduced density matrices from the CI expansions in a state specific way.
 These natural orbitals can also be used as a single determinant trial wave function for subsequent QMC calculations.
