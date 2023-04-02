@@ -15,16 +15,22 @@
 %VERSION
 %1)'final' = Changes all "format warnings" into errors (Final version of the document       
 
+\usepackage{ejb-bibstuff}
+\addbibresource{references.bib}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Default includes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{indentfirst}
-\usepackage{amsmath,amsthm}
-\usepackage{pdflscape}
-\hypersetup{hidelinks}
+\usewithpatch{amsmath,amsthm}
+% Patches for the packages 'amsmath' and 'amsthm'
 \patch{amsmath}
 \patch{amsthm}
+
+\usepackage{pdflscape}
+\hypersetup{hidelinks}
+
 \makeatletter
 \renewcommand{\@biblabel}[1]{[#1]\hfill}
 \makeatother
@@ -46,6 +52,14 @@
 \definecolor{shiv_red}{rgb}{0.93333333,  0.20784314,  0.18039216}
 \definecolor{shiv_gray}{rgb}{0.72156863,  0.71764706,  0.73333333}
 \newcommand{\shiv}[1]{\textcolor{shiv_purple}{\bf [SU #1 ]}}
+\newcommand{\citehere}{\textcolor{red}{\bf\textsuperscript{\textdagger}}}
+\newcommand{\citeherecomment}[1]{\textcolor{red}{\bf\textsuperscript{\textdagger} #1}}
+\newcommand{\todo}[1]{\textcolor{shiv_red}{\bf [TO DO: #1 ]}}
+
+\usepackage[acronym]{glossaries-extra}
+\setabbreviationstyle[acronym]{long-short}
+
+\usepackage{etoolbox}
 
 % Chapter 1
 \usepackage{amsfonts}
@@ -57,7 +71,8 @@
 \usepackage[version=4]{mhchem}
 \usepackage{siunitx}
 \newcommand{\angstrom}{\mbox{\normalfont\AA}}
-\sisetup{load-configurations = abbreviations}
+%\DeclareSIUnit[]{\angstrom}{\mbox{\text {Å}}}
+%\sisetup{load-configurations = abbreviations}
 \usepackage{tablefootnote}
 \usepackage{booktabs}
 \usepackage{threeparttable}
@@ -66,10 +81,6 @@
     \sideset{^{#1}_{#2}}{^{#4}_{#5}}{\mathop{#3}}
 }
 \usepackage{chem_braket}
-\newcommand{\citehere}{\textcolor{red}{\bf\textsuperscript{\textdagger}}}
-\newcommand{\citeherecomment}[1]{\textcolor{red}{\bf\textsuperscript{\textdagger} #1}}
-\usepackage{braket}
-\newcommand{\todo}[1]{\textcolor{shiv_red}{\bf [TO DO: #1 ]}}
 % Appendix 2
 \usepackage{subcaption}
 \usepackage[ruled, vlined, linesnumbered, commentsnumbered]{algorithm2e}
@@ -83,6 +94,7 @@
   \node[shape=circle,draw,fill=white,text=black,font=\bf,inner sep=0.5pt] (char)
   {\scriptsize#1};
 }}
+\usepackage{makecell}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Change Figure and Table Numeration
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,7 +107,7 @@
 \school{Dietrich School of Arts and Sciences}
 \date{April 20, 2023}
 %\year{2022}
-\setyear{2022}
+\setyear{2023}
 \keywords{hail-to-pitt, pittetd, theses, format}
 \subject{Dissertation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
