@@ -7,6 +7,7 @@ LATEXMKOPT=-pdf
 MAIN=shiv_upadhyay_etd
 BIB=references
 HEADER=header
+GLOSSARY=glossary
 
 MAINDIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 IMAGEDIR:=$(MAINDIR)/Images
@@ -20,6 +21,7 @@ all:
 	cp $(MAIN).tex $(COMPILEDIR)
 	cp $(BIB).bib $(COMPILEDIR)
 	cp $(HEADER).tex $(COMPILEDIR)
+	cp $(GLOSSARY).tex $(COMPILEDIR)
 	rsync -ahSD $(IMAGEDIR) $(COMPILEDIR)
 	rsync -ahSD $(PARTSDIR) $(COMPILEDIR)
 	cd $(COMPILEDIR) && \
