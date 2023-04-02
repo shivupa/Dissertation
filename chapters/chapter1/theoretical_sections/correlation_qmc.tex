@@ -1,7 +1,7 @@
 \subsubsection{Stochastic Methods}
 
 \subsubsection{Projector quantum Monte Carlo}
-This work involves the application of projector quantum Monte Carlo methods to locate ground state solutions to the imaginary time Schrodinger equation.
+This work involves the application of projector \gls{qmc} methods to locate ground state solutions to the imaginary time Schr{\"o}dinger equation.
 The Schr{\"o}dinger equation in imaginary time ($\tau\rightarrow it$) shifted by a constant ($E_r$) is given by eq.~\ref{eq:imSE}.
 \begin{equation}
 \frac{\partial \ket{\Psi}}{\partial \tau} = - (\hat{H} - E_r) \ket{\Psi}
@@ -30,7 +30,7 @@ The propagation of a state in imaginary time (multiplying $\ket{B'}$ and inserti
     \label{eqprop}
 \end{equation}
 The term $\braket{B'|e^{-(\hat{H}-E_r)\tau}|B}$ is the propagator (Green's function), which is unknown. 
-The short time approximation to the Green's function (eq.~\ref{eqshorttimeprop}) however can be be constructed by Suzuki-Trotter decomposition of the exponential, which is exact as $\Delta \tau \rightarrow 0$.\cite{Trotter,Suzuki}
+The short time approximation to the Green's function (eq.~\ref{eqshorttimeprop}) however can be be constructed by Suzuki-Trotter decomposition of the exponential, which is exact as $\Delta \tau \rightarrow 0$.\cite{10.1090/S0002-9939-1959-0108732-6,10.1007/BF01609348}
 \begin{equation}
 \begin{aligned}
     \braket{B'|\Psi(\tau)} = \int dB_{n} \cdots dB_{1} dB &\braket{B'|e^{-(\hat{H}-E_r)\Delta\tau}|B_{n}}\\
@@ -40,14 +40,14 @@ The short time approximation to the Green's function (eq.~\ref{eqshorttimeprop})
     \label{eqshorttimeprop}
 \end{aligned}
 \end{equation}
-For diffusion Monte Carlo (DMC), $\ket{B}$ is chosen to be real space $\ket{R}$.
-For auxiliary field quantum Monte Carlo (AFQMC), $\ket{B}$ is chosen to be an over-complete set of nonorthogonal determinants $\ket{D}$.
+For \gls{dmc}, $\ket{B}$ is chosen to be real space $\ket{R}$.
+For \gls{afqmc}, $\ket{B}$ is chosen to be an over-complete set of nonorthogonal determinants $\ket{D}$.
 This space may seem complicated, but its use is motivated by the fact that Fermionic antisymmetry is built in.
-In order to use an exponential propagator the space must be over-complete and nonorthogonal.\cite{Zhang1995,Zhang2003}
+In order to use an exponential propagator, the space must be over-complete and nonorthogonal.\cite{10.1103/PhysRevB.55.7464,10.1103/PhysRevLett.74.3652,10.1103/PhysRevLett.90.136401}
 The methods differ in how the short time approximation to the Green's function is constructed.
 
 \subsubsection{Diffusion Monte Carlo (DMC)}
-DMC performs the projection in real space.\cite{Toulouse2016,Foulkes2001}
+\gls{dmc} performs the projection in real space.\cite{10.1016/bs.aiq.2015.07.003,10.1103/RevModPhys.73.33}
 \begin{equation}
     \Psi(R',\tau + \Delta\tau) = \int_{\mathbb{R}^3} G(R \rightarrow R',\Delta \tau) \Psi(R,\tau)
 \end{equation}
@@ -57,7 +57,7 @@ As previously stated the short time approximation to the Green's function can be
 \label{eqshorttimedmc}
 \end{equation}
 The first exponential term represents a diffusion term and the second represents a branching process.
-The stochastic evaluation of these processes is known from diffusing species undergoing chemical reaction, hence the name diffusion Monte Carlo.
+The stochastic evaluation of these processes is known from diffusing species undergoing chemical reaction, hence the name \glsxtrlong{dmc}.
 
 A problem with this approach is that the Hamiltonian used is spin independent, which means the lowest energy solution is Bosonic.
 Propagating with the unmodified projector (eq.~\ref{eqshorttimedmc}) leads to the Bosonic ground state.
@@ -78,7 +78,7 @@ In practice, this means propagating configurations according to the short time a
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Auxiliary Field Quantum Monte Carlo (AFQMC)}
-AFQMC performs projection in Slater determinant space.
+\gls{afqmc} performs projection in Slater determinant space.
 The short time approximation to the propagator consists of Suzuki-Trotter factorizations as shown in eq.~\ref{eqsuztrot}, where $H_1$ consists of the one body operators and $H_2$ is the two body electron interaction term.
 \begin{equation}
 e^{-\Delta\tau\hat{H}} \approx e^{-\Delta\hat{H}_1/2} e^{-\Delta\tau\hat{H}_2} e^{-\Delta\tau\hat{H}_1/2}
@@ -97,7 +97,7 @@ This linearization is completed by applying the Hubbard-Stratonovich transformat
 e^{-\Delta\tau\hat{H}} \approx e^{-\Delta\hat{H}_0/2} \left( \int_{-\infty}^{\infty} P(\phi) \hat{B}(\phi) d\phi \right) e^{-\Delta\tau\hat{H}_0/2}
 \label{eqhb}
 \end{equation}
-where the terms $P(\phi)$ and  $\hat{B}(\phi)$ is given by
+where the terms $P(\phi)$ and $\hat{B}(\phi)$ is given by
 \begin{align}
     P(\phi) &= \frac{1}{2\pi} e^{-\frac{\phi^2}{2}} \\
     \hat{B}(\phi) &= e^{\sqrt{\tau} \phi \hat{v}_{\alpha}}
@@ -107,10 +107,10 @@ This transformation maps a set of interacting particles to a set of non-interact
 This in practice amounts to a decomposition of the two-body electron interaction, followed by a sampling of the Gaussian distributed auxiliary fields.
 Following this the short-time approximation to the propagator is constructed directly and applied to some initial wavefunction.
 
-The sign problem manifests itself in a slightly different way in AFQMC than in DMC.
+The sign problem manifests itself in a slightly different way in \gls{afqmc} than in \gls{dmc}.
 The antisymmetry of the problem is fulfilled implicitly by the nature of the Slater determinant space.
 However, the decomposition of the two-body operators leads to an ambiguous phase of the wavefunction.
-To alleviate the sign problem, a trial wavefunction can again be introduced leading to the constrained path AFQMC method.\cite{Zhang1995}
-The problems dealt with here can also be treated by invoking a special case of the constrained path AFQMC where the phase is fixed to the real plane also called phaseless AFQMC.\cite{Zhang2003}
+To alleviate the sign problem, a trial wavefunction can again be introduced leading to the constrained path \gls{afqmc} method.\cite{10.1103/PhysRevB.55.7464,10.1103/PhysRevLett.74.3652}
+The problems dealt with here can also be treated by invoking a special case of the constrained path AFQMC where the phase is fixed to the real plane also called phaseless \gls{afqmc}.\cite{10.1103/PhysRevLett.90.136401}
 
 
