@@ -15,7 +15,41 @@
 %VERSION
 %1)'final' = Changes all "format warnings" into errors (Final version of the document       
 
-\usepackage{ejb-bibstuff}
+\usepackage[%
+    backend      = biber,%
+    style        = chem-acs,%
+    autocite     = superscript,%
+    backref      = true,%
+    doi          = true,%
+    articletitle = true,%
+    chaptertitle = true,%
+    biblabel     = brackets,%
+    minnames     = 1,%
+    maxnames     = 999,%,
+    texencoding=ascii
+]{biblatex}
+\let\cite\autocite
+\DefineBibliographyStrings{english}{%
+  backrefpage = {page},% originally "cit. on p."
+  backrefpages = {pages},%
+}
+\defbibenvironment{bibliography}
+  {\list
+     {\printtext[labelnumberwidth]{%
+        \printfield{labelprefix}%
+        \printfield{labelnumber}}}
+     {%
+      \setlength{\labelwidth}{\labelnumberwidth}%
+      \setlength{\leftmargin}{\labelwidth}%
+      \setlength{\labelsep}{\biblabelsep}%
+      \addtolength{\leftmargin}{\labelsep}%
+      \setlength{\itemsep}{\bibitemsep}%
+      \setlength{\parsep}{\bibparsep}}%
+      \renewcommand*{\makelabel}[1]{##1}}
+  {\endlist}
+{\item}
+
+
 \addbibresource{references.bib}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Default includes
