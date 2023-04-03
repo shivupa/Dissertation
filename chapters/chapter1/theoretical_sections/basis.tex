@@ -25,8 +25,16 @@ This can be remedied by writing the ansatz wave function as,
 \end{equation}
 which can be easily verified to be antisymmetric by interchanging the two particles.
 The expansion in eq.~\ref{eq:2pslaterdet} is the expansion of a determinant of a 2$\times$2 matrix.
-The generalization of the ansatz for N electrons is a Slater determinant,\todo{typeset here}
-\begin{equation}
-det.
-\end{equation}
+The generalization of the ansatz for N electrons is a Slater determinant,
+\begin{eqnarray}
+	\Psi(r_1,r_2,...,r_N) &=& \frac{1}{\sqrt{N!}} 
+		\left|
+			\begin{array}{cccc}
+				\phi_1(r_1) & \phi_2(r_1) & \ldots & \phi_N(r_1) \\
+				\phi_1(r_2) & \phi_2(r_2) & \ldots & \phi_N(r_2) \\
+				\vdots      & \vdots      &        & \vdots      \\
+				\phi_1(r_N) & \phi_2(r_N) & \ldots & \phi_N(r_N) \\
+			\end{array}
+		\right|.
+\end{eqnarray}
 Slater determinants serve as the many electron wave function basis for our calculations.
