@@ -1,4 +1,60 @@
 \subsubsection{Wave Function Based Methods}
+Wave function based correlated methods build upon  the uncorrelated \gls{hf} reference and attempt to reincorporate electron correlation.
+In \gls{hf}, one assumes the wave function can be written as a single \glsxtrlong{sd}.
+This signel electronic configuration misses electron correlation which can be divided into two categories:
+\begin{itemize}
+\item Static correlation - Some wave functions cannot be written as a single configuration. If there are other electronic configurations with similar energy, then the true wave function for the system will have a nonneglible contribution from the low lying electronic configurations. A well-known example is the \ce{Be} atom. The $1s^2 2s^2$ configuration is not significantly lower in energy that the $1s^2 2p^2$ electronic configuration, and therefore these configurations contribute to the true wave function.\citeherecomment{hollet gill + kevin}
+
+\item Dynamic correlation - Since an averaged interaction potential is used in \gls{hf}, the instataneous interactions between electrons are neglected. In a time indepenedent picture this is manifested by a poorly resolved electron-electron cusp. Exact conditions exist for the functional form of the wave function as two electrons collaesce, but \gls{hf} doesn't obey these Kato cusp conditions.\citehere Including additional electronic configurations can resolve this cusp.
+\end{itemize}
+
+When a nonminimal basis, meaning there are more basis functions than electrons, is used in \gls{hf}, the resulting wave function has occupied orbitals and unoccupied virtual orbitals.
+Other determinants can be constructed from the \gls{hf} determinant by ``exciting'' an electron from an occupied to unoccupied orbital.
+Post-\gls{hf} methods write an ansatz for the correlated wave function to include these excitations.
+
+\subsubsection{Full Configuration Interaction}
+Conceptually the most simple approach is to construct all of the possible excitations from the \gls{hf} determinant and to write the wave function as a superposition of all of these determinants,
+\begin{equation}
+\ket{\Psi} = C_0 \ket{\Phi_0} + \sum C \ket{\Phi_{\mu}^{a}} + \sum C \ket{\Phi_{\mu\nu}^{ab}} + \cdots.
+\end{equation}
+With all possible excitations are generated, the resulting wave function is called the \gls{fci} wave function.
+Once the ansatz has been contructed the coefficients are variationally optimized yielding the correlated wave function.
+Unfortunately the complexity of the \gls{fci} wave function means this method scales as $N!$ where $N$ is the number of electrons.
+This restricts its usage to small systems with a small number of electrons and orbitals.
+
+\subsubsection{Truncated Configuration Interaction}
+The FCI wave function may also be written using excitation operators that generate the excited electronic determinants,
+\begin{equation}
+    \ket{\Psi} = (C_0 \hat{1} + \sum C \hat{R}_{\mu}^{a} + \sum C \hat{R}_{\mu\nu}^{ab} + \cdots )\ket{\Phi_0},
+    \label{eq:ci_tci}
+\end{equation}
+where $\hat{R}$ are the excitation operators.
+Truncated \gls{ci} expansions work by limiting the sum of excitation operators.
+Truncated \gls{ci} expansions are commonly created by terminanting the sum in eq.~\ref{eq:ci_tci} at a certain excitation level.
+This forms a family of truncated \gls{ci} expansions such as \gls{cis}, \gls{cisd}, \gls{cisdt}, and higher levels.
+
+Although this the most common truncated \gls{ci} expansion, other truncations exist.
+For example, senority \gls{ci} truncates based on the number of unpaired electrons.
+The most common variant of this type of truncated \gls{ci} is \gls{doci}, which is a senority zero \gls{ci} meaning there are no unpaired electrons.\citeherecomment{older doci papers 1960-70}
+\gls{doci} is not a widely used method compared to excitation based truncated \gls{ci}, but senority based methods have been experiencing renewed interest.\citeherecomment{hierarchical ci, ayers, scuseria}
+
+The difficulty with truncated \gls{ci} schemes is that one doesn't have an \textit{a priori} knowledge of the relevant determinants.
+Selected \gls{ci} methods, such as \gls{cipsi},\citehere attempt to address this deficiency by growing the \gls{ci} space iteratively.
+In the first iteration, single and double excitations from the \gls{hf} determinant are considered.
+The excitations are given a perturbative estimate of their importance, and if the estimated importance is greater than a threshold the excitation is retained.
+The \gls{ci} eigenvalue is solved in the space of the retained determinants to obtain variational values of each determinant's contribution.
+The cycle is then restarted where single and double excitations are generated from the previous iterations retained determinants.
+The iterative process continues until the \gls{ci} energy drops below a predefined threshold.
+This cyclic growth allows for the generation of compact \gls{ci} expansions with mainly important determinants selected.
+
+\subsubsection{Coupled cluster methods}
+Gls{cc} methods eschew the linear ansatz of \gls{ci}, and instead adopt an exponential ansatz,
+\begin{equation}
+    \ket{\Psi} = e^{\hat{T}_1 + \hat{T}_2 + \cdots}\ket{\Phi_0}.
+    \label{eq:cc_ansatz}
+\end{equation}
+This exponential ansatz has 
+
 \shiv{mp2}
 \shiv{cc}
 \shiv{excited state equation of motion methods}
