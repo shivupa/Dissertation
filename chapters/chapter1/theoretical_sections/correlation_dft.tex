@@ -1,1 +1,19 @@
 \subsubsection{Density Functional Theory Methods}
+\gls{dft} has seen widespread use since it is an economical, albeit approximate, treatment of electron correlation.\citehere
+
+\gls{dft} in theory is an exact method.
+The first Hohenberg-Kohn theorem establishes an exact mapping between the interaction potential and the electron density.\citehere
+The second Hohenberg-Kohn theorem shows that a variational principle for the energy as a functional of the density exists.\citehere
+While these theorems and extensions for finite temperature, magnetic fields, and other generalizations,\citehere solidify \gls{dft}'s theoretical footing, they do not indicate how one would practically use \gls{dft}.
+
+In practice, the Kohn-Sham equations are used which maps the density-based Schr{\"o}dinger equation problem on to a fictious noninteracting problem with an effective field,
+\begin{equation}
+(\hat{T} + \hat{V}_{\mathrm{eff}}) \psi(r) = E \psi(r).
+\end{equation}
+This formulation resembles a \gls{hf} equation where the interaction potential has been replaced by an effective potential.
+This allows one to utilize the standard \gls{hf} machinery and incorporate electron correlation at minimal cost.
+The form of the effective potential is what is commonly referred to as the \gls{dft} functional.
+These functionals are constructed and parameterized as the exact functional is not known.
+This means that althought \gls{dft} is an exact theory, in practice it is not \textit{ab initio}.
+
+
