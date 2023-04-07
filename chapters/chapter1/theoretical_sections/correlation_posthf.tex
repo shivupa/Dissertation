@@ -3,9 +3,9 @@ Wave function based correlated methods build upon  the uncorrelated \gls{hf} ref
 In \gls{hf}, one assumes the wave function can be written as a single \glsxtrlong{sd}.
 This signel electronic configuration misses electron correlation which can be divided into two categories:
 \begin{itemize}
-\item Static correlation - Some wave functions cannot be written as a single configuration. If there are other electronic configurations with similar energy, then the true wave function for the system will have a nonneglible contribution from the low lying electronic configurations. A well-known example is the \ce{Be} atom. The $1s^2 2s^2$ configuration is not significantly lower in energy that the $1s^2 2p^2$ electronic configuration, and therefore these configurations contribute to the true wave function.\citeherecomment{hollet gill + kevin}
+\item Static correlation - Some wave functions cannot be written as a single configuration. If there are other electronic configurations with similar energy, then the true wave function for the system will have a nonneglible contribution from the low lying electronic configurations. A well-known example is the \ce{Be} atom. The $1s^2 2s^2$ configuration is not significantly lower in energy that the $1s^2 2p^2$ electronic configuration, and therefore these configurations contribute to the true wave function.\cite{10.1063/1.1669638, 10.1103/PhysRevA.4.908, 10.1103/PhysRevA.14.1965, 10.1103/PhysRevA.65.042507, 10.1063/1.477970}
 
-\item Dynamic correlation - Since an averaged interaction potential is used in \gls{hf}, the instataneous interactions between electrons are neglected. In a time indepenedent picture this is manifested by a poorly resolved electron-electron cusp. Exact conditions exist for the functional form of the wave function as two electrons collaesce, but \gls{hf} doesn't obey these Kato cusp conditions.\citehere Including additional electronic configurations can resolve this cusp.
+\item Dynamic correlation - Since an averaged interaction potential is used in \gls{hf}, the instataneous interactions between electrons are neglected. In a time indepenedent picture this is manifested by a poorly resolved electron-electron cusp. Exact conditions exist for the functional form of the wave function as two electrons collaesce, but \gls{hf} doesn't obey these Kato cusp conditions.\cite{10.1002/cpa.3160100201} Including additional electronic configurations can resolve this cusp.
 \end{itemize}
 
 When a nonminimal basis, meaning there are more basis functions than electrons, is used in \gls{hf}, the resulting wave function has occupied orbitals and unoccupied virtual orbitals.
@@ -35,11 +35,11 @@ This forms a family of truncated \gls{ci} expansions such as \gls{cis}, \gls{cis
 
 Although this the most common truncated \gls{ci} expansion, other truncations exist.
 For example, senority \gls{ci} truncates based on the number of unpaired electrons.
-The most common variant of this type of truncated \gls{ci} is \gls{doci}, which is a senority zero \gls{ci} meaning there are no unpaired electrons.\citeherecomment{older doci papers 1960-70}
-\gls{doci} is not a widely used method compared to excitation based truncated \gls{ci}, but senority based methods have been experiencing renewed interest.\citeherecomment{hierarchical ci, ayers, scuseria}
+The most common variant of this type of truncated \gls{ci} is \gls{doci}, which is a senority zero \gls{ci} meaning there are no unpaired electrons.\cite{10.1021/j100818a001, 10.1063/1.1701519, 10.1063/1.1841109, 10.1021/jp963953l,10.1021/jp963953l}
+\gls{doci} is not a widely used method compared to excitation based truncated \gls{ci}, but senority based methods have been experiencing renewed interest.\cite{10.1021/jp963953l,10.1063/1.5130660,10.1063/1.4904384,10.1021/ct300902c,10.1080/00268976.2013.874600,10.1021/jp502127v,10.1021/jp502127v,10.1063/1.4880819,10.1021/acs.jpclett.2c00730}
 
 The difficulty with truncated \gls{ci} schemes is that one doesn't have an \textit{a priori} knowledge of the relevant determinants.
-Selected \gls{ci} methods, such as \gls{cipsi},\citehere attempt to address this deficiency by growing the \gls{ci} space iteratively.
+Selected \gls{ci} methods, such as \gls{cipsi},\cite{10.1063/1.1679199} attempt to address this deficiency by growing the \gls{ci} space iteratively.
 In the first iteration, single and double excitations from the \gls{hf} determinant are considered.
 The excitations are given a perturbative estimate of their importance, and if the estimated importance is greater than a threshold the excitation is retained.
 The \gls{ci} eigenvalue is solved in the space of the retained determinants to obtain variational values of each determinant's contribution.
@@ -59,13 +59,13 @@ Size consistency is a property of quantum mechanical methods where the energy of
     E(A+B) = E(A) + E(B).
 \end{equation}
 Truncated \gls{ci} would correlate the subsystems more and yield lower energies for the subsystems.
-\gls{cc} by the nature of the exponential ansatz has a multiplicatively separable energy, which leads to size consistency.\citeherecomment{bartlett annrev}.
+\gls{cc} by the nature of the exponential ansatz has a multiplicatively separable energy, which leads to size consistency.\cite{10.1002/wcms.76,10.1146/annurev.pc.32.100181.002043}
 
 The extension of coupled cluster to excited states is slight more complicated than the \gls{ci} case. 
-For \gls{cc} excited states, the \gls{eom} formulation has be developed, which conceptually is similar to performing a \gls{ci} calculation on top of a \gls{cc} wave function.\citeherecomment{eomee papers}
+For \gls{cc} excited states, the \gls{eom} formulation has be developed, which conceptually is similar to performing a \gls{ci} calculation on top of a \gls{cc} wave function.\cite{10.1016/0009-26149389023-B, 10.1063/1.464746}
 This ansatz is similar to the \gls{ci} ansatz with excitations applied to the \gls{cc} wave function,
 \begin{equation}
     \ket{\Psi} = (C_0 \hat{1} + \sum C \hat{R}_{\mu}^{a} + \sum C \hat{R}_{\mu\nu}^{ab} + \cdots ) e^{\hat{T}_1 + \hat{T}_2 + \cdots}\ket{\Phi_0}.
 \end{equation}
 In practice, this can be implemented similar to a configuration interaction calculation where the matrix elements come from a similarity transformed Hamiltonian.
-This method is especially powerful as the excitation operators do not need to conserve particle number so one can calculate ionization potentials and electron affinities as well.\citeherecomment{eomea eomip}
+This method is especially powerful as the excitation operators do not need to conserve particle number so one can calculate ionization potentials and electron affinities as well.\cite{10.1063/1.468592, 10.1016/0009-26148987149-0, 10.1063/1.468022, 10.1063/1.469817}
