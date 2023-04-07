@@ -48,13 +48,24 @@ The iterative process continues until the \gls{ci} energy drops below a predefin
 This cyclic growth allows for the generation of compact \gls{ci} expansions with mainly important determinants selected.
 
 \subsubsection{Coupled cluster methods}
-Gls{cc} methods eschew the linear ansatz of \gls{ci}, and instead adopt an exponential ansatz,
+\Gls{cc} methods eschew the linear ansatz of \gls{ci}, and instead adopt an exponential ansatz,
 \begin{equation}
     \ket{\Psi} = e^{\hat{T}_1 + \hat{T}_2 + \cdots}\ket{\Phi_0}.
     \label{eq:cc_ansatz}
 \end{equation}
-This exponential ansatz has 
+This exponential ansatz has the advantage of being size consistent unlike \gls{ci} methods.
+Size consistency is a property of quantum mechanical methods where the energy of two noninteracting systems  is equal to the sum of each subsystem's energy,
+\begin{equation}
+    E(A+B) = E(A) + E(B).
+\end{equation}
+Truncated \gls{ci} would correlate the subsystems more and yield lower energies for the subsystems.
+\gls{cc} by the nature of the exponential ansatz has a multiplicatively separable energy, which leads to size consistency.\citeherecomment{bartlett annrev}.
 
-\shiv{mp2}
-\shiv{cc}
-\shiv{excited state equation of motion methods}
+The extension of coupled cluster to excited states is slight more complicated than the \gls{ci} case. 
+For \gls{cc} excited states, the \gls{eom} formulation has be developed, which conceptually is similar to performing a \gls{ci} calculation on top of a \gls{cc} wave function.\citeherecomment{eomee papers}
+This ansatz is similar to the \gls{ci} ansatz with excitations applied to the \gls{cc} wave function,
+\begin{equation}
+    \ket{\Psi} = (C_0 \hat{1} + \sum C \hat{R}_{\mu}^{a} + \sum C \hat{R}_{\mu\nu}^{ab} + \cdots ) e^{\hat{T}_1 + \hat{T}_2 + \cdots}\ket{\Phi_0}.
+\end{equation}
+In practice, this can be implemented similar to a configuration interaction calculation where the matrix elements come from a similarity transformed Hamiltonian.
+This method is especially powerful as the excitation operators do not need to conserve particle number so one can calculate ionization potentials and electron affinities as well.\citeherecomment{eomea eomip}
