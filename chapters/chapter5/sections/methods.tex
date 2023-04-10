@@ -1,6 +1,5 @@
 \section{Theory}
 \subsection{Notation}
-
 Given the increased complexity of treating multiple types of interacting quatnum particles, the notation for the following equations is first introduced.
 Generally, tensor quantities will be manipulated with the following labels,
 \begin{equation}
@@ -18,7 +17,7 @@ The wave function ansatz used is a product ansatz,
     \psi_{\textrm{MF}} = \prod_{\xi} \shivten{\alpha}{\xi}{D}{}{} \shivten{\beta}{\xi}{D}{}{},
 \end{equation}
 where the product runs over the number of quantum particle types and $\shivten{\alpha}{\xi}{D}{}{}$ and $\shivten{\beta}{\xi}{D}{}{}$ are the $\alpha$ and $\beta$ determinants of particle $\xi$ written in the Waller-Hartree double determinant representation.\citehere
-Note that if only a single positron is present this reduces to the electronic Slater determinant times a positronic orbital, and so this ansatz is a generaliation of the representation used in earlier work.\citeherecomment{older jordan papers}
+Note that if only a single positron is present this reduces to the electronic Slater determinant times a positronic orbital, and so this ansatz is a generaliation of the representation used in earlier work.\cite{10.1088/0022-3700/11/16/001, 10.1088/0022-3700/12/15/007,10.1063/1.438933,10.1063/1.442211,10.1088/0022-3700/14/22/019}
 Unlike previous multicomponent methods, we do not restrict ourselves to two interacting quantum particle types.
 
 The use of this ansatz in a Hartree-Fock type framework results in a set of coupled Fock operators, which are solved self consistently.
@@ -175,7 +174,7 @@ The CI eigenvalue problem,
 \begin{equation}
     H_{\mathrm{CI}} C = E C
 \end{equation}
-is solved using the Davidson diagonalization method.\citehere
+is solved using the Davidson diagonalization method.\cite{10.1016/0021-99917590065-0}
 For small CI spaces, the hamiltonian matrix can be explicitly constructed, but for larger spaces a determinant-driven direct CI method is used.
 
 The advantage of a direct CI approach is that the Hamiltonian matrix is never explicitly constructed.
@@ -218,7 +217,7 @@ Similarly for the two particle sigma formation, there are two classes of contrib
     \item same particle and same spin contributions ($\sigma^{A\alpha A\alpha}$, $\sigma^{A\beta A\beta}$, $\sigma^{B\alpha B\alpha}$, $\sigma^{B\beta B\beta}$)
     \item different particle or different spin contributions ($\sigma^{A\alpha A\beta}$, $\sigma^{B\alpha B\beta}$, $\sigma^{A\alpha B\alpha}$, $\sigma^{A\beta B\beta}$, $\sigma^{A\alpha B\beta}$, $\sigma^{A\beta B\alpha}$)
 \end{enumerate}
-By breaking the contributions into these two classes, separate strategies can be developed to handle the cases.
+In the current iteration of the code, the matrix vector product is formed in a single step that scales as $\mathcal{O}(N_{\mathrm{det}}\shivten{\gamma}{\xi}{N}{}{} \shivten{\gamma'}{\xi}{N}{}{}$, where $N_{mathrm{det}}$ is the total number of determinants and the other factors of $N$ are the number of spin determinants for the particle spin pair.
 
 Additionally, natural spin orbitals are constructed from the one particle reduced density matrices from the CI expansions in a state specific way.
 These natural orbitals can also be used as a single determinant trial wave function for subsequent QMC calculations.
@@ -228,9 +227,9 @@ The standard solution to this is to implement a spin purification scheme in eith
 Both schemes are implemented here to allow for one to enforce spin symmetry for problematic cases.
 
 \shiv{need eq/algorithms for spin/rdm1}
-\subsubsection{Frozen Core}
+%\subsubsection{Frozen Core}
 
-Form frozen core spin density
+%Form frozen core spin density
 % \begin{equation}
 %       {_{\xi}^{\gamma}}{D}_{\mu\nu}^{\mathrm{core}} = \sum_{i = 0}^{N_{\mathrm{core}}} {_{\xi}^{\gamma}}{D}_{\mu i}^{} {_{\xi}^{\gamma}}{D}_{i \nu}^{} =  \sum_{i = 0}^{N_{\mathrm{core}}}  \sideset{_{\xi}^{\gamma}}{_{\mu i}}D   \sideset{_{\xi}^{\gamma}}{_{i \nu}}D
 % \end{equation}
@@ -261,5 +260,3 @@ For example, for a spin determinant $\shivten{\gamma}{\xi}{D}{}{i}$, we store al
 The storage of double excitations is normally not done as the storage requirement grows quickly.
 However for the same number of total determinants, the unique particle and spin determinant lists are shorter in a multicomponent calculation than an electron only calculation by nature of the product ansatz so we are able to accept the storage cost for the efficiency gain.
 
-\todo{Annihilation Rates?}
-\todo{Slater's Rules?}
