@@ -1,11 +1,11 @@
 \subsection{Basis}
 Invoking the \gls{boa}, allows us to define a basis for the electronic degrees of freedom.
 Since the goal is to represent the electron density that is expected to be localized around the nuclei, a natural basis for representing this density is a set of \glspl{ao} centered at the nuclei.
-For computational reasons, gaussian orbitals are used to represent \glspl{mo},
+For computational reasons, Gaussian orbitals are used to represent \glspl{mo},
 \begin{equation}
 \psi_{\textrm{MO}} = \sum_{i} \Phi_{\textrm{AO}} = \sum_{i} N(L, \alpha) Y_{lm}(\theta, \phi) e^{-\alpha |r - R_A|^2},
 \end{equation}
-where $r_A$ is the location of the atomic center where this gaussian orbital is centered, $Y_{lm}(\theta, \phi)$ is a spherical harmonic, and $N(L, \alpha)$ is a normalization constant.
+where $r_A$ is the location of the atomic center where this Gaussian orbital is centered, $Y_{lm}(\theta, \phi)$ is a spherical harmonic, and $N(L, \alpha)$ is a normalization constant.
 This approach is also called the \glsxtrlong{lcao}.
 
 As a simple example for a two electron problem, we write the wave function using the \gls{lcao} approach,
@@ -13,7 +13,7 @@ As a simple example for a two electron problem, we write the wave function using
 \Psi = \phi_{MO1}(r_1) \phi_{MO2}(r_2).
 \label{eq:hartreeproduct}
 \end{equation}
-However, since electrons are fermions any wave function ansatz must be antisymmetric.
+However, since electrons are Fermions any wave function ansatz must be antisymmetric.
 The ansatz in eq.~\ref{eq:hartreeproduct}, also known as the Hartree product, is not antisymmetric,
 \begin{equation}
 \Psi(1,2) = \phi_{MO1}(r_1) \phi_{MO2}(r_2) \neq -\phi_{MO1}(r_2) \phi_{MO2}(r_1) = -\Psi(2,1).

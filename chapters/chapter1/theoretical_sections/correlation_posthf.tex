@@ -1,14 +1,14 @@
 \subsubsection{Wave Function Based Methods}
-Wave function based correlated methods build upon a reference, usually the uncorrelated \gls{hf} referenc,e and attempt to reincorporate electron correlation.
+Wave function based correlated methods build upon a reference, usually the uncorrelated \gls{hf} reference, and attempt to reincorporate electron correlation.
 In \gls{hf}, one assumes the wave function can be written as a single \glsxtrlong{sd}.
-This signel electronic configuration misses electron correlation which can be divided into two categories:
+This single electronic configuration misses electron correlation which can be divided into two categories:
 \begin{itemize}
 \item Static correlation - Some wave functions cannot be written as a single configuration. If there are other electronic configurations of the same symmetry with similar energy, then the true wave function for the system will have a nonneglible contribution from the low lying electronic configurations. A well-known example is the \ce{Be} atom. The $1s^2 2s^2$ configuration is not significantly lower in energy that the $1s^2 2p^2$ electronic configuration, and therefore these configurations contribute to the true wave function.\cite{10.1063/1.1669638, 10.1103/PhysRevA.4.908, 10.1103/PhysRevA.14.1965, 10.1103/PhysRevA.65.042507, 10.1063/1.477970}
 
-\item Dynamic correlation - Since an averaged interaction potential is used in \gls{hf}, the instataneous interactions between electrons are neglected. In a time indepenedent picture this is manifested by a poorly resolved electron-electron cusp. Exact conditions exist for the functional form of the wave function as two electrons collaesce, but \gls{hf} doesn't obey these Kato cusp conditions.\cite{10.1002/cpa.3160100201} Including additional electronic configurations can improve the description of this cusp.
+\item Dynamic correlation - Since an averaged interaction potential is used in \gls{hf}, the instantaneous interactions between electrons are neglected. In a time independent picture this is manifested by a poorly resolved electron-electron cusp. Exact conditions exist for the functional form of the wave function as two electrons coalesce, but \gls{hf} doesn't obey these Kato cusp conditions.\cite{10.1002/cpa.3160100201} Including additional electronic configurations can improve the description of this cusp.
 \end{itemize}
 
-When a nonminimal basis, meaning there are more basis functions than electrons, is used in \gls{hf}, the resulting wave function has occupied orbitals and unoccupied virtual orbitals.
+When a non-minimal basis, meaning there are more basis functions than electrons, is used in \gls{hf}, the resulting wave function has occupied orbitals and unoccupied virtual orbitals.
 Other determinants can be constructed from the \gls{hf} determinant by ``exciting'' an electron from an occupied to unoccupied orbital.
 Post-\gls{hf} methods write an ansatz for the correlated wave function to include these excitations.
 
@@ -18,7 +18,7 @@ Conceptually the most simple approach is to construct all of the possible excita
 \ket{\Psi} = C_0 \ket{\Phi_0} + \sum C \ket{\Phi_{\mu}^{a}} + \sum C \ket{\Phi_{\mu\nu}^{ab}} + \cdots.
 \end{equation}
 With all possible excitations are generated, the resulting wave function is called the \gls{fci} wave function.
-Once the ansatz has been contructed the coefficients are variationally optimized yielding the correlated wave function.
+Once the ansatz has been constructed the coefficients are variationally optimized yielding the correlated wave function.
 Unfortunately the complexity of the \gls{fci} wave function means this method scales as $N!$ where $N$ is the number of electrons.
 This restricts its usage to small systems with a small number of electrons and orbitals.
 
@@ -30,7 +30,7 @@ The FCI wave function may also be written using excitation operators that genera
 \end{equation}
 where $\hat{R}$ are the excitation operators.
 Truncated \gls{ci} expansions work by limiting the sum of excitation operators.
-Truncated \gls{ci} expansions are commonly created by terminanting the sum in eq.~\ref{eq:ci_tci} at a certain excitation level.
+Truncated \gls{ci} expansions are commonly created by terminating the sum in eq.~\ref{eq:ci_tci} at a certain excitation level.
 This forms a family of truncated \gls{ci} expansions such as \gls{cis}, \gls{cisd}, \gls{cisdt}, and higher levels.
 
 Although this the most common truncated \gls{ci} expansion, other truncations exist.

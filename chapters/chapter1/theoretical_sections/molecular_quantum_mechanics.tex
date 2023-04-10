@@ -1,5 +1,5 @@
 \subsection{Molecular Quantum Mechanics}
-Computational chemistry has established itself as a tool for the elucidation and predicition of chemical processes.
+Computational chemistry has established itself as a tool for the elucidation and prediction of chemical processes.
 For a wide variety of problems such as chemical reactivity, molecular structure, and spectroscopic identification, molecular quantum mechanics provides great insight.
 
 \subsubsection{Schrodinger's Equation}
@@ -24,17 +24,17 @@ This approach has several practical advantages.
 
 First, the dimensionality of the problem is greatly reduced.
 By fixing the nuclei, the nuclei degrees of freedom are removed from the the problem.
-The nuclei's kinetic energy operators are also removed, and the pairwise intereaction between the nuclei becomes a constant energy shift.
+The nuclei's kinetic energy operators are also removed, and the pairwise interaction between the nuclei becomes a constant energy shift.
 
 Second, the \gls{boa} allows for a logical source for a basis expansion for the electrons.
 The reason that the hydrogen atom can be solved without invoking the \gls{boa} is that the Schr{\"o}dinger equation is separable if the nucleus is assumed to be a point charge.
 For the hydrogen molecular ion, with prolate spherical coordinates, the Schr{\"o}dinger equation is again separable.\cite{10.1088/0370-1328/71/5/312}
 As the number of nuclei and electrons grows attempting to separate the nuclear and electronic equations is impossible.
-By fixing the nuclei and making the electronic wave function have only a parametric depedence on the nuclei's coordinates, we enable the use of atom centered basis functions.
+By fixing the nuclei and making the electronic wave function have only a parametric dependence on the nuclei's coordinates, we enable the use of atom centered basis functions.
 This approximation is therefore central to the popular \gls{lcao} approach.
 
 Third, the \gls{boa} gives us the concepts of a molecule and its associated potential energy surface.
 A potential energy surface is a multidimensional scalar function of a molecule in a particular electronic state in which the energy is a function of the nuclear positions of a molecule.
-In modern computational chemsitry, it is routine that we consider that we have a molecule and we can optimize the geometry optimization in ground or excited states.
-One expects that these geometries and the associated observables correspond to ground or exctied states of chemical systems.
+In modern computational chemistry, it is routine that we consider that we have a molecule and we can optimize the geometry optimization in ground or excited states.
+One expects that these geometries and the associated observables correspond to ground or excited states of chemical systems.
 This way of thinking about molecules depends on a decoupling of the nuclei and electron coordinates enabled by the \gls{boa}.

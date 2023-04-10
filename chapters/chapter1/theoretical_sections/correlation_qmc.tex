@@ -61,15 +61,15 @@ The stochastic evaluation of these processes is known from diffusing species und
 
 %A problem with this approach is that the Hamiltonian used is spin independent, which means the lowest energy solution is Bosonic.
 A problem with this approach is that the lowest energy solution is Bosonic, and therefore propagating with the unmodified projector (eq.~\ref{eqshorttimedmc}) leads to the Bosonic ground state.
-In order to locate the Fermionic ground state, the mixed distribution $f(R,\tau) = \Psi_t(R)\Phi(R,\tau)$ is propagated where $\Psi_t$ is a trial wavefunction and $\Phi$ is the distribution of the ``true'' distribution.
+In order to locate the Fermionic ground state, the mixed distribution $f(R,\tau) = \Psi_t(R)\Phi(R,\tau)$ is propagated where $\Psi_t$ is a trial wave function and $\Phi$ is the distribution of the ``true'' distribution.
 Applying the propagator (eq.~\ref{eqprop}) to the mixed distribution results in the importance-sampled propagator (eq.~\ref{eqimpsampprop}). 
 \begin{equation}
     \tilde{G}(R \rightarrow R', \Delta \tau)  = \Psi_t(R') G(R \rightarrow R', \Delta \tau) \frac{1}{\Psi_t(R)}
 \label{eqimpsampprop}
 \end{equation}
 The importance-sampled propagator is a similarity transformation of the standard propagator.
-By introducing the trial wavefunction $\Psi_t$, the nodes of the wavefunction can be fixed allowing one to locate the Fermionic ground state.
-In practice, this means propagating configurations according to the short time approximation to the importance-sampled Green's function (eq.~\ref{eqimpshorttimedmc}) and rejecting any moves that cross the nodes of the trial wavefunction $\Psi_t$.
+By introducing the trial wave function $\Psi_t$, the nodes of the wave function can be fixed allowing one to locate the Fermionic ground state.
+In practice, this means propagating configurations according to the short time approximation to the importance-sampled Green's function (eq.~\ref{eqimpshorttimedmc}) and rejecting any moves that cross the nodes of the trial wave function $\Psi_t$.
 \begin{equation}
     \tilde{G}(R \rightarrow R', \Delta \tau) \approx \frac{1}{(2\pi\Delta\tau)^{3N/2}} e^{-\frac{(R - R' - v(R') \Delta \tau)^2 }{2\Delta\tau}} e^{-\frac{\Delta\tau}{2}[E_L(R) + E(R') - 2E_T]}
 \label{eqimpshorttimedmc}
@@ -105,12 +105,12 @@ where the terms $P(\phi)$ and $\hat{B}(\phi)$ is given by
 \end{align}
 This transformation maps a set of interacting particles to a set of non-interacting particles that interact with fluctuating external (auxiliary) fields.
 This in practice amounts to a decomposition of the two-body electron interaction, followed by a sampling of the Gaussian distributed auxiliary fields.
-Following this the short-time approximation to the propagator is constructed directly and applied to some initial wavefunction.
+Following this the short-time approximation to the propagator is constructed directly and applied to some initial wave function.
 
 The sign problem manifests itself in a slightly different way in \gls{afqmc} than in \gls{dmc}.
 The antisymmetry of the problem is fulfilled implicitly by the nature of the Slater determinant space.
-However, the decomposition of the two-body operators leads to an ambiguous phase of the wavefunction.
-To alleviate the sign problem, a trial wavefunction can again be introduced leading to the constrained path \gls{afqmc} method.\cite{10.1103/PhysRevB.55.7464,10.1103/PhysRevLett.74.3652}
+However, the decomposition of the two-body operators leads to an ambiguous phase of the wave function.
+To alleviate the sign problem, a trial wave function can again be introduced leading to the constrained path \gls{afqmc} method.\cite{10.1103/PhysRevB.55.7464,10.1103/PhysRevLett.74.3652}
 The problems dealt with here can also be treated by invoking a special case of the constrained path AFQMC where the phase is fixed to the real plane also called phaseless \gls{afqmc}.\cite{10.1103/PhysRevLett.90.136401}
 
 
