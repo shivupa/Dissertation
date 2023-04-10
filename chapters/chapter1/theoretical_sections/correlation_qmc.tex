@@ -59,8 +59,8 @@ As previously stated the short time approximation to the Green's function can be
 The first exponential term represents a diffusion term and the second represents a branching process.
 The stochastic evaluation of these processes is known from diffusing species undergoing chemical reaction, hence the name \glsxtrlong{dmc}.
 
-A problem with this approach is that the Hamiltonian used is spin independent, which means the lowest energy solution is Bosonic.
-Propagating with the unmodified projector (eq.~\ref{eqshorttimedmc}) leads to the Bosonic ground state.
+%A problem with this approach is that the Hamiltonian used is spin independent, which means the lowest energy solution is Bosonic.
+A problem with this approach is that the lowest energy solution is Bosonic, and therefore propagating with the unmodified projector (eq.~\ref{eqshorttimedmc}) leads to the Bosonic ground state.
 In order to locate the Fermionic ground state, the mixed distribution $f(R,\tau) = \Psi_t(R)\Phi(R,\tau)$ is propagated where $\Psi_t$ is a trial wavefunction and $\Phi$ is the distribution of the ``true'' distribution.
 Applying the propagator (eq.~\ref{eqprop}) to the mixed distribution results in the importance-sampled propagator (eq.~\ref{eqimpsampprop}). 
 \begin{equation}

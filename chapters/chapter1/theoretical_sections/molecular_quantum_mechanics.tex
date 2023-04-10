@@ -1,9 +1,9 @@
-\subsection{Molecular Quantum mechanics}
+\subsection{Molecular Quantum Mechanics}
 Computational chemistry has established itself as a tool for the elucidation and predicition of chemical processes.
 For a wide variety of problems such as chemical reactivity, molecular structure, and spectroscopic identification, molecular quantum mechanics provides great insight.
 
 \subsubsection{Schrodinger's Equation}
-Molecular Quantum Mechanics  involves the solution of a quantum many body problem for a chemical system. Since experimental observables can be represented as quantum mechanical operators, molecular quantum mechanics can both be verified by comparison to experimental results and also provide atomistic insight into experimental results.
+Molecular quantum mechanics involves the solution of a quantum many body problem for a chemical system. Since experimental observables can be represented as quantum mechanical operators, molecular quantum mechanics can both be verified by comparison to experimental results and also provide atomistic insight into experimental results.
 The work in this thesis will only include nonrelativistic systems and time independent states so the time-independent Schrodinger equation will be the target equation which we seek to solve,
 \begin{equation}
 H_{mol} \Psi = E \Psi,
@@ -27,10 +27,10 @@ By fixing the nuclei, the nuclei degrees of freedom are removed from the the pro
 The nuclei's kinetic energy operators are also removed, and the pairwise intereaction between the nuclei becomes a constant energy shift.
 
 Second, the \gls{boa} allows for a logical source for a basis expansion for the electrons.
-The reason that the hydrogen atom can be solved without invoking the \gls{boa} is that the Schr{\"o}dinger equation is separable.
-For the hydrogen molecular ion, with prolate spherical coordinates.\cite{10.1088/0370-1328/71/5/312}
+The reason that the hydrogen atom can be solved without invoking the \gls{boa} is that the Schr{\"o}dinger equation is separable if the nucleus is assumed to be a point charge.
+For the hydrogen molecular ion, with prolate spherical coordinates, the Schr{\"o}dinger equation is again separable.\cite{10.1088/0370-1328/71/5/312}
 As the number of nuclei and electrons grows attempting to separate the nuclear and electronic equations is impossible.
-By fixing the nuclei and making the electronic wave function only have a parametric depedence on the nuclei's coordinates, we enable the use of atom centered basis functions.
+By fixing the nuclei and making the electronic wave function have only a parametric depedence on the nuclei's coordinates, we enable the use of atom centered basis functions.
 This approximation is therefore central to the popular \gls{lcao} approach.
 
 Third, the \gls{boa} gives us the concepts of a molecule and its associated potential energy surface.

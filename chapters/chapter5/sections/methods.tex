@@ -1,13 +1,13 @@
 \section{Theory}
 \subsection{Notation}
-Given the increased complexity of treating multiple types of interacting quatnum particles, the notation for the following equations is first introduced.
+Given the increased complexity of treating multiple types of interacting quantum particles, the notation for the following equations is first introduced.
 Generally, tensor quantities will be manipulated with the following labels,
 \begin{equation}
 %     {_{\mathrm{species index}}^{\mathrm{spin index}}}A_{\mathrm{tensor indices}}^{\mathrm{qualifiers e.g. prime, core}}
 %\shivten{\mathrm{species~index}}{\mathrm{spin~index}}{A}{\mathrm{qualifiers~e.g.~prime,~core}}{\mathrm{tensor~indices}},
    \shivten{\gamma}{\xi}{A}{q}{\mu\nu\cdots},
 \end{equation}
-where $\xi$ is the species index, $\gamma$ is the spin index, $\mu\nu\cdots$ are the tensor indicies, and q are the qualifiers (e.g. ``core'' to distinguish a core contribution from the full tensor).
+where $\xi$ is the species index, $\gamma$ is the spin index, $\mu\nu\cdots$ are the tensor indices, and q are the qualifiers (e.g. ``core'' to distinguish a core contribution from the full tensor).
 
 \subsection{Mean Field}
 
@@ -17,7 +17,7 @@ The wave function ansatz used is a product ansatz,
     \psi_{\textrm{MF}} = \prod_{\xi} \shivten{\alpha}{\xi}{D}{}{} \shivten{\beta}{\xi}{D}{}{},
 \end{equation}
 where the product runs over the number of quantum particle types and $\shivten{\alpha}{\xi}{D}{}{}$ and $\shivten{\beta}{\xi}{D}{}{}$ are the $\alpha$ and $\beta$ determinants of particle $\xi$ written in the Waller-Hartree double determinant representation.\citehere
-Note that if only a single positron is present this reduces to the electronic Slater determinant times a positronic orbital, and so this ansatz is a generaliation of the representation used in earlier work.\cite{10.1088/0022-3700/11/16/001, 10.1088/0022-3700/12/15/007,10.1063/1.438933,10.1063/1.442211,10.1088/0022-3700/14/22/019}
+Note that if only a single positron is present this reduces to the electronic Slater determinant times a positronic orbital, and so this ansatz is a generalization of the representation used in earlier work.\cite{10.1088/0022-3700/11/16/001, 10.1088/0022-3700/12/15/007,10.1063/1.438933,10.1063/1.442211,10.1088/0022-3700/14/22/019}
 Unlike previous multicomponent methods, we do not restrict ourselves to two interacting quantum particle types.
 
 The use of this ansatz in a Hartree-Fock type framework results in a set of coupled Fock operators, which are solved self consistently.
@@ -40,9 +40,9 @@ The elements of the Fock operator in an atomic orbital basis are given,
     \CBraket{ \shivten{}{\xi}{\mu\lambda}{}{} | \shivten{}{\zeta}{\nu\sigma}{}{} }
     \right],
 \end{equation}
-where $\gamma \in \Set{\alpha, \beta}$ and $\gamma' \in \set{\alpha, \beta} - \set{\gamma}$ and $\mu \nu \lambda \sigma$ are a.o. indicies.
+where $\gamma \in \Set{\alpha, \beta}$ and $\gamma' \in \set{\alpha, \beta} - \set{\gamma}$ and $\mu \nu \lambda \sigma$ are a.o. indices.
 
-If a particle is spin-restricted then only a single Fock operator is contruvted but the normalization of the density matrix is kept the same as the unrestricted case. For example, the restricted fock operator for an electron-only calculation is given as,
+If a particle is spin-restricted then only a single Fock operator is constructed, but the normalization of the density matrix is kept the same as the unrestricted case. For example, the restricted Fock operator for an electron-only calculation is given as,
 \begin{equation}
     \shivten{}{e^-}{F}{}{\mu\nu} = 
     \shivten{}{e^-}{H}{}{\mu\nu} +
@@ -77,14 +77,16 @@ with the total energy given as the sum of the contributions plus the nuclear rep
 \end{equation}
 
 \subsubsection{Convergence of the Self-Consistent Process}
-In the multicomponent NEO method, the standard approach converges the density in a stepwise fashion, i.e. for an electron-positron calculation, converging the electron density followed by converging the positron density and repeating this cycle until overall self-consistensy is achieved.
-Recent work has found that iterating the densities simultaneously until self-consistency is achieved is more efficent.
-In our work, we iterate the densities simultaneously, but with an important distinction, we do not turn on interactions between quantum particle types until the noninteracting densities are converged.
+A standard multicomponent approach converges the density in a step-wise fashion, i.e. for an electron-positron calculation, converging the electron density followed by converging the positron density and repeating this cycle until overall self-consistency is achieved.\cite{10.1021/acs.jpca.2c05172}
+Recent work has found that iterating the densities simultaneously until self-consistency is achieved is more efficient.\cite{10.1021/acs.jpca.2c05172}
+
+In our work, we iterate the densities simultaneously, but with an important distinction, we do not turn on interactions between quantum particle types until the non-interacting densities are converged.
 This has an obvious computational advantage as less terms need to be evaluated for the early Fock builds.
 However, this also has the advantage of more likely finding a Hartree-Fock minimum for problematic cases.
-Consider a correlation-bound positron system, in a HF calculation, the positron will not occupy a bound orbital by virtue of being correlation-bound.
-Instead the positron will occupy a discretized continuum orbital has several low lying orbitals of similar energy provided a quality basis set is used.
-If the densities are iterated without first converging the independent densities, one is less likely to occupy the correct orbital finding a HF solution that is not a minimum.
+If there are several low lying orbitals, HF may converge to a solution with an incorrect orbital occupied.
+%Consider a correlation-bound positron system, in a HF calculation, the positron will not occupy a bound orbital by virtue of being correlation-bound.
+%Instead the positron will occupy a discretized continuum orbital has several low lying orbitals of similar energy provided a quality basis set is used.
+In the multicompoent HF case, if the densities are iterated without first converging the independent densities, one is less likely to occupy the correct orbital finding a HF solution that is not a global minimum.
 
 \subsubsection{Implementation Details}
 The specific implementation chosen here is a direct SCF algorithm.
@@ -146,7 +148,7 @@ Symmetric orthogonalization and canonical orthogonalization are implemented with
 
 
 \subsection{Configuration Interaction}
-The multicomponent configuration interaction ansatz is formed from a linear combination of determinants,
+The multicomponent configuration interaction ansatz is formed from a linear combination of products of determinants,
 \begin{equation}
     \psi_{\mathrm{CI}} = \sum_{i} C_{i} 
     \left[ 
@@ -158,16 +160,16 @@ The multicomponent configuration interaction ansatz is formed from a linear comb
 similar to the standard electronic structure CI method.
 The CI expansions used in this work are formed from excitations from a mean field solution.
 The excitation operators $\shivten{\alpha}{\xi}{T}{a}{i}$ and $\shivten{\beta}{\xi}{T}{b}{j}$ perform an excitation for quantum particle type $xi$ and spin $\alpha$($\beta$) from hole $i$($j$) to particle $a$($b$).
-Unlike the electronic only case, the multiconent definition of truncated CI spaces is slightly more abiguous.
-For example, a configuration interaction calculation with singles and doubles for two quantum particles types could be taken to have up to doubly excited determinants of each particle type i.e. efficetively quadruple excitations.
+%Unlike the electronic only case, the multicomponent definition of truncated CI spaces is slightly more ambiguous.
+%For example, a configuration interaction calculation with singles and doubles for two quantum particles types could be taken to have up to doubly excited determinants of each particle type i.e. effectively quadruple excitations.
 To make things explicit, we define our excitations in the following way
 \begin{enumerate}
-    \item A maximum overall excitation level is adopted.
+    \item A maximum overall excitation level is specified.
     \item For each particle type, a maximum excitation level is adopted for each spin along with a combined maximum excitation level.
 \end{enumerate}
-This allows for an extrememly flexible configuration interaction system.
-This is crucial for positronic bound states as they are similar to nonvalence anions, and previous work has shown that a flexible compact ansatz including only the doubles involving the excess electron to generate an excellent trial wave function for QMC.
-The analogous CI in the multicomponent case involves the doubles with the positron which is possible in this framework.
+This allows for highly flexible configuration interaction calculations.
+This is crucial for correlation bound positronic states as they are similar to nonvalence correlation bound anions, and previous work has shown that a flexible compact ansatz including only the doubles involving the excess electron to generate an excellent trial wave function for QMC.
+The analogous CI in the multicomponent case involves two quantum particle types, electrons and a positron, with single excitations and only the doubles with the positron, which is possible in this framework.
 
 \subsubsection{Diagonalization to solve the CI eigenvalue problem}
 The CI eigenvalue problem,
@@ -175,14 +177,14 @@ The CI eigenvalue problem,
     H_{\mathrm{CI}} C = E C
 \end{equation}
 is solved using the Davidson diagonalization method.\cite{10.1016/0021-99917590065-0}
-For small CI spaces, the hamiltonian matrix can be explicitly constructed, but for larger spaces a determinant-driven direct CI method is used.
+For small CI spaces, the Hamiltonian matrix can be explicitly constructed, but for larger spaces a determinant-driven direct CI method is used.
 
 The advantage of a direct CI approach is that the Hamiltonian matrix is never explicitly constructed.
-This represents a significant savings in memory usage and eables large CI calculations for systems where the CI matrix would not fit in memory. Central to this method is the formation of the matrix-vector product in which the hamiltonian is contracted with a trial vector,
+This represents a significant savings in memory usage and enables large CI calculations for systems where the CI matrix would not fit in memory. Central to this method is the formation of the matrix-vector product in which the Hamiltonian is contracted with a trial vector,
 \begin{equation}
     \sigma = H c.
 \end{equation}
-In standard electronic structure theory, the formation of the $\sigma$ vector is a well studied problem and many efficient algorithms have been explored.\citehere
+In standard electronic structure theory, the formation of the $\sigma$ vector is a well studied problem and many efficient algorithms have been developed.\citehere
 
 The sigma vector for one quantum particle type, $A$, involves 3 terms,
 \begin{equation}
@@ -222,13 +224,13 @@ In the current iteration of the code, the matrix vector product is formed in a s
 Additionally, natural spin orbitals are constructed from the one particle reduced density matrices from the CI expansions in a state specific way.
 These natural orbitals can also be used as a single determinant trial wave function for subsequent QMC calculations.
 
-CI calculations in a determinantal basis are not guaranteed to produce states that are spin eigenfunctions unlike CI calculations in a CSF basis.
+CI calculations in a determinantal basis are not guaranteed to produce states that are spin eigenfunctions unlike CI calculations in a configuration state function basis.
 The standard solution to this is to implement a spin purification scheme in either a first or second order form.\citehere
-Both schemes are implemented here to allow for one to enforce spin symmetry for problematic cases.
+Both approaches are implemented to enforce spin symmetry for problematic cases.
 
-\shiv{need eq/algorithms for spin/rdm1}
+%\shiv{need eq/algorithms for spin/rdm1}
 %\subsubsection{Frozen Core}
-
+%
 %Form frozen core spin density
 % \begin{equation}
 %       {_{\xi}^{\gamma}}{D}_{\mu\nu}^{\mathrm{core}} = \sum_{i = 0}^{N_{\mathrm{core}}} {_{\xi}^{\gamma}}{D}_{\mu i}^{} {_{\xi}^{\gamma}}{D}_{i \nu}^{} =  \sum_{i = 0}^{N_{\mathrm{core}}}  \sideset{_{\xi}^{\gamma}}{_{\mu i}}D   \sideset{_{\xi}^{\gamma}}{_{i \nu}}D
@@ -252,10 +254,10 @@ Both schemes are implemented here to allow for one to enforce spin symmetry for 
 The storage and processing of determinants is central to the configuration interaction code.
 We represent determinants using unsigned 64 bit integers for each particle and spin type.
 The integers are zero padded from the left until the entire 64 bit int is filled. These integers are stored in a list to represent a single spin determinant, $\shivten{\gamma}{\xi}{D}{}{}$.
-A list of unique determinants are stored for each particle type and spin type.
+A list of unique determinants is stored for each particle type and spin type.
 The complete variational space is then stored as an unsorted map between a tuple of indices into the unique spin determinant lists and the index of the determinant made of those spin determinants in the variational space.
 
-To speed up the hamiltonian construction or sigma vector formation, we store a list of unique single and double excitations within each unique particle and spin type.
+To speed up the Hamiltonian construction or sigma vector formation, we store a list of unique single and double excitations within each unique particle and spin type.
 For example, for a spin determinant $\shivten{\gamma}{\xi}{D}{}{i}$, we store all connected singles in a two dimensional list in row $i$ and all connected double excitations in another two dimensional list in row $i$.
 The storage of double excitations is normally not done as the storage requirement grows quickly.
 However for the same number of total determinants, the unique particle and spin determinant lists are shorter in a multicomponent calculation than an electron only calculation by nature of the product ansatz so we are able to accept the storage cost for the efficiency gain.
