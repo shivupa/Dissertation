@@ -31,7 +31,8 @@ The EOM calculations utilized the frozen core approximation and were carried out
 \begin{table*}
     \caption{\label{tab:diffusebasistuning}Dependence of the total energies and the EBE of the model \ce{(H2O)4} cluster at R = \SI{4}{\angstrom} on the supplemental diffuse basis functions. Results obtained using the EOM-CCSD method.}
 %\begin{ruledtabular}
-\begin{tabular}{l c c c}
+%\begin{tabular}{l c c c}
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}ccc}
 basis set            & neutral (Ha)  & anion (Ha)    & EBE (meV)            \\
 \hline
 aug-cc-pVTZ      & -305.327947          & -305.331344          &   92.4            \\
@@ -42,7 +43,7 @@ aug-cc-pVTZ+7s   & -305.327958          & -305.334462          &  177.0         
 aug-cc-pVTZ+7s1p & -305.327979          & -305.334604          &  180.3              \\
 aug-cc-pVTZ+7s7p & -305.327987          & -305.334622          &  180.6              \\ \hline
 aug-cc-pVTZ+3s1p & -305.327979          & -305.334602          &  180.2     
-\end{tabular}
+\end{tabular*}
 %%\end{ruledtabular}
 \end{table*}
 
@@ -51,7 +52,8 @@ aug-cc-pVTZ+3s1p & -305.327979          & -305.334602          &  180.2
 \begin{table}
     \caption{\label{tab:corebasistuning}Sensitivity of the EBE of the \ce{(H2O)4} model to the ``core'' basis set. Results obtained using the EOM-MP2 method.}
 %\begin{ruledtabular}
-    \begin{tabular}{lccc}
+%    \begin{tabular}{lccc}
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}ccc}
                  & Neutral (Ha)          & Anion (Ha)             & EBE (meV)                      \\ \hline
 \multicolumn{4}{c}{R = \SI{4.0}{\angstrom}}                                                        \\
 aug-cc-pVDZ+3s1p & -305.0371957          & -305.0428558           & 154.0                     \\
@@ -61,7 +63,7 @@ aug-cc-pVQZ+3s1p & -305.4008845          & -305.4078074           & 188.4       
 aug-cc-pVDZ+3s1p & -305.0383747          & -305.0432259           & 132.0                     \\
 aug-cc-pVTZ+3s1p & -305.3104923          & -305.3157472           & 143.0                     \\
 aug-cc-pVQZ+3s1p & -305.4021640          & -305.4075716           & 147.1                    
-\end{tabular}
+\end{tabular*}
 %\end{ruledtabular}
 \end{table}
 

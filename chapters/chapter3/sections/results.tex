@@ -23,7 +23,7 @@ What is important is that the approaches based on the restricted SDCI procedure 
 \begin{table}[ht!]
     \caption{\label{tab:EOM} EBEs of the \ce{(H2O)4} model calculated using HF, EOM, and AFQMC methods and employing the aug-cc-pVTZ+7s7p basis set.}
 \begin{threeparttable}
-\begin{tabular}{lr}
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
 Method & EBE (meV)                               \\
 \hline
 \multicolumn{2}{c}{R = \SI{4.0}{\angstrom}}     \\ 
@@ -39,7 +39,7 @@ EOM-CCSD      & 140.2    \\
 EOM-CCSD(T)(a)$^*$ & 141.7    \\
 EOM-CCSDT    & 143.3\tnote{1}  (154.2)\tnote{2}     \\
 AFQMC SD/HF     & 181 $\pm$ 5 \\ 
-\end{tabular}
+\end{tabular*}
 \begin{tablenotes}
 \item[1] This EOM-CCSDT/aug-cc-pVTZ+7s7p value was estimated by adding the difference of EBEs from the EOM-CCSD(T)(a)$^*$ and eom-ccsdt calculations with the aug-cc-pVDZ+3s1p basis set to the value from EOM-CCSD(T)(a)$^*$/aug-cc-pVTZ+7s7p.
 \item[2] The EOM-CCSDT/aug-cc-pVTZ+7s7p3d value was estimated by adding the difference between the EBEs calculated with the eom-ccsdpt(a)$^*$ with the aug-cc-pVTZ+3s1p and aug-cc-pVTZ+3s1p3d basis sets to the eom-ccsdt/aug-cc-pVTZ+7s7p estimated value in footnote [1] to assess the effect of incorporating diffuse d functions into the basis.
@@ -56,7 +56,7 @@ We believe that this is a consequence of the fact that with the cc-pVDZ basis se
 \begin{table}
     \begin{threeparttable}
         \caption{\label{tab:DMC} EBEs of the \ce{(H2O)4} model calculated using the DMC method and various trial wave functions.\tnote{1}}
-    \begin{tabular}{llr}
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}lr}
 wave function                  & basis set        &  EBE (meV) \\ \hline
 \multicolumn{3}{c}{R = \SI{4.0}{\angstrom}}               \\ 
 SD/HF                         & aug-cc-pVDZ+7s7p &  183 $\pm$ 10 \\
@@ -71,7 +71,7 @@ SD/HF                         & aug-cc-pVDZ+7s7p &   141 $\pm$ 14 \\
 SD/B3LYP                      & aug-cc-pVDZ+7s7p &   164 $\pm$ 9 \\
 SD/HF(N)//SD/NO SDCI(A)    & aug-cc-pVDZ+7s7p &  160 $\pm$ 9 \\
 MD/CIPSI NO                   & aug-cc-pVDZ+3s1p &    159 $\pm$ 8 \\
-\end{tabular}
+\end{tabular*}
 \begin{tablenotes}
   \item [1] SD/X indicates that the trial wave function employed a single Slater determinant with X (either HF or B3LYP) orbitals. When different types of trial wave functions are used for the neutral (N) and anion (A) this is indicated by the double slash.
 \end{tablenotes}
