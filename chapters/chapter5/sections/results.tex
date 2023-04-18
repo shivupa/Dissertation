@@ -62,8 +62,8 @@ With a more sophisticated treatment of electron-positron correlation, the \gls{p
 This indicates a strong impact of the correlation on the nodal surface.
 
 \begin{figure}
-    \caption{\label{fig:be_sd_extrap} The DMC energy versus time step for \ce{Be} with a bound positron using a trial wave function of a single determinant of Hartree-Fock orbitals, frozen core rSDCI natural orbitals, and frozen core FCI natural orbitals. The shading represents the error in the linear fit to the \gls{dmc} data. All plots generated using Matplotlib.\cite{10.1109/MCSE.2007.55}}.
     \includegraphics[width=\columnwidth,keepaspectratio]{Images/chapter5/be_extrap_singdet.png}
+    \caption{\label{fig:be_sd_extrap} The DMC energy versus time step for \ce{Be} with a bound positron using a trial wave function of a single determinant of Hartree-Fock orbitals, frozen core rSDCI natural orbitals, and frozen core FCI natural orbitals. The shading represents the error in the linear fit to the \gls{dmc} data. All plots generated using Matplotlib.\cite{10.1109/MCSE.2007.55}}.
 \end{figure}
 
 %In our results, the nodal surface used captures the electron-positron correlation extremely well in the multi-Slater determinant expansion.
@@ -74,9 +74,8 @@ Including those excitations by using the \gls{fci} trial wave function, the \gls
 The results from previous \gls{dmc} studies lie higher in energy are included in the plot for reference.\cite{10.1021/acs.jctc.1c01193, 10.1063/1.1486447}
 
 \begin{figure}
-    \caption{\label{fig:be_md_extrap} The DMC energy versus time step for \ce{Be} with a bound positron with a Hartree-Fock single determinant trial wave function, frozen core rSDCI multi-determinant trial wave function, and frozen core FCI multi-determinant trial wave function. The reference energies are from \gls{svm}\cite{10.4208/jams.071510.072110a}, DMC\cite{10.1021/acs.jctc.1c01193}, and DMC\cite{10.1063/1.1486447}.
-    }
     \includegraphics[width=\columnwidth,keepaspectratio]{Images/chapter5/be_extrap_multidet.png}
+    \caption{\label{fig:be_md_extrap} The DMC energy versus time step for \ce{Be} with a bound positron with a Hartree-Fock single determinant trial wave function, frozen core rSDCI multi-determinant trial wave function, and frozen core FCI multi-determinant trial wave function. The reference energies are from \gls{svm}\cite{10.4208/jams.071510.072110a}, DMC\cite{10.1021/acs.jctc.1c01193}, and DMC\cite{10.1063/1.1486447}.}
 \end{figure}
 
 We additionally want to comment on a topic with wider implications for the \gls{qmc} field, time step extrapolations for energy differences.
@@ -86,8 +85,8 @@ For a sufficiently small time step however, one is within error bars without ext
 This leads us to recommend caution when resolving energy differences for systems with large relevant length scales, the diffuse positron in this case.
 
 \begin{figure}
-    \caption{\label{fig:be_e_diff_ts} DMC positron affinity for \ce{Be} calculated using an rSDCI multi-determinant trial wave function at several time steps sizes. }
     \includegraphics[width=\columnwidth,keepaspectratio]{Images/chapter5/be_rSDCI_multidet.png}
+    \caption{\label{fig:be_e_diff_ts} DMC positron affinity for \ce{Be} calculated using an rSDCI multi-determinant trial wave function at several time steps sizes. }
 \end{figure}
 
 
