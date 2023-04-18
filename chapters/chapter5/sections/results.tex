@@ -4,7 +4,8 @@
 \begin{table}
     \begin{threeparttable}
     \caption{\label{tab:wfn_BE} PAs of \ce{Be} calculated using various methods. The methods and basis used as reported as "without $e^{+}$ method or basis // with $e^{+}$ method or basis". We also report if the $s^2 \rightarrow p^2$ near degeneracy is handled.}
-    \begin{tabular}{lrl}
+    %\begin{tabular}{lrl}
+    \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}rl}
 method                          & PA (meV)    & $s^2 \rightarrow p^2$ \\ \hline
 HF // HF    \tnote{1}           & -1.9        & no  \\
 HF // rSDCI \tnote{1}           & 152.3       & no  \\
@@ -15,7 +16,7 @@ DMC\cite{10.1063/1.1486447}              & 33 $\pm$ 11 & yes \\
 SVM\cite{10.4208/jams.071510.072110a}    & 86          & yes \\
 DMC\cite{10.1021/acs.jctc.1c01193}       & 34 $\pm$ 8  & yes \\
 DMC\cite{10.1021/acs.jctc.1c01193}       & 54 $\pm$ 10 & yes \\
-\end{tabular}
+\end{tabular*}
 \begin{tablenotes}
   \item [1] These calculations used the aug-cc-pVQZ basis set for the electrons and an 11s8p6d6f3g basis for the positron.
 \end{tablenotes}
@@ -45,14 +46,15 @@ These results also show that the $s^2 \rightarrow p^2$ near degeneracy cannot be
 
 \begin{table}
     \caption{\label{tab:DMC_BE} PAs of \ce{Be} calculated using the DMC method and various trial wave functions. The trial wave functions used are reported as "single or multi- determinant/ without $e^{+}$ wfn // SD or MD / with $e^{+}$ wfn". }
-    \begin{tabular}{lr}
+    %\begin{tabular}{lr}
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
 trial wave function          &  PA (meV) \\ \hline
 SD/HF//SD/HF                 &  96  $\pm$ 5 \\
 SD/HF//SD/NO rSDCI           &  104 $\pm$ 4 \\
 SD/FCI NO//SD/FCI NO         &  95  $\pm$ 4 \\ \hline
 SD/HF//MD/rSDCI              &  151 $\pm$ 4 \\
 MD/FCI   //MD/FCI            &  91 $\pm$  4 \\
-\end{tabular}
+\end{tabular*}
 \end{table}
 
 The \gls{dmc} results from the literature, tabulated in table~\ref{tab:wfn_BE}, show the same marked decrease in the \gls{pa} by including the $s^2\rightarrow p^2$ excitations.
