@@ -1,8 +1,30 @@
 \begin{abstract}
 Certain atoms, molecules, and clusters can bind an excess electron or positron in a diffuse orbital.
-Given the weak binding energy of these states, usually on the order of tens to hundreds of millielectron volts, the computed bindng energies are sensitive to the correlations between fermions in the system.
+Given the weak binding energy of these states, usually on the order of tens to hundreds of millielectron volts, the computed binding energies are sensitive to the correlations between fermions in the system.
 In order to quantitatively describe these systems, one must use computational methods that capture these correlation effects. 
 In this work, we describe several nonvalence anions and diffuse positron bound states, and in the process we gain insight into the nature of correlation.
-We use the insight gained to develop a strategy for treating these types of systems that is accurate, compact, and relatively computationally inexpensive.
-The ideas developed here can also scale favorably to larger systems.
+
+First, a series of dipole bound anions are treated using stochastic quantum Monte Carlo (QMC) methods.
+    It is found that quantum Monte Carlo methods can accurately describe dipole bound anions in both a first-quantized basis using diffusion Monte Carlo (DMC) and a second-quantized basis using auxiliary field quantum Monte Carlo (AFQMC).
+Additionally, the use of correlated sampling is shown to increase the efficiency of QMC calculations to resolve the small electron binding energies.
+
+We use the insight gained to develop a strategy for treating nonvalence correlation bound anions.
+In a follow-up study, a nonvalence anion model \ce{(H2O)4} cluster is treated using QMC methods.
+The development of an accurate, compact, and relatively computationally inexpensive ansatz for the anionic system is presented, which when used as a trial wave function for DMC calculations performs similarly to more expensive configuration interaction expansions.
+The importance of higher order correlation effects are explored in both equation of motion coupled cluster calculations and in QMC calculations.
+
+The lessons learned in this work about electron correlation and about the interpretability of correlation effects in changes in the electron density assist in the treatment of the chemisorption of a hydrogen atom on a graphene surface. 
+The weak binding energy of the hydrogen to the graphene sheet poses a theoretical challenge as the energy difference is sensitive to the electron correlation recovered.
+    For example, by changing the functional is used in density functional theory (DFT) calculations can change the predicted binding energy by an order of magnitude.
+Using DMC calculations, we can resolve this discrepancy and provides a benchmark value of the binding energy.
+The issues with certain DFT functionals is explored in the context of shifts in the electron density.
+
+In the final portion of this work, the treatment of positronic systems using QMC is explored.
+Correlation bound positron states are analogues of nonvalence correlation bound (NVCB) anions, and the importance of electron-positron correlation turns out to be even more important in the former case than electron-electron correlation in the NVCB case.
+This is due to the absence of coulombic repulsion and exchange effects in the positronic case.
+Using the insight gained with NVCB anions, we develop a similar compact, correlated ansatz for positronic systems, which performs extremely well.
+The results presented agree extremely well with previous reference values from the literature.
+
+In this work, small energy differences that are extremely sensitive to the treatment of correlations in an accurate and balanced way are described using quantum Monte Carlo methods.
+The ideas developed here work well for the systems studied and will also scale favorably to larger systems.
 \end{abstract}
