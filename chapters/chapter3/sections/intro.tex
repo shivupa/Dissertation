@@ -20,6 +20,7 @@ The finite time step error can be largely eliminated by running calculations at 
 The fixed-node error results from imposition of a nodal surface via a trial wave function, which is necessary to ensure Fermionic behavior, and can be addressed by a variety of means including expanding the number of Slater determinants in the trial wave function or by applying the backflow transformation.\cite{10.1103/PhysRevE.74.066701}
 It is important to note that, by virtue of working in real space, fixed-node DMC energies are much less sensitive to the choice of the atomic basis set than methods such as EOM-CCSD that operate in a space of Slater determinants.
 
+\begin{sloppypar}
 The second QMC approach considered is the auxiliary field QMC (AFQMC) method.\cite{10.1103/PhysRevD.24.2278, 10.1016/0003-49168690107-7, 10.1103/PhysRevB.24.4295, 10.1103/PhysRevLett.90.136401, 10.1103/PhysRevB.55.7464,10.1002/wcms.1364,10.1007/978-3-319-42913-7_47-1}
 AFQMC calculations sample an over-complete space of nonorthogonal Slater determinants.
 The finite time step error can be mitigated as in DMC.  The error that arises from constraining the phase of the wave function to zero can be systematically reduced by improving the trial wave function. 
@@ -27,4 +28,4 @@ Phaseless AFQMC is additionally subject to the limitations of the atomic basis s
 DMC scales as $\sim\mathcal{O}(N^3)$ with system size, while AFQMC displays an $\sim\mathcal{O}(N^4)$ scaling in most implementations. 
 One of the goals of these calculations is to determine whether DMC calculations can recover from the use of a trial wave function that has collapsed onto a discretized continuum orbital in the case of the excess electron.
 Additionally, we explore whether correlation effects that are missing in EOM-CCSD are important for electron binding.
-
+\end{sloppypar}
