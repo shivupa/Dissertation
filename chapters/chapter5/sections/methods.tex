@@ -16,7 +16,7 @@ The wave function ansatz used is a product ansatz,
 \begin{equation}
     \psi_{\textrm{MF}} = \prod_{\xi} \shivten{\alpha}{\xi}{D}{}{} \shivten{\beta}{\xi}{D}{}{},
 \end{equation}
-where the product runs over the number of quantum particle types and $\shivten{\alpha}{\xi}{D}{}{}$ and $\shivten{\beta}{\xi}{D}{}{}$ are the $\alpha$ and $\beta$ determinants of particle $\xi$ written in the Waller-Hartree double determinant representation.\citehere
+where the product runs over the number of quantum particle types and $\shivten{\alpha}{\xi}{D}{}{}$ and $\shivten{\beta}{\xi}{D}{}{}$ are the $\alpha$ and $\beta$ determinants of particle $\xi$ written in the Waller-Hartree double determinant representation.
 Note that if only a single positron is present this reduces to the electronic Slater determinant times a positronic orbital, and so this ansatz is a generalization of the representation used in earlier work.\cite{10.1088/0022-3700/11/16/001, 10.1088/0022-3700/12/15/007,10.1063/1.438933,10.1063/1.442211,10.1088/0022-3700/14/22/019}
 Unlike previous multicomponent methods, we do not restrict ourselves to two interacting quantum particle types.
 
@@ -184,7 +184,7 @@ This represents a significant savings in memory usage and enables large CI calcu
 \begin{equation}
     \sigma = H c.
 \end{equation}
-In standard electronic structure theory, the formation of the $\sigma$ vector is a well studied problem and many efficient algorithms have been developed.\citehere
+In standard electronic structure theory, the formation of the $\sigma$ vector is a well studied problem and many efficient algorithms have been developed.
 
 The sigma vector for one quantum particle type, $A$, involves 3 terms,
 \begin{equation}
@@ -225,7 +225,7 @@ Additionally, natural spin orbitals are constructed from the one particle reduce
 These natural orbitals can also be used as a single determinant trial wave function for subsequent QMC calculations.
 
 CI calculations in a determinantal basis are not guaranteed to produce states that are spin eigenfunctions unlike CI calculations in a configuration state function basis.
-The standard solution to this is to implement a spin purification scheme in either a first or second order form.\citehere
+The standard solution to this is to implement a spin purification scheme in either a first or second order form.
 Both approaches are implemented to enforce spin symmetry for problematic cases.
 
 %\shiv{need eq/algorithms for spin/rdm1}

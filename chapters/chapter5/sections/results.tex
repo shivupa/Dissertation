@@ -3,7 +3,7 @@
 \subsection{Be}
 \begin{table}
     \begin{threeparttable}
-    \caption{\label{tab:wfn_BE} PAs of \ce{Be} calculated using various methods. The methods and basis used as reported as "without $e^{+}$ method or basis // with $e^{+}$ method or basis". We also report if the $s^2 \rightarrow p^2$ near degeneracy is handled.}
+    \caption{\label{tab:wfn_BE} PAs of \ce{Be} calculated using various methods. The methods and basis used as reported as "without $e^{+}$ method or basis // with $e^{+}$ method or basis". We also report if the $s^2 \rightarrow p^2$ near degeneracy is handled in the trial wave function.}
     %\begin{tabular}{lrl}
     \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}rl}
 method                          & PA (meV)    & $s^2 \rightarrow p^2$ \\ \hline
@@ -32,7 +32,8 @@ The \gls{rSDCI} approach, which includes all single excitations and only the dou
 %This is attributed to the incorporation \ce{e-}-\ce{e+} dispersion missing in the \glsxtrlong{mf} treatment.
 %We expect that higher order excitations which would capture orbital relaxation effects would decrease the positron affinity.
 In the FCI results, the binding energy drops significantly.
-This is both due to the inclusion of the higher order corrections to the dispersion, but also including the superposition of configurations from the $s^2 \rightarrow p^2$ near degeneracy.
+As noted in previous work, this change in the binding energy is expected due to a change in the polarizability and the ionization potential by including the configurations from the $s^2 \rightarrow p^2$ near degeneracy.\cite{10.1063/1.1486447}
+%This is both due to the inclusion of the higher order corrections to the dispersion, but also including the superposition of configurations from the $s^2 \rightarrow p^2$ near degeneracy.
 Since this is calculated using a Gaussian basis, we expect that this is still not fully resolving the electron-positron cusp.
 
 The DMC results for the positron affinity of \ce{Be} is presented in table~\ref{tab:DMC_BE}.
@@ -63,7 +64,7 @@ This indicates a strong impact of the correlation on the nodal surface.
 
 \begin{figure}
     \includegraphics[width=\columnwidth,keepaspectratio]{Images/chapter5/be_extrap_singdet.png}
-    \caption{\label{fig:be_sd_extrap} The DMC energy versus time step for \ce{Be} with a bound positron using a trial wave function of a single determinant of Hartree-Fock orbitals, frozen core rSDCI natural orbitals, and frozen core FCI natural orbitals. The shading represents the error in the linear fit to the \gls{dmc} data. All plots generated using Matplotlib.\cite{10.1109/MCSE.2007.55}}.
+    \caption{\label{fig:be_sd_extrap} The DMC energy versus time step for \ce{Be} with a bound positron using a trial wave function of a single determinant of Hartree-Fock orbitals, frozen core rSDCI natural orbitals, and frozen core FCI natural orbitals. Note at the largest timestep the DMC energies are overlapping. The shading represents the uncertainty in the linear fit to the \gls{dmc} data. All plots generated using Matplotlib.\cite{10.1109/MCSE.2007.55}}.
 \end{figure}
 
 %In our results, the nodal surface used captures the electron-positron correlation extremely well in the multi-Slater determinant expansion.
@@ -75,7 +76,7 @@ The results from previous \gls{dmc} studies lie higher in energy are included in
 
 \begin{figure}
     \includegraphics[width=\columnwidth,keepaspectratio]{Images/chapter5/be_extrap_multidet.png}
-    \caption{\label{fig:be_md_extrap} The DMC energy versus time step for \ce{Be} with a bound positron with a Hartree-Fock single determinant trial wave function, frozen core rSDCI multi-determinant trial wave function, and frozen core FCI multi-determinant trial wave function. The reference energies are from \gls{svm}\cite{10.4208/jams.071510.072110a}, DMC\cite{10.1021/acs.jctc.1c01193}, and DMC\cite{10.1063/1.1486447}.}
+    \caption{\label{fig:be_md_extrap} The DMC energy versus time step for \ce{Be} with a bound positron with a Hartree-Fock single determinant trial wave function, frozen core rSDCI multi-determinant trial wave function, and frozen core FCI multi-determinant trial wave function. The reference energies are from (reference 1) \gls{svm}\cite{10.4208/jams.071510.072110a}, (reference 2) DMC with an explicitly correlated trial wave function for the positron\cite{10.1021/acs.jctc.1c01193}, and (reference 3) DMC without an explicitly correlated trial wave function for the positron\cite{10.1021/acs.jctc.1c01193}. Reference values 2 and 3 are extrapolated to the zero time step limit and the shading represents the error bar on the extrapolated energy.}
 \end{figure}
 
 We additionally want to comment on a topic with wider implications for the \gls{qmc} field, time step extrapolations for energy differences.

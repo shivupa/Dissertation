@@ -13,10 +13,10 @@ The reasons are: i) fully and accurately tracking the evolution of quantum syste
 Modern GPUs have been used to fuel QCS in high-performance computing (HPC) platforms. Specifically, when applying a gate to a $n$-qubit quantum circuit, the $2^n$ state amplitudes are evenly divided into groups, and each group of amplitudes is updated independently in parallel by GPU threads. 
 However, the promising parallelism of GPUs is diminished by the limited GPU on-board memory capacity. For example, simulating a quantum circuit with 34 qubits requires 256 GB of memory to store state amplitudes, which is beyond the memory capacity of any modern GPUs. 
 
-
+\begin{sloppypar}
 There exist several works optimizing QCS, including multi-GPU supported simulation~\cite{10.1109/SC41405.2020.00017,10.1007/978-3-319-68505-2_8}, OpenMP and MPI based CPU simulation~\cite{10.1145/3126908.3126947,10.1145/3295500.3356155,10.48550/arXiv.1710.05867}, and CPU-GPU collaborative simulation~\cite{10.1145/3310273.3323053}. Most of these works focus on distributed simulation while failing to benefit from GPU execution due to the memory constraint. 
 In particular, our characterization shows that the state-of-the-art GPU-based simulation~\cite{10.1145/3310273.3323053} has low GPU utilization when the number of qubits in the quantum circuit is large. As a result, most state amplitudes are stored and updated on the CPU, failing to take advantage of the GPU parallelization. Moreover, the static and unbalanced allocation of state amplitudes introduces frequent amplitude exchange between CPU and GPU, which introduces additional data movement and synchronization overheads. 
-
+\end{sloppypar}
 
 \par In this paper, we aim to provide a high-performance and scalable QCS using GPUs.
 We propose \emph{Q-GPU}, a framework that significantly enhances the simulation performance for practical quantum circuits. The proposed framework leverages modern GPUs as the main execution engine and is featured with several end-to-end optimizations to fully take advantage of the rich computational parallelism on GPUs, while maintaining a minimum amount of data movement between the CPU and GPU. Specifically, our approach includes four optimizations. 
@@ -122,8 +122,10 @@ The matrices $A$ (rank-2 tensors) in Equation \ref{eq:TNS} can be thought of as 
 Despite the restriction of returning a limited number of amplitudes, tensor networks states are efficient as they compress the dimension of the problem from $O(2^n)$ to $O(nd^2)$ where $d$ is the dimension of the individual tensors in Equation \ref{eq:TNS}.
 \end{itemize} 
 
+\begin{sloppypar}
 Among all these simulation methods, Schr\"odinger style simulation is widely used as the mainstream simulation method, and has been widely adopted in prior research works \cite{10.1145/3126908.3126947, 10.1145/3295500.3356155,10.48550/arXiv.1910.09534,10.48550/arXiv.1710.05867,10.48550/arXiv.1601.07195,10.48550/arXiv.1804.04797,10.1109/HPCA51647.2021.00026,zotero-3528,10.1145/3310273.3323053,10.1016/j.cpc.2006.08.007}.
 Also, industrial quantum circuit simulators such as IBM QISKit \cite{10.5281/zenodo.2562111}, Google Qsim-Cirq \cite{10.48550/arXiv.1601.07195,10.1145/3126908.3126947} and Microsoft QDK~\cite{msqdk} 
 use full state vector simulations. 
 In this work, we build Q-GPU based on IBM QISKit-Aer, a high-performance C++ simulation backend of QISKit, since it contains the state-of-the-art GPU support.
+\end{sloppypar}
 
